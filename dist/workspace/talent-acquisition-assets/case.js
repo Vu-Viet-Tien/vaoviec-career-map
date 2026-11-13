@@ -13,7 +13,7 @@ const CASE = {
       ['Trong những đợt khuyến mãi, lượng tin nhắn tăng vào buổi chiều và tối. Nhiều khách cần hỏi về tình trạng giao hàng hoặc đổi trả, trong khi một số yêu cầu còn tồn sang ca sau. Đội Chăm sóc khách hàng cần tuyển ', {bold:'1 nhân viên'}, ' để bổ sung ca chiều và luân phiên trực cuối tuần.']
     ]],
     ['Bạn sẽ làm gì?', [
-      ['Bạn vào vai ', {bold:'Thực tập sinh Tuyển dụng'}, ', hỗ trợ chị Mai, Quản lý đội Chăm sóc khách hàng, trong đợt tuyển này. Bạn sẽ chuẩn bị tin đăng, tìm và sàng lọc hồ sơ, liên hệ để xác minh thông tin còn thiếu, rồi gửi chị Mai ', {bold:'tối đa 3 đề xuất phỏng vấn có căn cứ'}, '.']
+      ['Bạn vào vai ', {bold:'Thực tập sinh Tuyển dụng'}, ', hỗ trợ chị Mai, Quản lý đội Chăm sóc khách hàng, trong đợt tuyển này. Bạn sẽ chuẩn bị tin đăng, đọc và sàng lọc CV ứng viên, trả lời câu hỏi của người quan tâm, rồi gửi chị Mai ', {bold:'tối đa 3 đề xuất phỏng vấn có căn cứ'}, '.']
     ]]
   ],
   title: 'Nhân viên Chăm sóc khách hàng',
@@ -23,13 +23,13 @@ const CASE = {
   briefEmail: [
     ['Chào em,'],
     ['Team chị cần tuyển ', {bold:'1 nhân viên Chăm sóc khách hàng'}, ' để bổ sung ca chiều và luân phiên trực cuối tuần. Chị gửi kèm JD đã thống nhất với đội Tuyển dụng. Em xem giúp chị nhé.'],
-    ['Đầu tiên, em chuẩn bị tin đăng và triển khai trên ', {bold:'các kênh tuyển dụng'}, '. Khi có hồ sơ, em đối chiếu với JD và liên hệ ứng viên nếu cần xác minh lịch làm hoặc thông tin còn thiếu.'],
-    ['Trước ', {bold:'16h thứ Sáu'}, ', em gửi chị ', {bold:'tối đa 3 ứng viên đề xuất phỏng vấn'}, '. Với mỗi bạn, ghi ngắn gọn lý do đề xuất, lịch làm đã xác nhận và một câu hỏi chị nên hỏi ở vòng sau. Nếu chỉ có một hoặc hai hồ sơ đủ căn cứ, em cứ gửi số đó và ghi rõ mình cần tìm thêm ở đâu. Chị sẽ xem danh sách rồi quyết định mời ai phỏng vấn.'],
+    ['Đầu tiên, em chuẩn bị tin đăng và triển khai trên ', {bold:'các kênh tuyển dụng'}, '. Khi có hồ sơ, em đọc từng CV, đối chiếu với JD và ghi quyết định kèm lý do trong ATS.'],
+    ['Trước ', {bold:'16h thứ Sáu'}, ', em gửi chị ', {bold:'tối đa 3 ứng viên đề xuất phỏng vấn'}, ', mỗi bạn kèm lý do dựa trên CV. Lưu ý giúp chị ', {bold:'ca làm 13h00–21h00 và lịch luân phiên cuối tuần'}, ' là điều kiện bắt buộc. Nếu chỉ có một hoặc hai hồ sơ đủ căn cứ, em cứ gửi số đó. Chị sẽ xem danh sách rồi quyết định mời ai phỏng vấn.'],
     ['Cảm ơn em,', {break:true}, 'Mai']
   ],
   jdFile: 'JD_Nhan_vien_CSKH.pdf',
   more: 'Có vẻ vẫn còn ít hồ sơ để cân nhắc. Em thử đăng thêm một kênh nhé.',
-  screeningHint: 'Hồ sơ ứng tuyển đã về. Mở Inbox để đọc CV và lưu hồ sơ vào ATS.',
+  screeningHint: 'Hồ sơ ứng tuyển đã về. Mở Inbox, thêm CV vào ATS và xem câu hỏi của ứng viên.',
   deadline: '16:00 thứ Sáu',
   jd: [
     ['support', 0, 'Tiếp nhận và phản hồi tin nhắn của khách hàng trên website và gian hàng. Xác minh thông tin cần thiết, tra cứu đơn hàng và hướng dẫn khách bước tiếp theo.'],
@@ -61,30 +61,65 @@ const CASE = {
     ['Mai · Quản lý CSKH','09:12','Đội CSKH đang cần thêm một người cho ca chiều và luân phiên cuối tuần. Cảm ơn mọi người đã hỗ trợ!']
   ],
   fields: [['title','Tiêu đề'],['duties','Công việc chính'],['requirements','Yêu cầu'],['schedule','Lịch làm và địa điểm'],['benefits','Quyền lợi'],['apply','Cách ứng tuyển'],['deadline','Hạn ứng tuyển']],
+  // 5 ứng viên có CV (thư có file đính kèm). Người học tự đọc CV, đối chiếu JD và ra quyết định trong ATS.
+  // Mọi dữ kiện cần để quyết định đều nằm trong CV; không còn bước xác minh qua điện thoại.
   people: {
-    an: {name:'Nguyễn Minh An', cv:['14 tháng CSKH tại sàn bán lẻ, xử lý 35–45 chat/ngày.', 'Theo dõi đổi trả và hoàn tiền, phối hợp với kho.', 'Có thể bắt đầu ngay. Lịch cuối tuần chưa đề cập.'], verify:{weekend:['Bạn có thể làm ca cuối tuần không?', 'Em chỉ làm được từ thứ Hai đến thứ Sáu vì đã có lịch cố định cuối tuần.']}},
-    linh: {name:'Trần Khánh Linh',cv:['8 tháng hỗ trợ cửa hàng, trả lời chat và cập nhật trạng thái đơn.', 'Có thể làm toàn thời gian tại Hà Nội, ca 13h00–21h00, luân phiên cuối tuần. Có thể bắt đầu trong 7 ngày.', 'Kỹ năng: Excel, Google Sheets.'],verify:{sheets:['Bạn có thể kể một ví dụ dùng bảng tính trong công việc?', 'Em từng theo dõi khoảng 120 yêu cầu đổi trả bằng Google Sheets, dùng COUNTIF đếm yêu cầu quá hạn và lọc theo người phụ trách.']}},
-    huy: {name:'Lê Gia Huy',cv:['2 tháng thực tập truyền thông, viết bài và lên lịch đăng.', 'Từng trả lời bình luận trong một sự kiện nội bộ.', 'Làm được ca cuối tuần.']},
-    vy: {name:'Phạm Thảo Vy',cv:['10 tháng hỗ trợ khách qua email, phụ trách tra cứu vận đơn và đổi trả.', 'Có thể làm toàn thời gian tại Hà Nội, ca 13h00–21h00 và luân phiên trực cuối tuần. Có thể bắt đầu ngay.', 'Dùng bộ lọc và pivot table để tổng hợp ticket hàng tuần.']},
-    nam: {name:'Vũ Hoàng Nam',cv:['7 tháng hỗ trợ bán lẻ, tiếp nhận khiếu nại trực tiếp.', 'Có thể làm toàn thời gian tại Hà Nội, ca 13h00–21h00, kể cả cuối tuần theo lịch đội. Có thể bắt đầu trong 10 ngày.', 'Theo dõi yêu cầu đổi hàng bằng Google Sheets.']},
-    chi: {name:'Đỗ Ngọc Chi',cv:['5 tháng trực fanpage, trả lời câu hỏi về sản phẩm.', 'Có thể làm cuối tuần, chưa rõ ca tối.', 'Chưa có ví dụ xử lý đổi trả.']}
+    an: {name:'Nguyễn Minh An', file:'CV_Nguyen_Minh_An.pdf', headline:'Nhân viên Chăm sóc khách hàng', contact:'Hà Nội · minhan.cv@example.com',
+      summary:'14 tháng hỗ trợ khách hàng cho gian hàng trên sàn thương mại điện tử. Quen xử lý đổi trả và hoàn tiền.',
+      experience:[['Nhân viên CSKH · Cửa hàng Mộc (gian hàng trên sàn TMĐT)','09/2025 – 10/2026',['Trả lời 35–45 lượt chat mỗi ngày về đơn hàng, giao hàng và bảo hành.','Tra cứu đơn và cập nhật tiến độ giao hàng cho khách.','Tiếp nhận yêu cầu đổi trả, hoàn tiền; phối hợp với kho để kiểm tra hàng.']]],
+      education:'Cao đẳng Thương mại Hà Nội · Quản trị kinh doanh (2022 – 2025)',
+      skills:'Hỗ trợ qua chat · Tra cứu đơn trên hệ thống của sàn · Google Sheets cơ bản',
+      availability:'Có thể bắt đầu ngay. Làm được thứ Hai – thứ Sáu, ca chiều hoặc tối. Thứ Bảy và Chủ nhật đã có lịch học cố định.'},
+    linh: {name:'Trần Khánh Linh', file:'CV_Tran_Khanh_Linh.pdf', headline:'Trợ lý bán hàng online', contact:'Hà Nội · khanhlinh.cv@example.com',
+      summary:'8 tháng trả lời khách và theo dõi đơn cho một cửa hàng gốm bán online. Thích công việc gắn với khách hàng và số liệu.',
+      experience:[['Trợ lý bán hàng online · Gốm Mộc An (Facebook và Shopee)','03/2026 – 10/2026',['Trả lời khoảng 30 tin nhắn mỗi ngày về sản phẩm, phí giao hàng và tình trạng đơn.','Theo dõi khoảng 120 yêu cầu đổi trả trên Google Sheets, dùng COUNTIF để đếm yêu cầu quá hạn.','Cuối ngày bàn giao các đơn chưa xử lý xong cho chủ cửa hàng.']]],
+      education:'Đại học Thương mại · Marketing (đã hoàn thành chương trình học, chờ nhận bằng)',
+      skills:'Google Sheets (COUNTIF, bộ lọc) · Shopee Seller Center · Viết tin nhắn chăm sóc khách',
+      availability:'Làm toàn thời gian tại Hà Nội, ca 13h00–21h00, luân phiên cuối tuần. Có thể bắt đầu sau 7 ngày.'},
+    huy: {name:'Lê Gia Huy', file:'CV_Le_Gia_Huy.pdf', headline:'Thực tập sinh Truyền thông', contact:'TP. Hồ Chí Minh · giahuy.cv@example.com',
+      summary:'Yêu thích trải nghiệm khách hàng, viết nội dung chỉn chu và đúng hạn.',
+      experience:[['Thực tập sinh Truyền thông · Công ty Sự kiện Sao Việt','08/2026 – 09/2026',['Viết bài và lên lịch đăng cho fanpage của công ty.','Trả lời bình luận của người tham dự trong một sự kiện nội bộ.']]],
+      education:'Đại học Kinh tế TP.HCM · Marketing (sinh viên năm 3)',
+      skills:'Canva · Viết nội dung · Microsoft Word',
+      availability:'Có thể làm cuối tuần. Ngày thường có lịch học buổi sáng. Hiện ở TP.HCM, sẽ cân nhắc chuyển ra Hà Nội nếu được nhận.'},
+    vy: {name:'Phạm Thảo Vy', file:'CV_Pham_Thao_Vy.pdf', headline:'Nhân viên hỗ trợ khách hàng qua email', contact:'Hà Nội · thaovy.cv@example.com',
+      summary:'10 tháng phụ trách hộp thư hỗ trợ khách: tra cứu vận đơn, xử lý đổi trả và hoàn tiền.',
+      experience:[['Nhân viên CSKH (email) · Giày Lá, thương hiệu giày bán online','01/2026 – 10/2026',['Xử lý khoảng 25 email mỗi ngày về vận đơn, đổi size và hoàn tiền.','Liên hệ đơn vị giao hàng để kiểm tra đơn chậm, hẹn lại thời gian phản hồi cho khách.','Tổng hợp ticket hằng tuần bằng bộ lọc và pivot table trên Excel.']]],
+      education:'Đại học Mở Hà Nội · Ngôn ngữ Anh (2020 – 2024)',
+      skills:'Viết email chăm sóc khách · Excel (pivot table) · Haravan',
+      availability:'Làm toàn thời gian tại Hà Nội, ca 13h00–21h00, nhận luân phiên cuối tuần. Có thể bắt đầu ngay.'},
+    chi: {name:'Đỗ Ngọc Chi', file:'CV_Do_Ngoc_Chi.pdf', headline:'Cộng tác viên trực fanpage', contact:'Hà Nội · ngocchi.cv@example.com',
+      summary:'5 tháng trực fanpage mỹ phẩm, trả lời câu hỏi về sản phẩm và chuyển đơn cho kho.',
+      experience:[['Cộng tác viên trực fanpage · Lá Mint Cosmetics','06/2026 – 10/2026',['Trả lời 20–30 câu hỏi mỗi ngày về thành phần và cách dùng sản phẩm.','Chuyển đơn đặt qua tin nhắn cho nhân viên kho.']]],
+      education:'Cao đẳng FPT Polytechnic · Digital Marketing (tốt nghiệp 06/2026)',
+      skills:'Trả lời tin nhắn fanpage · Google Sheets cơ bản',
+      availability:'Có thể làm cuối tuần. Ngày thường đang làm cộng tác viên đến hết tháng 11, chưa chốt được giờ làm ca chiều.'}
   },
+  // Thư ứng viên: 5 thư kèm CV và 4 thư chỉ hỏi thông tin. Thứ tự trong mỗi đợt được xáo ngẫu nhiên cho mỗi lượt chơi.
+  // Thư hỏi có câu trả lời soạn sẵn; bấm Trả lời là để hình dung tình huống, không bắt buộc để qua bước.
   emails: [
-    ['e01',1,'an','Ứng tuyển CSKH · Nguyễn Minh An','Chào chị, em gửi CV và mong có cơ hội chia sẻ kinh nghiệm hỗ trợ khách trên sàn.', 'cv'],
-    ['e02',1,'linh','CV ứng tuyển CSKH','Em gửi CV ạ.', 'cv'],
-    ['e03',1,'huy','Thư ứng tuyển · Lê Gia Huy','Em rất quan tâm trải nghiệm khách hàng và mong được đóng góp vào dịch vụ của NOVA. Em đính kèm CV để chị tham khảo.', 'cv'],
-    ['e04',1,'vy','Ứng tuyển vị trí CSKH','Em từng phụ trách email đổi trả. Mong chị xem giúp hồ sơ của em ạ.', 'missing'],
-    ['e05',2,'nam','Hồ sơ ứng tuyển · Vũ Hoàng Nam','Em gửi file ứng tuyển, nhờ chị kiểm tra giúp em ạ.', 'wrong'],
-    ['e06',2,'an','Gửi lại CV · Nguyễn Minh An','Em gửi lại CV vì chưa chắc thư trước đã tới ạ.', 'cv', 'e01'],
-    ['e07',2,'chi','Ứng tuyển CSKH · Đỗ Ngọc Chi','Em đính kèm CV và có thể trao đổi sau 14:00.', 'cv'],
-    ['e08',2,null,'Hỏi về ca làm','Ca tối kết thúc lúc mấy giờ ạ? Em đang tìm hiểu trước khi ứng tuyển.', 'question'],
-    ['e09',2,'vy','Cập nhật thông tin liên hệ · Phạm Thảo Vy','Em bổ sung số liên hệ cho thư trước. Nếu cần em có thể gửi lại CV.', 'missing']
+    {id:'cv-an', wave:1, cv:'an', subject:'Ứng tuyển CSKH · Nguyễn Minh An', body:'Chào chị, em gửi CV và mong có cơ hội chia sẻ kinh nghiệm hỗ trợ khách trên sàn.'},
+    {id:'cv-linh', wave:1, cv:'linh', subject:'CV ứng tuyển CSKH', body:'Em gửi CV ạ.'},
+    {id:'cv-huy', wave:1, cv:'huy', subject:'Thư ứng tuyển · Lê Gia Huy', body:'Em rất quan tâm trải nghiệm khách hàng và mong được đóng góp vào dịch vụ của NOVA. Em đính kèm CV để chị tham khảo.'},
+    {id:'q-shift', wave:1, from:'Hoàng Minh Đức', subject:'Hỏi về ca làm', body:'Chào chị, ca chiều kết thúc lúc mấy giờ và có phải làm cuối tuần không ạ? Em muốn hỏi trước khi ứng tuyển.',
+      reply:'Chào Đức, ca làm từ 13h00 đến 21h00 và luân phiên trực cuối tuần theo lịch đội. Nếu phù hợp, em gửi CV dạng PDF về tuyendung@novacommerce.example, tiêu đề “[CSKH] Họ và tên”, trước 12h00 thứ Sáu nhé.'},
+    {id:'cv-vy', wave:2, cv:'vy', subject:'[CSKH] Phạm Thảo Vy', body:'Em từng phụ trách email đổi trả. Em gửi CV, mong chị xem giúp ạ.'},
+    {id:'cv-chi', wave:2, cv:'chi', subject:'Ứng tuyển CSKH · Đỗ Ngọc Chi', body:'Em đính kèm CV và có thể trao đổi sau 14:00.'},
+    {id:'q-salary', wave:2, from:'Vũ Hoàng Nam', subject:'Hỏi về lương và đào tạo', body:'Em chưa từng dùng hệ thống quản lý đơn. Vị trí này có được hướng dẫn không và mức lương thế nào ạ?',
+      reply:'Chào Nam, mức lương gross từ 8–10 triệu đồng/tháng. Trong tuần đầu, nhân viên mới được hướng dẫn tra cứu đơn, chính sách đổi trả, câu trả lời mẫu và cách bàn giao ca. Từng dùng hệ thống quản lý đơn là điểm cộng, không phải yêu cầu bắt buộc.'},
+    {id:'q-parttime', wave:2, from:'Ngô Thu Trang', subject:'Làm bán thời gian được không ạ?', body:'Em là sinh viên năm 2, chỉ làm được buổi tối các ngày trong tuần. Em có thể ứng tuyển không ạ?',
+      reply:'Chào Trang, vị trí này làm toàn thời gian tại văn phòng Hà Nội, ca 13h00–21h00 và luân phiên cuối tuần, nên chưa phù hợp với lịch bán thời gian. Cảm ơn em đã quan tâm, NOVA sẽ thông báo khi có vị trí phù hợp hơn.'},
+    {id:'q-word', wave:2, from:'Phạm Quốc Bảo', subject:'Gửi CV bằng file Word được không?', body:'Em chỉ có CV dạng Word, em gửi file này được không ạ? Hạn nộp là khi nào ạ?',
+      reply:'Chào Bảo, đội Tuyển dụng nhận CV dạng PDF để hiển thị đúng định dạng. Em xuất file sang PDF rồi gửi về tuyendung@novacommerce.example, tiêu đề “[CSKH] Họ và tên”, trước 12h00 thứ Sáu nhé.'}
   ],
-  supplement: 'Em gửi lại đúng CV theo yêu cầu của chị.',
-  questionReply: 'Chào bạn, ca chiều kết thúc lúc 21:00. Vị trí có lịch luân phiên cuối tuần.',
+  // Quyết định sàng lọc trong ATS: [mã, nhãn, nhãn ô lý do].
+  decisions: [['interview','Đề xuất phỏng vấn','Lý do đề xuất'],['verify','Cần xác minh','Cần xác minh điều gì, vì sao'],['stop','Dừng','Lý do dừng']],
+  handoff: {
+    subject: 'Đề xuất phỏng vấn · Nhân viên CSKH',
+    question: 'Nếu hôm nay chị chỉ phỏng vấn được một người, em ưu tiên ai? Nêu căn cứ và đề xuất phương án dự phòng.',
+    hint: 'Nêu người ưu tiên, dữ kiện khiến em chọn người đó và phương án nếu họ không tham gia được.'
+  },
   calendar: [['Thứ Hai','09:00–09:30'],['Thứ Hai','14:00–14:30'],['Thứ Ba','10:00–10:30']],
-  states: ['Chưa xử lý xong','Cần bổ sung thông tin','Đề xuất trao đổi ban đầu','Chưa đề xuất đi tiếp'],
-  ratings: ['Có bằng chứng','Chưa đủ thông tin','Có thông tin cho thấy chưa đáp ứng'],
   // Màn 08 · Cơ hội nghề nghiệp: liên kết tìm kiếm chọn trước cho vai trò TA. PO thay bằng URL chính thức khi có (Backlog B29).
   // Đã mở thử ngày 13/11: TopCV, VietnamWorks, Glints chạy; LinkedIn chưa kiểm tra được.
   opportunities: {
@@ -130,61 +165,60 @@ const CASE = {
       ]
     },
     inbox: {
-      title: 'Xử lý email ứng tuyển',
+      title: 'Rà soát thư ứng viên',
       guided: [
-        'Mỗi email cần một cách xử lý: có CV thì Lưu vào ATS; thiếu CV hoặc gửi nhầm tệp thì Yêu cầu bổ sung; một người gửi hai lần thì Gộp hồ sơ trùng; email chỉ hỏi thông tin thì Trả lời.',
-        'Sau khi yêu cầu bổ sung, bấm Cập nhật Inbox để nhận thư trả lời rồi lưu CV mới vào ATS.',
-        'Đừng đánh giá ứng viên qua cách viết email. Hãy mở CV để xem kinh nghiệm thật.'
+        'Inbox có hai loại thư: thư kèm CV và thư chỉ hỏi thông tin. Thư có CV thì bấm Thêm vào ATS để sàng lọc ở bước sau.',
+        'Thư hỏi thông tin không kèm CV. Bạn có thể bấm Trả lời để xem câu trả lời soạn sẵn. Bước này không bắt buộc, chỉ giúp bạn hình dung câu hỏi ứng viên hay gặp.',
+        'Đừng đánh giá ứng viên qua cách viết email. Hãy mở CV để xem kinh nghiệm và lịch làm thật.'
       ],
-      sample: 'Ví dụ: một thư ứng tuyển không có CV đính kèm → bấm Yêu cầu bổ sung → bấm Cập nhật Inbox → mở thư mới và Lưu vào ATS.',
+      sample: 'Ví dụ: thư “CV ứng tuyển CSKH” chỉ viết “Em gửi CV ạ” nhưng vẫn có CV đính kèm → bấm Thêm vào ATS. Thư “Hỏi về ca làm” không có CV → bấm Trả lời nếu muốn xem câu trả lời mẫu.',
       self: [
-        'Có ứng viên nào gửi hai thư không?',
-        'Thư nào chưa có CV đúng để đánh giá?',
-        'Thư nào không phải là đơn ứng tuyển?'
+        'Thư nào có CV để sàng lọc, thư nào chỉ hỏi thông tin?',
+        'Bạn đã thêm đủ mọi CV vào ATS chưa?',
+        'Câu hỏi của ứng viên cho thấy tin đăng còn thiếu thông tin gì?'
       ]
     },
     ats: {
-      title: 'Đối chiếu CV và xác minh',
+      title: 'Sàng lọc CV trong ATS',
       guided: [
-        'Cách đối chiếu: chọn một đoạn trong CV, chọn tiêu chí JD liên quan, rồi đánh dấu Có bằng chứng, Chưa đủ thông tin hoặc Có thông tin cho thấy chưa đáp ứng.',
-        'Khi CV chưa nói rõ một yêu cầu bắt buộc (ví dụ lịch cuối tuần) hoặc thiếu ví dụ cụ thể, hãy dùng Xác minh thông tin để hỏi ứng viên.',
-        'Chưa hỏi thì ghi là chưa rõ. Đừng ghi “đã xác nhận” khi ứng viên chưa trả lời.'
+        'Đọc từng CV và so với JD theo thứ tự: yêu cầu bắt buộc trước (ca 13h00–21h00, luân phiên cuối tuần, làm tại Hà Nội, bắt đầu trong 14 ngày), điểm ưu tiên sau (chat, đổi trả, bảng tính).',
+        'Đề xuất phỏng vấn khi CV đáp ứng yêu cầu bắt buộc và có kinh nghiệm liên quan. Cần xác minh khi CV chưa nói rõ một yêu cầu bắt buộc. Dừng khi CV cho thấy không đáp ứng yêu cầu bắt buộc.',
+        'Lý do tốt nêu dữ kiện cụ thể trong CV (số tháng, việc đã làm, lịch làm) và gắn với yêu cầu trong JD. Tránh lý do chung chung như “phù hợp” hay “có kinh nghiệm”.'
       ],
-      sample: 'Ví dụ đối chiếu: trích “Có thể làm toàn thời gian tại Hà Nội, ca 13h00–21h00, luân phiên cuối tuần” → tiêu chí lịch làm việc → Có bằng chứng.',
+      sample: 'Ví dụ cho Khánh Linh · Đề xuất phỏng vấn — “8 tháng trả lời khoảng 30 tin nhắn/ngày và theo dõi 120 yêu cầu đổi trả bằng Google Sheets, khớp công việc chat và đổi trả trong JD. CV ghi làm được ca 13h00–21h00, luân phiên cuối tuần, bắt đầu sau 7 ngày.”',
       self: [
-        'Với từng ứng viên, yêu cầu bắt buộc nào đã có bằng chứng và yêu cầu nào chưa?',
-        'Thông tin nào nếu sai sẽ khiến ứng viên không thể nhận việc?',
-        'Bạn cần hỏi ứng viên điều gì trước khi đưa họ vào shortlist?'
+        'CV này đã nói rõ từng yêu cầu bắt buộc trong JD chưa? Điều nào còn thiếu hoặc trái với JD?',
+        'Lý do của bạn có dữ kiện nào từ CV mà người khác đọc cũng kiểm tra lại được không?',
+        'Nếu ứng viên có kinh nghiệm tốt nhưng vướng lịch làm, bạn sẽ quyết định thế nào?'
       ]
     },
     short: {
-      title: 'Bàn giao shortlist cho chị Mai',
+      title: 'Bàn giao đề xuất cho chị Mai',
       guided: [
-        'Mỗi ứng viên cần bốn ý: lý do đề xuất kèm bằng chứng, tình trạng ca làm (đã xác nhận hay chưa), thông tin còn thiếu, và một câu hỏi phỏng vấn nhắm vào điểm còn thiếu.',
-        'Gửi ít hơn ba người là bình thường nếu chưa đủ căn cứ. Khi đó hãy nêu lý do và bước tìm thêm ứng viên cụ thể.',
-        'Nếu một ứng viên vướng yêu cầu bắt buộc, hãy nói rõ rủi ro thay vì bỏ qua.'
+        'Màn Bàn giao tự lấy các ứng viên bạn chọn Đề xuất phỏng vấn trong ATS. Muốn sửa lý do, bấm Sửa trong ATS.',
+        'Khuyến nghị cho chị Mai cần đủ ba ý: người bạn ưu tiên, dữ kiện khiến bạn chọn họ, và phương án dự phòng nếu họ không tham gia được.',
+        'Gửi ít hơn ba người là bình thường nếu chưa đủ căn cứ.'
       ],
-      sample: 'Ví dụ cho Khánh Linh — Lý do: 8 tháng trả lời chat và cập nhật trạng thái đơn. Ca làm: CV ghi làm được 13h00–21h00, luân phiên cuối tuần. Còn thiếu: ví dụ cụ thể khi dùng bảng tính. Câu hỏi: “Khi một yêu cầu đổi trả chưa xử lý xong vào cuối ca, em sẽ bàn giao những thông tin gì cho người trực tiếp theo?”',
+      sample: 'Ví dụ: “Em ưu tiên Khánh Linh vì 8 tháng trả lời chat và theo dõi đổi trả bằng Google Sheets, lịch làm khớp ca 13h00–21h00 và cuối tuần. Nếu Linh không tham gia được, em mời Thảo Vy, người có 10 tháng xử lý email đổi trả và bắt đầu được ngay.”',
       self: [
-        'Chị Mai đọc lý do của bạn có biết vì sao người này phù hợp hơn người khác không?',
-        'Câu hỏi phỏng vấn có kiểm tra đúng điểm bạn còn chưa chắc không?',
-        'Có ứng viên nào bạn ghi lịch là “đã xác nhận” nhưng chưa từng hỏi họ không?'
+        'Chị Mai đọc khuyến nghị có biết vì sao bạn ưu tiên người này hơn người còn lại không?',
+        'Nếu người được ưu tiên không tham gia được, bạn đã có phương án cụ thể chưa?',
+        'Có ứng viên nào trong danh sách vướng yêu cầu bắt buộc mà bạn chưa nhắc tới không?'
       ]
     },
     feedback: {
       title: 'Xem phản hồi và sửa bài',
-      guided: ['Đọc mục “Ưu tiên sửa” trước. Sau đó bấm Xem lại bàn giao để chỉnh đúng phần được góp ý.'],
+      guided: ['Đọc mục “Ưu tiên sửa” trước. Sau đó bấm Sửa bài để chỉnh quyết định trong ATS hoặc khuyến nghị ở màn Bàn giao.'],
       sample: '',
-      self: ['Tiêu chí nào đang “Cần bổ sung”, và phần nào trong bài bàn giao liên quan tới tiêu chí đó?']
+      self: ['Tiêu chí nào đang “Cần bổ sung”, và phần nào trong ATS hoặc màn Bàn giao liên quan tới tiêu chí đó?']
     }
   },
+  // Nhận xét nhanh khi không gọi được AI chấm bài.
   feedback: {
-    inbox: ['Đã gộp hai email của Minh An vào cùng hồ sơ.', 'Hai email của Minh An có thể được gộp trong Inbox.'],
-    question: 'Email hỏi về ca làm đã được trả lời trong Inbox.',
-    supplement: 'CV bổ sung đã được gắn về chuỗi thư của đúng ứng viên.',
-    evidence: ['Nhận định trong ATS đã được gắn với trích đoạn cụ thể.', 'Hãy gắn trích đoạn CV hoặc câu trả lời xác minh với tiêu chí liên quan.'],
-    verify: ['Câu trả lời xác minh đã được lưu vào hồ sơ.', 'Có thể xác minh các điểm còn thiếu trước khi đề xuất.'],
-    conflict: 'Minh An xác nhận chỉ làm ngày thường. JD yêu cầu luân phiên trực cuối tuần theo lịch đội. Hãy xem lại đề xuất này.',
-    handoff: ['Đã bàn giao ba ứng viên cùng lý do và câu hỏi phỏng vấn.', 'Đã nêu lý do gửi ít hơn ba hồ sơ và bước tìm thêm ứng viên.']
+    risk: {
+      an: 'CV của Minh An ghi thứ Bảy và Chủ nhật đã có lịch học cố định, trong khi JD yêu cầu luân phiên trực cuối tuần. Hãy nêu rõ rủi ro này hoặc xem lại quyết định.',
+      huy: 'CV của Gia Huy ghi đang ở TP.HCM và còn lịch học buổi sáng, trong khi vị trí làm toàn thời gian tại Hà Nội. Hãy nêu rõ rủi ro này hoặc xem lại quyết định.',
+      chi: 'CV của Ngọc Chi chưa nói rõ giờ làm ca chiều ngày thường. Hãy ghi điều cần xác minh trước khi đề xuất.'
+    }
   }
 };

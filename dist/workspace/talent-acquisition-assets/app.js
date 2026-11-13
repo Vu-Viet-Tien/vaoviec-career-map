@@ -9,7 +9,22 @@ renderSiteHeader({active:'workspace', exploreUrl:careerMapUrl, inCase:true});
 $('.case-position').textContent=CASE.roleName;
 $('.case-name').textContent=CASE.caseName;
 $('.case-return').href=careerMapUrl;
-const initial = () => ({tab:'Inbox',jdViewed:false,drafts:[{},{}],posts:[],wave:0,people:{},done:{},requests:{},received:{},short:{},handoff:{},merged:false,submission:null,readMail:{}});
+const shuffle=list=>{const a=[...list];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+// Thứ tự thư trong mỗi đợt được xáo ngẫu nhiên một lần cho mỗi lượt chơi.
+const newMailOrder=()=>Object.fromEntries([1,2].map(wave=>[wave,shuffle(CASE.emails.filter(e=>e.wave===wave).map(e=>e.id))]));
+const initial = () => ({flow:2,tab:'Inbox',jdViewed:false,drafts:[{},{}],posts:[],wave:0,mailOrder:newMailOrder(),added:{},replied:{},ats:{},atsDraft:{},recommendation:'',submission:null,readMail:{}});
+// Bản lưu trước 14/11 dùng luồng ATS cũ (xác minh, shortlist 4 ô). Giữ phần giới thiệu và tin đã đăng,
+// chuyển bài đã nộp sang mục Lượt trước, rồi làm lại phần sàng lọc theo luồng mới.
+function migrate(saved){
+  if(!saved||typeof saved!=='object'||!Object.keys(saved).length)return initial();
+  if(saved.flow===2)return {...initial(),...saved};
+  const versions=[...(saved.history??[]),...(saved.submission?[saved.submission]:[])];
+  if(versions.length)write(key+'-portfolio',[{id:versions[0].id,archivedAt:Date.now(),mode:saved.mode,versions},...read(key+'-portfolio',[])]);
+  const keep=['introSeen','mode','jdViewed','jdGuideSeen','postingGuideSeen','posts','channelDrafts','drafts','tabOrder','officeMailShownAt','wave'];
+  const next={...initial(),...Object.fromEntries(keep.filter(k=>k in saved).map(k=>[k,saved[k]]))};
+  next.readMail={brief:Boolean(saved.readMail?.brief),chat:Boolean(saved.readMail?.chat)};
+  return next;
+}
 function read(k,fallback){try{return JSON.parse(localStorage.getItem(k)) ?? fallback;}catch{return fallback;}}
 function write(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch{/* State remains available in memory. */}}
 function restoreChannelTabs(state){
@@ -23,7 +38,7 @@ function restoreChannelTabs(state){
   return state;
 }
 // Dữ liệu lưu thiếu trường (bản cũ hoặc bị sửa tay) được bù bằng giá trị mặc định, tránh trắng trang.
-let s=restoreChannelTabs({...initial(),...read(key,{})}), desk=true, panel='email', selectedEmail='', person=Object.keys(s.people)[0], overlay='', quote='', method='Điện thoại';
+let s=restoreChannelTabs(migrate(read(key,{}))), desk=true, panel='email', selectedEmail='', person='', overlay='', cvZoom=1;
 // Yêu cầu chấm bị ngắt khi tải lại trang: cho phép thử chấm lại thay vì chờ mãi.
 if(s.submission?.ai?.status==='pending')s.submission.ai={status:'error',message:'Lượt chấm trước bị gián đoạn.'};
 if(!s.introSeen)overlay='intro-role';
@@ -61,12 +76,12 @@ function playMailSound(count=1){
 document.addEventListener('click',enableMailSound,{capture:true});
 document.addEventListener('keydown',enableMailSound,{capture:true});
 const jdTab=CASE.jdFile;
-const laptopTabs=[['Inbox','mail','mail'],['Cổng đăng tuyển','people','careers','Đăng tin tuyển dụng'],['ATS mini','layers','ats'],['Calendar','calendar','calendar'],[jdTab,'file','mail']];
+const laptopTabs=[['Inbox','mail','mail'],['Cổng đăng tuyển','people','careers','Đăng tin tuyển dụng'],['ATS mini','layers','ats'],['Bàn giao','file','ats'],['Calendar','calendar','calendar'],[jdTab,'file','mail']];
 const postingTab='Cổng đăng tuyển';
 const channelInfo=id=>CASE.channels.find(([channel])=>channel===id);
 const channelTabs=()=>s.channelTab?[channelInfo(s.channelTab)]:[];
 const draftIndex=()=>s.posts.length;
-const channelAvailable=id=>s.posts.length<2&&(!s.posts.length||moreReady())&&!s.posts.some(post=>post.channel===id);
+const channelAvailable=id=>s.posts.length<2&&!s.posts.some(post=>post.channel===id);
 function channelDraft(id){
   const drafts=(s.channelDrafts??=[]);
   const legacy=s.drafts[draftIndex()];
@@ -89,17 +104,16 @@ const row=(title,content)=>`<section class="card"><h2>${title}</h2>${content}</s
 const pill=(t)=>`<span class="pill">${esc(t)}</span>`;
 const badge=(t)=>`<span class="icon">${t}</span>`;
 const options=(list,sel)=>list.map(([id,label])=>`<option value="${esc(id)}"${String(id)===String(sel)?' selected':''}>${esc(label)}</option>`).join('');
-const statusOptions=CASE.states.map((v,i)=>[i,v]);
-const mailBatch=round=>CASE.emails.filter(email=>email[1]===round+1);
-const openEmails=()=>CASE.emails.filter(([id])=>s.delivery?.mail[id]);
+const mailBatch=round=>(s.mailOrder?.[round+1]??[]).map(id=>CASE.emails.find(e=>e.id===id)).filter(Boolean);
+const openEmails=()=>[...mailBatch(0),...mailBatch(1)].filter(e=>s.delivery?.mail[e.id]);
 const moreReady=()=>Boolean(s.delivery?.more);
 const screeningReady=()=>Boolean(s.delivery?.screening);
 function inboxIds(rows=openEmails()){
   const newestFirst=[...rows].reverse();
   return [
-    ...newestFirst.filter(email=>email[1]===2).map(([id])=>id),
+    ...newestFirst.filter(e=>e.wave===2).map(e=>e.id),
     ...(moreReady()?['chat']:[]),
-    ...newestFirst.filter(email=>email[1]===1).map(([id])=>id),
+    ...newestFirst.filter(e=>e.wave===1).map(e=>e.id),
     'brief'
   ];
 }
@@ -108,14 +122,14 @@ const firstMailDelay=6000, nextMailDelay=1000, managerDelay=2000;
 const inInbox=()=>!desk&&s.tab==='Inbox';
 function markApplicationSeen(id){
   if(!inInbox()||s.delivery.more||s.delivery.applicationSeen)return;
-  if(!openEmails().some(([mailId])=>mailId===id))return;
+  if(!openEmails().some(e=>e.id===id))return;
   s.delivery.applicationSeen=true;
   save();
 }
 function updateDelivery(now=Date.now()){
   const delivery=s.delivery??={
     starts:[],
-    mail:Object.fromEntries(CASE.emails.filter(email=>email[1]<=(s.wave??0)).map(([id])=>[id,true])),
+    mail:Object.fromEntries(CASE.emails.filter(e=>e.wave<=(s.wave??0)).map(e=>[e.id,true])),
     more:(s.wave??0)>=1,
     screening:(s.wave??0)>=2
   };
@@ -129,7 +143,7 @@ function updateDelivery(now=Date.now()){
     if(round===0?delivery.more:delivery.screening)return;
     const start=delivery.starts[round]??=now;
     const batch=mailBatch(round);
-    batch.forEach(([id],index)=>{
+    batch.forEach(({id},index)=>{
       if(!delivery.mail[id]&&now>=start+firstMailDelay+index*nextMailDelay){
         delivery.mail[id]=true;
         newMail++;
@@ -137,9 +151,9 @@ function updateDelivery(now=Date.now()){
         changed=true;
       }
     });
-    if(batch.every(([id])=>delivery.mail[id])){
+    if(batch.length&&batch.every(({id})=>delivery.mail[id])){
       s.wave=Math.max(s.wave??0,round+1);
-      if(round===0&&inInbox()&&delivery.applicationSeen){
+      if(round===0&&s.posts.length<2&&inInbox()&&delivery.applicationSeen){
         if(delivery.managerDue==null){
           delivery.managerDue=now+managerDelay;
           changed=true;
@@ -153,11 +167,19 @@ function updateDelivery(now=Date.now()){
   return changed;
 }
 
-const added=()=>Object.keys(s.short);
-const hasCv=e=>e[5]==='cv'||Boolean(s.received[e[2]]);
-const current=()=>s.people[person];
-const conflict=id=>id==='an'&&s.people[id]?.verify.weekend;
-const task=()=>s.submission?['Xem phản hồi','feedback']:!s.jdViewed?['Mở JD','jd']:!s.posts.length?['Đăng tin tuyển dụng','posting']:!Object.keys(s.people).length?['Xử lý email ứng tuyển','inbox']:!added().length?['Đối chiếu CV và xác minh','ats']:['Hoàn thiện bàn giao','short'];
+const candidateIds=()=>Object.keys(CASE.people);
+const questionMails=()=>CASE.emails.filter(e=>e.reply);
+const senderName=e=>e.cv?personName(e.cv):e.from;
+const shortName=id=>personName(id).split(' ').slice(-2).join(' ');
+const addedIds=()=>candidateIds().filter(id=>s.added?.[id]);
+const decided=id=>Boolean(s.ats?.[id]?.decision);
+const decisionLabel=id=>CASE.decisions.find(([d])=>d===s.ats?.[id]?.decision)?.[1]??'Chưa rà';
+const proposals=()=>addedIds().filter(id=>s.ats[id]?.decision==='interview');
+// Thư có CV xong khi đã thêm vào ATS; thư hỏi thông tin xong khi đã mở đọc (trả lời là không bắt buộc).
+const mailHandled=e=>e.cv?Boolean(s.added?.[e.cv]):Boolean(s.readMail?.[e.id]);
+const inboxDone=()=>CASE.emails.every(e=>s.delivery?.mail[e.id]&&mailHandled(e));
+const screeningDone=()=>candidateIds().every(id=>s.added?.[id]&&decided(id));
+const task=()=>s.submission?['Xem phản hồi','feedback']:!s.jdViewed?['Mở JD','jd']:!s.posts.length?['Đăng tin tuyển dụng','posting']:!inboxDone()?['Rà soát thư ứng viên','inbox']:!screeningDone()?['Sàng lọc CV trong ATS','ats']:['Xem bàn giao','short'];
 let timer;
 function toast(message,duration=3600){$('#toast').textContent=message;clearTimeout(timer);timer=setTimeout(()=>$('#toast').textContent='',duration);}
 function closeChannelTab(){
@@ -250,7 +272,7 @@ function workView(){
     <div class="browser-address">${btn(uiIcon('back')+'<span class="sr-only">Về bàn làm việc</span>','desk')}${s.tab==='Inbox'?btn(uiIcon('refresh')+'<span class="sr-only">Cập nhật Inbox</span>','refresh'):''}
     <div class="address">${uiIcon('lock')} ${channel?esc(subdomain):subdomain+'.novacommerce.example'}${s.tab===jdTab?'/'+esc(jdTab):''}</div></div>
   </header>
-  <div class="laptop-content ${s.tab==='Inbox'?'mail-app':s.tab===jdTab?'jd-app':channel?'channel-app':'tool-app'}">${s.tab===jdTab?jdPdfView():s.tab==='Inbox'?inbox():s.tab===postingTab?posting():channel?channelView(channel):s.tab==='Calendar'?calendar():panel==='short'?shortlist():ats()}</div>
+  <div class="laptop-content ${s.tab==='Inbox'?'mail-app':s.tab===jdTab?'jd-app':channel?'channel-app':'tool-app'}">${s.tab===jdTab?jdPdfView():s.tab==='Inbox'?inbox():s.tab===postingTab?posting():channel?channelView(channel):s.tab==='Calendar'?calendar():s.tab==='Bàn giao'?handoffView():ats()}</div>
   <footer class="laptop-task">${workTask()}</footer>`;
 }
 function unreadBadge(){
@@ -270,8 +292,11 @@ function assistKey(){
   if(s.submission)return 'feedback';
   if(!s.jdViewed)return 'jd';
   if(!s.delivery?.screeningStarted)return 'posting';
-  if(!Object.keys(s.people).length)return 'inbox';
-  return added().length?'short':'ats';
+  // Trong chặng sàng lọc, gợi ý theo tab đang mở; tab khác thì theo tiến độ.
+  const byTab={'Inbox':'inbox','ATS mini':'ats','Bàn giao':'short'}[desk?'':s.tab];
+  if(byTab)return byTab;
+  if(!inboxDone())return 'inbox';
+  return screeningDone()?'short':'ats';
 }
 function assistantView(){
   const tip=CASE.assistant[assistKey()];
@@ -282,6 +307,13 @@ function assistantView(){
       :`<p>Trong chế độ Thử sức, trợ lý không đưa đáp án. Hãy tự trả lời các câu hỏi sau trước khi làm tiếp:</p><ul class="assistant-tips">${tip.self.map(t=>`<li>${esc(t)}</li>`).join('')}</ul>`}`;
 }
 function nextTask(){
+  if(s.delivery?.screeningStarted&&!s.submission){
+    const total=CASE.emails.length, handled=CASE.emails.filter(mailHandled).length;
+    if(!inboxDone())return `<span><i></i> Rà soát thư ứng viên ${handled}/${total}</span>${!desk&&s.tab==='Inbox'?'':btn('Mở Inbox →','inbox')}`;
+    const n=candidateIds().length, done=candidateIds().filter(decided).length;
+    if(!screeningDone())return `<span><i></i> Sàng lọc CV ${done}/${n}</span>${!desk&&s.tab==='ATS mini'?'':primary('Mở ATS mini →','ats')}`;
+    return `<span><i></i> Đã rà xong ${n} hồ sơ</span>${!desk&&s.tab==='Bàn giao'?'':primary('Xem bàn giao →','short')}`;
+  }
   if(screeningReady()&&!s.delivery.screeningStarted){
     return `<span class="screening-hint">${esc(CASE.screeningHint)}</span>${primary('Bắt đầu sàng lọc hồ sơ','start-screening')}`;
   }
@@ -289,7 +321,7 @@ function nextTask(){
     if(s.posts.length===1&&moreReady()){
       return `<span><i></i> Việc tiếp theo</span>${s.readMail?.chat?btn('Đăng thêm một kênh','posting'):btn('Đọc tin nhắn của chị Mai','email','chat')}`;
     }
-    return '<span><i></i> Đang chờ hồ sơ ứng tuyển…</span>';
+    return '<span><i></i> Đang chờ hồ sơ ứng tuyển…</span>'+(s.posts.length===1?btn('Đăng thêm kênh','more-channel'):'');
   }
   const [next,action]=task();
   return `<span><i></i> Việc tiếp theo</span>${btn(`${esc(next)} →`,action)}`;
@@ -482,15 +514,15 @@ function uiIcon(name){
 }
 function inbox(){
   const rows=openEmails();
-  const e=rows.find(e=>e[0]===selectedEmail);
-  const title=e?e[3]:selectedEmail==='chat'?'Mở thêm nguồn tuyển dụng':CASE.briefTitle;
-  const from=e?(e[2]?personName(e[2]):'Ứng viên quan tâm'):CASE.manager;
-  const content=e?e[4]:selectedEmail==='chat'?CASE.more:CASE.brief;
-  const needs=e&&['missing','wrong'].includes(e[5])&&!hasCv(e);
-  const origin=e&&CASE.emails.find(m=>m[2]===e[2])?.[0];
+  const e=rows.find(m=>m.id===selectedEmail);
+  const title=e?e.subject:selectedEmail==='chat'?'Mở thêm nguồn tuyển dụng':CASE.briefTitle;
+  const from=e?senderName(e):CASE.manager;
+  const content=e?e.body:selectedEmail==='chat'?CASE.more:CASE.brief;
   const mailIds=inboxIds(rows);
   const index=mailIds.indexOf(selectedEmail);
   const unread=unreadCount();
+  const doneBanner=s.delivery?.screeningStarted&&inboxDone()&&!screeningDone()
+    ?`<div class="callout inbox-done" role="status"><span>Bạn đã rà soát xong ${CASE.emails.length} thư ứng viên. Tiếp theo, sàng lọc ${candidateIds().length} CV trong ATS.</span>${primary('Chuyển sang ATS mini →','ats')}</div>`:'';
   return `<div class="mail-head"><div class="mail-brand"><strong>NOVA</strong> Commerce</div>
   <label class="mail-search">${uiIcon('search')}<input type="search" aria-label="Tìm kiếm trong thư" placeholder="Tìm kiếm trong thư" data-bind="mail-search" value="${esc(mailQuery)}"></label>
   ${btn('<span class="avatar">TA</span> <span>TA Intern</span>','portfolio','','mail-profile')}</div>
@@ -501,13 +533,14 @@ function inbox(){
   ${btn(uiIcon('file')+' Bản nháp tin đăng','posting','','folder')}
   </aside>${!selectedEmail?`<section class="mail-index" aria-label="Danh sách thư">
   <div class="mail-toolbar">${btn(uiIcon('refresh')+'<span class="sr-only">Cập nhật Inbox</span>','refresh')}<span>${mailIds.length} thư</span></div>
+  ${doneBanner}
   <div class="mail-category">${uiIcon('tray')} Chính ${unread?`<span class="mail-unread-count">${unread} cuộc trò chuyện mới</span>`:''}</div>
   <div class="mail-items">
   ${mailIds.map(id=>{
     if(id==='brief')return mailButton(id,'Chị Mai',CASE.briefTitle,CASE.brief,'10:24');
     if(id==='chat')return mailButton(id,'Chị Mai','Mở thêm nguồn tuyển dụng',CASE.more,'Nội bộ');
-    const [,wave,personId,subject,preview]=rows.find(([mailId])=>mailId===id);
-    return mailButton(id,personId?personName(personId):'Ứng viên quan tâm',subject,preview,s.done[id]||'Đợt '+wave);
+    const m=rows.find(row=>row.id===id);
+    return mailButton(id,senderName(m),m.subject,m.body,mailState(m),m.cv?'has-cv':'');
   }).join('')}
   <p class="empty mail-empty" hidden>Không tìm thấy thư.</p></div></section>`:`
   <section class="mail-reader" aria-label="Nội dung thư">
@@ -516,21 +549,22 @@ function inbox(){
   <button data-do="email" data-id="${mailIds[index+1]??''}" aria-label="Thư tiếp theo" ${index>=mailIds.length-1?'disabled':''}>›</button></div></div>
   <article class="mail-letter"><h2>${esc(title)}</h2><div class="sender"><div class="avatar ${e?'':'manager-avatar'}">${e?esc(from[0]):uiIcon('people')}</div><div><strong>${esc(from)}</strong><small>đến tôi · TA Intern</small></div>${selectedEmail==='brief'?'<small class="mail-time">10:24 hôm nay</small>':''}</div>
   ${selectedEmail==='brief'?paragraphs(CASE.briefEmail):`<p>${esc(content)}</p>`}
-  ${!e?(selectedEmail==='chat'?primary('Đăng thêm một kênh','posting'):`<div class="jd-actions">${btn(`<span class="pdf-icon">PDF</span><span><strong>${esc(CASE.jdFile)}</strong><small>Mở PDF</small></span><span class="file-open" aria-hidden="true">↗</span>`,'jd','','mail-attachment')}</div>`):`
-  ${e[5]==='wrong'?'<div class="attachment">▤ &nbsp; lich-ca.xlsx · File gửi nhầm</div>':''}
-  ${s.received[e[2]]===e[0]?`<div class="callout">${esc(CASE.supplement)} <small>Chuỗi thư gốc · ${esc(origin)}</small></div>`:''}
-  ${hasCv(e)?`<div class="attachment">▤ &nbsp; CV · ${esc(personName(e[2]))} ${btn('Mở CV','cv',e[0])}</div>`:''}
-  <div class="actions">${hasCv(e)?primary(s.people[e[2]]?'Mở trong ATS':'Lưu vào ATS','save-cv',e[0]):''}
-  ${needs?btn(s.requests[e[2]]?'Đã yêu cầu bổ sung':'Yêu cầu bổ sung','request',e[0]):''}
-  ${e[6]?btn(s.merged?'Đã gộp hồ sơ':'Gộp hồ sơ trùng','merge',e[0]):''}
-  ${e[5]==='question'?primary('Trả lời câu hỏi','reply',e[0]):''}</div>
-  ${s.done[e[0]]==='Đã trả lời'?`<div class="callout">${esc(CASE.questionReply)}</div>`:''}`}</article></section>`}</div>`;
+  ${!e?(selectedEmail==='chat'?(s.posts.length<2?primary('Đăng thêm một kênh','posting'):''):`<div class="jd-actions">${btn(`<span class="pdf-icon">PDF</span><span><strong>${esc(CASE.jdFile)}</strong><small>Mở PDF</small></span><span class="file-open" aria-hidden="true">↗</span>`,'jd','','mail-attachment')}</div>`):e.cv?`
+  <div class="jd-actions">${btn(`<span class="pdf-icon">PDF</span><span><strong>${esc(CASE.people[e.cv].file)}</strong><small>Xem CV</small></span><span class="file-open" aria-hidden="true">↗</span>`,'cv',e.id,'mail-attachment')}</div>
+  <div class="actions">${s.added[e.cv]?`<span class="pill">Đã thêm vào ATS</span>${btn('Mở hồ sơ trong ATS','open-profile',e.cv)}`:primary('Thêm vào ATS','add-ats',e.id)}</div>`:`
+  <p class="muted mail-note">Thư này không kèm CV. Bấm Trả lời để xem câu trả lời soạn sẵn. Bước này không bắt buộc.</p>
+  ${s.replied[e.id]?`<div class="mail-reply"><strong>Bạn · TA Intern</strong> <small>Câu trả lời soạn sẵn</small><p>${esc(e.reply)}</p></div>`:`<div class="actions">${primary('Trả lời','reply',e.id)}</div>`}`}
+  ${doneBanner}</article></section>`}</div>`;
 }
-function mailButton(id,from,title,preview,state){
+function mailState(e){
+  if(e.cv)return s.added[e.cv]?'Đã thêm ATS':'Có CV';
+  return s.replied[e.id]?'Đã trả lời':'Hỏi thông tin';
+}
+function mailButton(id,from,title,preview,state,extra=''){
   const unread=!s.readMail?.[id];
   const fromMai=id==='brief'||id==='chat';
   const sender=fromMai?`<span class="avatar manager-avatar" aria-hidden="true">M</span><span class="mail-from-name">${esc(from)}</span>`:esc(from);
-  return `<button class="mail-item${unread?' unread':''}${fromMai?' from-mai':''}" data-do="email" data-id="${id}">${unread?'<span class="sr-only">Chưa đọc. </span>':''}<span class="mail-from">${sender}</span><span class="mail-summary"><b>${esc(title)}</b><span> — ${esc(preview)}</span></span><small>${esc(state)}</small></button>`;
+  return `<button class="mail-item${unread?' unread':''}${fromMai?' from-mai':''}${extra?' '+extra:''}" data-do="email" data-id="${id}">${unread?'<span class="sr-only">Chưa đọc. </span>':''}<span class="mail-from">${sender}</span><span class="mail-summary"><b>${esc(title)}</b><span> — ${esc(preview)}</span></span><small>${esc(state)}</small></button>`;
 }
 function filterMail(){
   const empty=app.querySelector('.mail-empty');
@@ -540,12 +574,15 @@ function filterMail(){
   for(const item of items)item.hidden=!item.textContent.toLocaleLowerCase('vi').includes(query);
   empty.hidden=items.some(item=>!item.hidden);
 }
+// Đăng kênh thứ hai bất cứ lúc nào, không phải chờ tin nhắn của chị Mai (feedback 13/11).
+let choosingMore=false;
 function posting(){
-  const canChoose=s.posts.length===0||s.posts.length===1&&moreReady();
+  const canMore=s.posts.length===1;
+  const canChoose=s.posts.length===0||canMore&&(choosingMore||moreReady());
   return `<div class="recruiting-home">
     <header class="recruiting-head"><h1>Đăng tin tuyển dụng</h1>${btn('Mở JD','jd')}</header>
-    ${canChoose?`<h2>Chọn kênh đăng</h2><div class="recruiting-channels">${CASE.channels.filter(([id])=>channelAvailable(id)).map(([id,name,desc,icon])=>`<button class="recruiting-channel ${id}" data-do="channel" data-id="${id}"><span class="recruiting-icon">${id==='community'?'f':uiIcon(icon)}</span><strong>${esc(name)}</strong><small>${esc(desc)}</small><span class="recruiting-open">Mở kênh →</span></button>`).join('')}</div>`:''}
-    ${s.posts.length?`<section class="card published-round recruiting-history"><h2>Tin đã đăng</h2><div class="actions">${[...s.posts].reverse().map(post=>btn(esc(postedName(post)),'channel',post.channel)).join('')}</div></section>`:''}
+    ${s.posts.length?`<section class="card published-round recruiting-history"><div class="history-head"><h2>Tin đã đăng</h2>${canMore&&!canChoose?primary('+ Đăng thêm kênh','more-channel'):''}</div><div class="actions">${[...s.posts].reverse().map(post=>btn(esc(postedName(post)),'channel',post.channel)).join('')}</div></section>`:''}
+    ${canChoose?`<h2>${s.posts.length?'Chọn thêm một kênh':'Chọn kênh đăng'}</h2><div class="recruiting-channels">${CASE.channels.filter(([id])=>channelAvailable(id)).map(([id,name,desc,icon])=>`<button class="recruiting-channel ${id}" data-do="channel" data-id="${id}"><span class="recruiting-icon">${id==='community'?'f':uiIcon(icon)}</span><strong>${esc(name)}</strong><small>${esc(desc)}</small><span class="recruiting-open">Mở kênh →</span></button>`).join('')}</div>`:''}
   </div>`;
 }
 function postContent(post){
@@ -614,33 +651,75 @@ function facebookGroup(post){
     </section>`;
 }
 function calendar(){return `<div class="section-head"><div><h1>Calendar</h1><p>Khung giờ phỏng vấn dự kiến.</p></div></div><div class="calendar-grid">${CASE.calendar.map(([day,time])=>row(esc(day),`<div class="slot">${esc(time)}</div>`)).join('')}</div>`;}
-function cvLines(id){return [...CASE.people[id].cv,...Object.values(s.people[id]?.verify??{}).map(v=>v.answer)];}
-function ats(){
-  const p=current(), ids=Object.keys(s.people);
-  return `<div class="section-head"><div><h1>ATS mini</h1><p>Đối chiếu hồ sơ với yêu cầu tuyển dụng.</p></div>${primary(`Shortlist &nbsp; ${added().length}/3 →`,'short')}</div>
-  <div class="ats layout"><aside class="card list"><h2>Danh sách hồ sơ</h2>${ids.length?ids.map(id=>btn(`<strong>${esc(personName(id))}</strong><small>${esc(CASE.states[s.people[id].status])}</small>`,'person',id,id===person?'selected':'')).join(''):`<p class="empty">Lưu CV từ Inbox để bắt đầu.</p>${btn('Mở Inbox','inbox')}`}</aside>
-  ${row('CV đang mở',p?`<h3>${esc(personName(person))}</h3><p class="muted">Chọn một trích đoạn để đối chiếu.</p><div class="excerpt-list">${cvLines(person).map((t,i)=>btn(esc(t),'quote',i,quote===t?'selected':'')).join('')}</div>
-  ${conflict(person)&&s.short[person]?`<div class="warning">${esc(CASE.feedback.conflict)}</div>`:''}
-  <label>Trạng thái nội bộ<select data-bind="person" name="status">${options(statusOptions,p.status)}</select></label><label>Lý do<textarea data-bind="person" name="reason" rows="2">${esc(p.reason)}</textarea></label>
-  <div class="actions">${btn('Xác minh thông tin','verify')}${primary(s.short[person]?'Bỏ khỏi shortlist':'Thêm vào shortlist','toggle-short',person)}</div>`:'<p class="empty">Chưa chọn hồ sơ.</p>')}
-  ${row('Bảng đối chiếu',`${btn('Mở PDF JD','jd')}${p?`<form data-form="evidence"><label>Trích đoạn đã chọn<div class="quote">${esc(quote||'Chọn một đoạn trong CV.')}</div></label>
-  <label>Tiêu chí<select name="criterion" required><option value="">Chọn tiêu chí</option>${options(CASE.jd.filter(j=>j[1]!==3).map(([id,g,t])=>[id,t]))}</select></label>
-  <label>Đánh dấu<select name="rating">${options(CASE.ratings.map((r,i)=>[i,r]))}</select></label><button class="primary">Lưu đối chiếu</button></form>
-  <div class="evidence-list">${Object.entries(p.evidence).map(([id,v])=>`<article><strong>${esc(CASE.jd.find(j=>j[0]===id)?.[2])}</strong>${pill(CASE.ratings[v.rating])}<blockquote>${esc(v.quote)}</blockquote></article>`).join('')}</div>`:''}`)}</div>`;
+function cvPaper(id){
+  const p=CASE.people[id];
+  const initials=p.name.split(' ').slice(-2).map(word=>word[0]).join('');
+  return `<article class="cv-paper" aria-label="CV của ${esc(p.name)}">
+    <header class="cv-top"><div><h3>${esc(p.name)}</h3><p class="cv-headline">${esc(p.headline)}</p><p class="cv-contact">${esc(p.contact)}</p></div><span class="cv-photo" aria-hidden="true">${esc(initials)}</span></header>
+    <section><h4>Tóm tắt</h4><p>${esc(p.summary)}</p></section>
+    <section><h4>Kinh nghiệm làm việc</h4>${p.experience.map(([role,time,items])=>`<div class="cv-job"><div class="cv-job-head"><strong>${esc(role)}</strong><span>${esc(time)}</span></div><ul>${items.map(item=>`<li>${esc(item)}</li>`).join('')}</ul></div>`).join('')}</section>
+    <section><h4>Học vấn</h4><p>${esc(p.education)}</p></section>
+    <section><h4>Kỹ năng</h4><p>${esc(p.skills)}</p></section>
+    <section><h4>Thời gian làm việc</h4><p>${esc(p.availability)}</p></section>
+  </article>`;
 }
-function shortlist(){
-  const ids=added();
-  return `<div class="section-head"><div><h1>Bàn giao shortlist</h1><p>${ids.length}/3 ứng viên đề xuất phỏng vấn</p></div><div class="actions">${btn('← Về danh sách hồ sơ','ats')}${btn('Xem khung phỏng vấn','tab','Calendar')}</div></div>
-  ${s.submission?`<div class="callout">Bạn đang sửa sau phiên bản ${versionOf(s.submission,allSubmissions().length-1)}. Bấm Gửi đề xuất phỏng vấn để nộp phiên bản ${versionOf(s.submission,allSubmissions().length-1)+1}; bản cũ vẫn được giữ để đối chiếu. ${btn('Xem phản hồi','feedback')}</div>`:''}
-  <form class="handoff" data-form="handoff">
-  ${ids.length?ids.map(id=>{const entry=s.short[id];return row(esc(personName(id)),`${conflict(id)?`<div class="warning">${esc(CASE.feedback.conflict)}</div>`:''}
-  <div class="evidence-list">${Object.values(s.people[id].evidence).map(v=>`<blockquote>${esc(v.quote)}</blockquote>`).join('')}</div>
-  <div class="form-grid">${[['why','Lý do đề xuất kèm bằng chứng'],['shift','Tình trạng xác nhận ca làm'],['missing','Thông tin còn thiếu (ghi “Không” nếu đã đủ)'],['question','Câu hỏi vòng phỏng vấn']].map(([f,l])=>`<label>${l}<textarea name="${id}:${f}" data-bind="short" required rows="2">${esc(entry[f])}</textarea></label>`).join('')}</div>${btn('Bỏ khỏi shortlist','toggle-short',id)}`);}).join(''):'<p class="empty">Thêm hồ sơ từ ATS mini để chuẩn bị bàn giao.</p>'}
-  ${ids.length>0&&ids.length<3?row('Kế hoạch tìm thêm ứng viên',`<div class="form-grid"><label>Lý do gửi ít hơn ba hồ sơ<textarea name="why" data-bind="handoff" required>${esc(s.handoff.why)}</textarea></label><label>Bước tìm thêm ứng viên<textarea name="next" data-bind="handoff" required>${esc(s.handoff.next)}</textarea></label></div>`):''}
-  ${ids.length?'<button class="primary">Gửi đề xuất phỏng vấn →</button>':''}</form>`;
+function cvViewer(id){
+  return `<div class="cv-viewer"><div class="cv-toolbar">${uiIcon('file')}<span class="cv-file">${esc(CASE.people[id].file)}</span><span class="cv-pages">1 / 1</span>
+    <span class="cv-zoom">${btn('−<span class="sr-only">Thu nhỏ</span>','cv-zoom','-1')}<span>${Math.round(cvZoom*100)}%</span>${btn('+<span class="sr-only">Phóng to</span>','cv-zoom','1')}</span></div>
+    <div class="cv-stage"><div style="--cv-zoom:${cvZoom}">${cvPaper(id)}</div></div></div>`;
+}
+// Bản nháp quyết định của từng hồ sơ; chỉ tính là đã rà khi bấm Lưu quyết định.
+function atsDraft(id){return (s.atsDraft??={})[id]??={decision:s.ats[id]?.decision??'',reason:s.ats[id]?.reason??''};}
+function ats(){
+  const ids=addedIds();
+  if(!ids.includes(person))person=ids.find(id=>!decided(id))??ids[0]??'';
+  const head=`<div class="section-head"><div><h1>ATS mini</h1><p>Sàng lọc hồ sơ · ${esc(CASE.title)}</p></div>${primary(`Xem bàn giao · ${proposals().length}/3 →`,'short')}</div>`;
+  if(!ids.length)return head+`<section class="card ats-empty"><p class="empty">Chưa có hồ sơ nào. Mở Inbox và bấm Thêm vào ATS ở các thư có CV.</p>${btn('Mở Inbox','inbox')}</section>`;
+  const draft=atsDraft(person);
+  const choice=CASE.decisions.find(([d])=>d===draft.decision);
+  const missing=candidateIds().length-ids.length;
+  const saved=s.ats[person];
+  return head+`<div class="ats-board">
+    <aside class="card ats-list"><h2>Danh sách ứng viên</h2>${ids.map(id=>btn(`<strong>${esc(personName(id))}</strong><small class="decision-${esc(s.ats[id]?.decision??'none')}">${esc(decisionLabel(id))}</small>`,'person',id,id===person?'selected':'')).join('')}
+      ${missing?`<p class="muted ats-missing">Còn ${missing} CV trong Inbox chưa thêm vào ATS. ${btn('Mở Inbox','inbox','','link-button')}</p>`:''}</aside>
+    <section class="card ats-cv"><h2>CV ứng viên</h2>${cvViewer(person)}</section>
+    <section class="card ats-decision"><div class="ats-decision-head"><h2>Chốt hồ sơ</h2>${btn(uiIcon('file')+' Xem JD','jd','','ghost-button')}</div>
+      <form data-form="decision" novalidate>
+        <fieldset><legend>Quyết định sàng lọc</legend>${CASE.decisions.map(([id,label])=>`<label class="radio-row"><input type="radio" name="decision" value="${id}" data-bind="ats-decision"${draft.decision===id?' checked':''}> <span>${esc(label)}</span></label>`).join('')}</fieldset>
+        <label class="ats-reason"><span><span class="reason-label">${esc(choice?.[2]??'Lý do')}</span> <span class="required" aria-hidden="true">*</span></span>
+          <textarea name="reason" rows="5" data-bind="ats-reason" placeholder="Nêu dữ kiện trong CV và yêu cầu JD liên quan.">${esc(draft.reason)}</textarea></label>
+        <p class="field-error" role="alert" hidden></p>
+        <button class="primary">Lưu quyết định</button>
+        ${saved?`<p class="muted saved-note">Đã lưu: ${esc(decisionLabel(person))}. Sửa rồi bấm Lưu quyết định để cập nhật.</p>`:''}
+      </form></section></div>`;
+}
+function handoffView(){
+  const ids=proposals();
+  const reviewed=addedIds().filter(id=>decided(id)&&s.ats[id].decision!=='interview');
+  const total=candidateIds().length, done=candidateIds().filter(id=>s.added[id]&&decided(id)).length;
+  const editing=s.submission?versionOf(s.submission,allSubmissions().length-1):0;
+  return `<div class="handoff-screen">
+    <div class="section-head"><div><h1>Bàn giao đề xuất phỏng vấn</h1></div>${btn('← Về ATS','ats')}</div>
+    ${editing?`<div class="callout">Bạn đang sửa sau phiên bản ${editing}. Bấm Gửi đề xuất cho chị Mai để nộp phiên bản ${editing+1}; bản cũ vẫn được giữ để đối chiếu. ${btn('Xem phản hồi','feedback')}</div>`:''}
+    ${done<total?`<div class="warning">Bạn mới rà ${done}/${total} hồ sơ. Rà hết các CV trong ATS trước khi gửi đề xuất. ${btn('Về ATS','ats')}</div>`:''}
+    <form class="card handoff-card" data-form="handoff" novalidate>
+      <dl class="handoff-meta"><div><dt>Người nhận</dt><dd>${esc(CASE.manager)}</dd></div><div><dt>Tiêu đề</dt><dd>${esc(CASE.handoff.subject)}</dd></div></dl>
+      <div class="handoff-list-head"><h2>Danh sách đề xuất</h2><span class="pill">${ids.length} ứng viên</span></div>
+      ${ids.length?`<div class="handoff-table-wrap"><table class="handoff-table"><thead><tr><th scope="col">Ứng viên</th><th scope="col">Căn cứ từ ATS</th><th scope="col"><span class="sr-only">Sửa</span></th></tr></thead>
+        <tbody>${ids.map(id=>`<tr><th scope="row">${esc(personName(id))}</th><td>${esc(s.ats[id].reason)}</td><td>${btn('Sửa trong ATS','edit-in-ats',id,'link-button')}</td></tr>`).join('')}</tbody></table></div>`
+        :`<p class="empty">Chưa có ứng viên nào được chọn Đề xuất phỏng vấn trong ATS. ${btn('Về ATS','ats','','link-button')}</p>`}
+      <details class="handoff-reviewed"><summary><strong>Hồ sơ đã rà</strong> <span class="muted">${esc(reviewed.map(id=>`${shortName(id)} · ${decisionLabel(id)}`).join(', ')||'Chưa có')}</span></summary>
+        ${reviewed.length?`<ul>${reviewed.map(id=>`<li><strong>${esc(personName(id))} · ${esc(decisionLabel(id))}</strong> — ${esc(s.ats[id].reason)} ${btn('Sửa trong ATS','edit-in-ats',id,'link-button')}</li>`).join('')}</ul>`:''}</details>
+      <section class="mai-question" aria-labelledby="mai-question-title"><h3 id="mai-question-title">${uiIcon('chat')} Câu hỏi từ chị Mai</h3><p class="mai-quote">“${esc(CASE.handoff.question)}”</p>
+        <label for="recommendation">Khuyến nghị của em <span class="required" aria-hidden="true">*</span></label>
+        <textarea id="recommendation" name="recommendation" rows="4" data-bind="recommendation" aria-describedby="recommendation-hint">${esc(s.recommendation)}</textarea>
+        <p class="muted recommendation-hint" id="recommendation-hint">${esc(CASE.handoff.hint)}</p>
+        <p class="field-error recommendation-error" role="alert" hidden>Hãy viết khuyến nghị trước khi gửi.</p></section>
+      <div class="handoff-submit"><p class="field-error handoff-error" role="alert" hidden></p><button class="primary">Gửi đề xuất cho chị Mai →</button></div>
+    </form></div>`;
 }
 function reviewPayload(){
-  return structuredClone({mode:s.mode,posts:s.posts,inbox:{merged:s.merged,replied:Boolean(s.done.e08),requested:Object.keys(s.requests),received:Object.keys(s.received)},people:s.people,short:s.short,handoff:s.handoff});
+  return structuredClone({mode:s.mode,posts:s.posts,inbox:{added:addedIds(),replied:Object.keys(s.replied??{})},decisions:s.ats,recommendation:s.recommendation});
 }
 const reviewTimeout=60000;
 async function requestReview(sub){
@@ -669,7 +748,8 @@ function aiReview(review,previous){
   const pill=status=>`<span class="pill${status==='Đạt'?'':' warn'}">${esc(status)}</span>`;
   const before=Object.fromEntries((previous?.criteria??[]).map(c=>[c.id,c.status]));
   const change=c=>before[c.id]&&before[c.id]!==c.status?`<span class="change ${c.status==='Đạt'?'up':'down'}">${c.status==='Đạt'?'Đã cải thiện':'Kém hơn bản trước'}</span>`:'';
-  return `<p>${esc(review.overall_summary)}</p><div class="feedback">${review.criteria.map(c=>`<article><h3>${esc(review.criteria_titles?.[c.id]??c.id)} ${pill(c.status)} ${change(c)}</h3>${c.evidence?`<blockquote>${esc(c.evidence)}</blockquote>`:''}<p>${esc(c.comment)}</p>${c.status==='Đạt'?'':`<p><strong>Gợi ý:</strong> ${esc(c.improvement)}</p>`}${c.id==='C1'&&c.status!=='Đạt'?'<p class="muted">Tin đã đăng không sửa được trong lượt này. Hãy áp dụng góp ý khi bấm Chơi lại case.</p>':''}</article>`).join('')}</div>
+  const effort=review.effort_level?`<p class="effort effort-${{'Nghiêm túc':'good','Chưa đầy đủ':'mid'}[review.effort_level]??'low'}"><strong>Mức độ đầu tư: ${esc(review.effort_level)}</strong>${review.effort_note?` · ${esc(review.effort_note)}`:''}</p>`:'';
+  return `${effort}<p>${esc(review.overall_summary)}</p><div class="feedback">${review.criteria.map(c=>`<article><h3>${esc(review.criteria_titles?.[c.id]??c.id)} ${pill(c.status)} ${change(c)}</h3>${c.evidence?`<blockquote>${esc(c.evidence)}</blockquote>`:''}<p>${esc(c.comment)}</p>${c.status==='Đạt'?'':`<p><strong>Gợi ý:</strong> ${esc(c.improvement)}</p>`}${c.id==='C1'&&c.status!=='Đạt'?'<p class="muted">Tin đã đăng không sửa được trong lượt này. Hãy áp dụng góp ý khi bấm Chơi lại case.</p>':''}</article>`).join('')}</div>
   ${review.strengths.length?`<h3>Điểm làm tốt</h3><ul>${review.strengths.map(t=>`<li>${esc(t)}</li>`).join('')}</ul>`:''}
   <div class="callout"><strong>Ưu tiên sửa:</strong> ${esc(review.priority_action)}</div>`;
 }
@@ -685,7 +765,7 @@ function feedback(){
     :ai?.status==='done'?aiReview(ai.review,previous)
     :`${ai?.status==='error'?`<div class="warning" role="status">${esc(ai.message)} Dưới đây là nhận xét nhanh theo thao tác bạn đã làm. ${latest?btn('Thử chấm lại','retry-review'):''}</div>`:''}${ruleBased}`;
   const versions=list.length>1?`<nav class="version-tabs" aria-label="Các phiên bản đã nộp">${list.map((item,i)=>btn(`Phiên bản ${versionOf(item,i)}`,'view-version',i,i===index?'selected':'')).join('')}</nav>`:'';
-  return `${versions}<span class="eyebrow">PHIÊN BẢN ${versionOf(sub,index)}${sub.submittedAt?` · NỘP ${esc(timeLabel(sub.submittedAt))}`:''} · ${sub.ids.length} HỒ SƠ</span>${latest?'':'<p class="muted">Bạn đang xem một phiên bản cũ.</p>'}${body}
+  return `${versions}<span class="eyebrow">PHIÊN BẢN ${versionOf(sub,index)}${sub.submittedAt?` · NỘP ${esc(timeLabel(sub.submittedAt))}`:''} · ${sub.ids.length} ĐỀ XUẤT</span>${latest?'':'<p class="muted">Bạn đang xem một phiên bản cũ.</p>'}${body}
     <div class="actions">${primary('Sửa bài','revise')}${btn('Hồ sơ trải nghiệm','archive')}${btn('Xem cơ hội nghề nghiệp','opportunities')}${btn('Chơi lại case','replay')}</div>`;
 }
 // ---- Career Profile (màn 07) ----
@@ -699,22 +779,33 @@ function versionSummary(sub){
   if(sub.ai?.status==='pending')return 'Đang chấm';
   return 'Nhận xét nhanh (chưa có chấm AI)';
 }
+// Gợi ý CV chỉ mở khi bài đã được AI chấm và có đầu tư (feedback 13/11: tránh bấm bừa vẫn có dòng CV đẹp).
+function cvGate(sub){
+  if(!sub)return null;
+  if(sub.ai?.status!=='done')return {open:false,message:'Gợi ý cho CV sẽ mở khi bài nộp gần nhất được AI chấm xong. Mở kết quả và bấm Thử chấm lại nếu cần.'};
+  const passed=sub.ai.review.criteria.filter(c=>c.status==='Đạt').length;
+  if(sub.ai.review.effort_level==='Làm cho có'||passed<2)return {open:false,message:`Bài nộp gần nhất mới đạt ${passed}/${sub.ai.review.criteria.length} tiêu chí, chưa đủ căn cứ để đưa vào CV. Hãy sửa bài theo phản hồi rồi nộp lại, gợi ý sẽ tự mở.`};
+  return {open:true,passed,total:sub.ai.review.criteria.length};
+}
 function cvLine(sub,versions){
-  const channels=[...new Set(sub.posts.map(postedName))];
-  const people=sub.payload?.people??{};
-  const screened=Object.keys(people).length;
-  const verified=Object.values(people).reduce((n,p)=>n+Object.keys(p.verify??{}).length,0);
+  const channels=[...new Set((sub.posts??[]).map(postedName))];
+  const decisions=sub.decisions??sub.payload?.decisions;
+  const screened=decisions?Object.keys(decisions).length:Object.keys(sub.payload?.people??{}).length;
+  const replied=sub.payload?.inbox?.replied?.length??0;
+  const gate=cvGate(sub);
   const date=sub.submittedAt&&new Date(sub.submittedAt);
   const when=date?`${String(date.getMonth()+1).padStart(2,'0')}/${date.getFullYear()}`:'';
   return [`Dự án mô phỏng nghề nghiệp · Talent Acquisition Intern (VAOVIEC.${when?`, ${when}`:''})`,
     `– Soạn và đăng tin tuyển Nhân viên Chăm sóc khách hàng${channels.length?` trên ${channels.join(', ')}`:''} cho doanh nghiệp giả lập NOVA Commerce.`,
-    `– Sàng lọc ${screened} hồ sơ trong hệ thống ATS${verified?`, xác minh ${verified} thông tin còn thiếu với ứng viên`:''}.`,
-    `– Bàn giao ${sub.ids.length} đề xuất phỏng vấn kèm lý do, tình trạng ca làm và câu hỏi phỏng vấn${versions>1?`; chỉnh sửa qua ${versions} phiên bản theo phản hồi`:''}.`].join('\n');
+    `– Đọc và sàng lọc ${screened} CV theo JD, ghi quyết định kèm lý do trong hệ thống ATS${replied?`; phản hồi ${replied} câu hỏi của ứng viên`:''}.`,
+    `– Bàn giao ${sub.ids.length} đề xuất phỏng vấn cho quản lý, kèm khuyến nghị ứng viên ưu tiên và phương án dự phòng${versions>1?`; chỉnh sửa qua ${versions} phiên bản theo phản hồi`:''}.`,
+    ...(gate?.open&&gate.passed>=3?[`– Đạt ${gate.passed}/${gate.total} tiêu chí trong phần đánh giá bài làm của VAOVIEC.`]:[])].join('\n');
 }
 function portfolioView(){
   const current=allSubmissions(), past=pastRuns(), interest=read(key+'-interest',null);
   const versionRows=(list,live)=>`<ol class="profile-versions">${list.map((sub,i)=>`<li><span><strong>Phiên bản ${versionOf(sub,i)}</strong><small>${esc(timeLabel(sub.submittedAt))}${sub.submittedAt?' · ':''}${esc(versionSummary(sub))} · ${sub.ids.length} ứng viên</small></span>${live?btn('Xem phản hồi','view-feedback',i):''}</li>`).join('')}</ol>`;
   const latest=current.at(-1), latestRun=latest?current:past[0]?.versions;
+  const cvSource=latest??latestRun?.at(-1), gate=cvGate(cvSource);
   const empty=!current.length&&!past.length;
   return `<section class="profile-section"><h3>Talent Acquisition Intern · NOVA Commerce</h3>
     ${empty?'<p class="empty">Bài bàn giao bạn nộp sẽ tự lưu ở đây, kèm phản hồi và các phiên bản chỉnh sửa.</p>':''}
@@ -725,10 +816,10 @@ function portfolioView(){
       <p class="muted">Ghi lại cảm nhận để nhìn lại khi chọn nghề. Lựa chọn này lưu riêng, không ảnh hưởng tới phần chấm bài.</p>
       <div class="interest-options" role="radiogroup" aria-label="Mức độ hứng thú">${INTEREST_LEVELS.map(level=>`<button role="radio" aria-checked="${interest?.level===level}" data-do="interest" data-id="${esc(level)}">${esc(level)}</button>`).join('')}</div>
     </section>
-    ${latest||latestRun?.length?`<section class="profile-section"><h3>Đưa vào CV hoặc LinkedIn</h3>
-      <p class="muted">Gợi ý dưới đây tóm tắt việc bạn đã làm. Hãy ghi rõ đây là <strong>dự án mô phỏng</strong>, không trình bày như kinh nghiệm làm việc thật hay chứng nhận năng lực.</p>
-      <textarea class="cv-line" readonly rows="5" aria-label="Gợi ý mô tả dự án cho CV">${esc(cvLine((latest??latestRun.at(-1)),(latestRun??[]).length))}</textarea>
-      <div class="actions">${btn('Sao chép','copy-cv')}</div></section>`:''}
+    ${cvSource?`<section class="profile-section"><h3>Đưa vào CV hoặc LinkedIn</h3>
+      ${gate.open?`<p class="muted">Gợi ý dưới đây tóm tắt việc bạn đã làm. Hãy ghi rõ đây là <strong>dự án mô phỏng</strong>, không trình bày như kinh nghiệm làm việc thật hay chứng nhận năng lực.</p>
+      <textarea class="cv-line" readonly rows="6" aria-label="Gợi ý mô tả dự án cho CV">${esc(cvLine(cvSource,(latestRun??[]).length))}</textarea>
+      <div class="cv-copy">${btn('Sao chép','copy-cv')}</div>`:`<p class="cv-locked">${esc(gate.message)}</p>${latest?btn('Xem phản hồi','feedback'):''}`}</section>`:''}
     <div class="actions">${btn('Xem cơ hội nghề nghiệp','opportunities')}${btn('Chơi lại case','replay')}${read(key+'-before-reset',null)?btn('Khôi phục lượt trước','undo-reset'):''}</div>`;
 }
 function opportunitiesView(){
@@ -737,14 +828,6 @@ function opportunitiesView(){
     <ul class="opportunity-list">${o.links.map(([site,title,desc,url])=>`<li><a href="${esc(url)}" target="_blank" rel="noopener noreferrer"><span class="opportunity-site">${esc(site)}</span><strong>${esc(title)} <span aria-hidden="true">↗</span></strong><small>${esc(desc)}</small><span class="sr-only">(mở trong tab mới)</span></a></li>`).join('')}</ul>
     <p class="muted opportunity-note">${esc(o.note)}</p>
     <div class="actions">${s.submission?btn('← Về kết quả','feedback'):''}${btn('Hồ sơ trải nghiệm','portfolio')}</div>`;
-}
-function verifyView(){
-  if(!current())return '<p>Chọn một ứng viên đã lưu trong ATS để bắt đầu xác minh.</p>'+primary('Mở ATS mini','ats');
-  const topics=CASE.people[person].verify??{};
-  return `<p>${esc(personName(person))}</p><div class="actions">${['Điện thoại','Email'].map(m=>btn(m,'method',m,m===method?'selected':'')).join('')}</div>
-  <div class="conversation">${Object.values(current().verify).map(v=>`<p><strong>Bạn · ${esc(v.method)}</strong><br>${esc(v.question)}</p><p><strong>${esc(personName(person))}</strong><br>${esc(v.answer)}</p>`).join('')}</div>
-  ${conflict(person)&&s.short[person]?`<div class="warning">${esc(CASE.feedback.conflict)}</div>`:''}
-  ${Object.keys(topics).length?`<div class="excerpt-list">${Object.entries(topics).map(([id,[q]])=>btn(esc(q),'ask',id)).join('')}</div><form data-form="verify"><label>Câu hỏi của bạn<input name="question" required></label><button class="primary">Gửi câu hỏi</button><p class="warning verify-hint" role="status" hidden></p></form>`:'<p>Hồ sơ này chưa có chủ đề xác minh trong kịch bản.</p>'}`;
 }
 let introBusy=false;
 function renderModal(){
@@ -780,7 +863,7 @@ function renderModal(){
       ()=>CASE.companyIntro.map(([heading,copy],index)=>`<section><h2${index===0?' id="intro-heading" tabindex="-1"':''}>${esc(heading)}</h2>${paragraphs(copy)}</section>`).join(''),
       modeView
     ];
-    const next=[['Về công ty','intro-company'],['Chọn chế độ','intro-mode'],['Vào văn phòng','intro-enter']][step];
+    const next=[['Về công ty','intro-company'],['Chọn chế độ','intro-mode'],['Bắt đầu nhiệm vụ','intro-enter']][step];
     modal.innerHTML=`<nav class="intro-steps" aria-label="Giới thiệu case">
       ${INTRO_STEPS.map(([action,label],index)=>`<button data-do="${action}" aria-current="${index===step?'step':'false'}"><span>${index+1}</span> ${label}</button>`).join('')}
     </nav>
@@ -792,9 +875,10 @@ function renderModal(){
   modal.classList.remove('case-intro','intro-closing');
   modal.removeAttribute('aria-labelledby');
   if(!overlay){if(modal.open)modal.close();return;}
-  const email=openEmails().find(e=>e[0]===selectedEmail);
-  const names={explore:'Khám phá',deadline:'Lịch để bàn',cv:'CV đính kèm',verify:'Xác minh thông tin',feedback:'Phản hồi từ Hiring Manager',portfolio:'Hồ sơ trải nghiệm',replay:'Chơi lại case',assistant:'Trợ lý công việc',opportunities:'Cơ hội nghề nghiệp'};
-  const content={explore:()=>`<h3>Talent Acquisition Intern tại NOVA Commerce</h3><p>Trải nghiệm quy trình tuyển nhân viên Chăm sóc khách hàng, từ đọc JD đến đề xuất ứng viên phỏng vấn.</p>${primary('Mở Workspace','workspace')}`,deadline:()=>`<div class="slot">${esc(CASE.deadline)}</div><p>Hạn gửi đề xuất phỏng vấn cho ${esc(CASE.manager)}.</p>${btn('Xem khung phỏng vấn','tab','Calendar')}`,cv:()=>email&&hasCv(email)?`<h3>${esc(personName(email[2]))}</h3><ul>${CASE.people[email[2]].cv.map(t=>`<li>${esc(t)}</li>`).join('')}</ul>${primary('Lưu vào ATS','save-cv',email[0])}`:'',verify:verifyView,feedback,assistant:assistantView,opportunities:opportunitiesView,portfolio:portfolioView,replay:()=>`<p>Bắt đầu lại từ bàn làm việc. ${allSubmissions().length?'Các phiên bản bạn đã nộp được chuyển sang mục Lượt trước trong Hồ sơ trải nghiệm.':''}</p>${primary('Bắt đầu lại','reset')}`};
+  const email=openEmails().find(e=>e.id===selectedEmail);
+  modal.classList.toggle('wide',overlay==='cv');
+  const names={explore:'Khám phá',deadline:'Lịch để bàn',cv:'CV đính kèm',feedback:'Phản hồi từ Hiring Manager',portfolio:'Hồ sơ trải nghiệm',replay:'Chơi lại case',assistant:'Trợ lý công việc',opportunities:'Cơ hội nghề nghiệp'};
+  const content={explore:()=>`<h3>Talent Acquisition Intern tại NOVA Commerce</h3><p>Trải nghiệm quy trình tuyển nhân viên Chăm sóc khách hàng, từ đọc JD đến đề xuất ứng viên phỏng vấn.</p>${primary('Mở Workspace','workspace')}`,deadline:()=>`<div class="slot">${esc(CASE.deadline)}</div><p>Hạn gửi đề xuất phỏng vấn cho ${esc(CASE.manager)}.</p>${btn('Xem khung phỏng vấn','tab','Calendar')}`,cv:()=>email?.cv?`<div class="cv-modal">${cvViewer(email.cv)}</div><div class="actions">${s.added[email.cv]?btn('Mở hồ sơ trong ATS','open-profile',email.cv):primary('Thêm vào ATS','add-ats',email.id)}</div>`:'',feedback,assistant:assistantView,opportunities:opportunitiesView,portfolio:portfolioView,replay:()=>`<p>Bắt đầu lại từ bàn làm việc. ${allSubmissions().length?'Các phiên bản bạn đã nộp được chuyển sang mục Lượt trước trong Hồ sơ trải nghiệm.':''}</p>${primary('Bắt đầu lại','reset')}`};
   modal.innerHTML=`<div class="modal-head"><h2>${names[overlay]}</h2><button aria-label="Đóng" data-do="close">×</button></div><div class="modal-body">${content[overlay]()}</div>`;
   if(!modal.open)modal.showModal();
 }
@@ -832,22 +916,17 @@ function renderCaseMode(){
   chip.hidden=!s.mode;
   chip.textContent=s.mode?`Chế độ: ${MODES[s.mode].label}`:'';
 }
-function ensure(id){return s.people[id]??=( {status:0,reason:'',evidence:{},verify:{}} );}
-function verifyAnswer(topic,question){
-  const [suggestion,answer]=CASE.people[person].verify[topic];
-  current().verify[topic]={answer,question:question||suggestion,method};
-  if(conflict(person)&&s.short[person])toast('Thông tin mới về ca cuối tuần. Hãy xem lại shortlist.');
-}
 function report(){
-  const f=CASE.feedback, ids=added();
-  const people=Object.values(s.people);
-  const evidenceCount=people.reduce((n,p)=>n+Object.values(p.evidence).filter(v=>v.quote).length,0);
-  const conflicts=ids.some(conflict);
+  const ids=proposals(), people=candidateIds();
+  const thin=people.filter(id=>(s.ats[id]?.reason??'').trim().length<40);
+  const risky=ids.filter(id=>CASE.feedback.risk[id]);
+  const rec=s.recommendation.trim().toLocaleLowerCase('vi');
+  const named=ids.some(id=>rec.includes(shortName(id).toLocaleLowerCase('vi')));
   return [
-    ['Xử lý Inbox',[f.inbox[s.merged?0:1],s.done.e08&&f.question,Object.keys(s.received).length&&f.supplement].filter(Boolean).join(' ')],
-    ['Dùng bằng chứng',f.evidence[evidenceCount?0:1]],
-    ['Xác minh',[f.verify[people.some(p=>Object.keys(p.verify).length)?0:1],conflicts&&f.conflict].filter(Boolean).join(' ')],
-    ['Bàn giao',f.handoff[ids.length===3?0:1]]
+    ['Xử lý Inbox',`Đã thêm ${addedIds().length}/${people.length} CV vào ATS và xem ${Object.keys(s.replied??{}).length}/${questionMails().length} câu trả lời cho thư hỏi thông tin.`],
+    ['Quyết định sàng lọc',thin.length?`Lý do của ${thin.map(shortName).join(', ')} còn ngắn. Hãy nêu dữ kiện cụ thể trong CV và yêu cầu JD liên quan.`:'Mỗi quyết định đều có lý do. Hãy kiểm tra lại lý do đã nêu dữ kiện cụ thể trong CV chưa.'],
+    ['Yêu cầu bắt buộc',risky.length?risky.map(id=>CASE.feedback.risk[id]).join(' '):'Các ứng viên được đề xuất không vướng yêu cầu bắt buộc ghi rõ trong CV.'],
+    ['Khuyến nghị cho chị Mai',rec.length>=60&&named?'Khuyến nghị đã nêu người ưu tiên. Hãy kiểm tra lại đã có căn cứ và phương án dự phòng.':'Khuyến nghị cần nêu rõ người ưu tiên, căn cứ từ CV và phương án dự phòng.']
   ];
 }
 document.addEventListener('click',async ev=>{
@@ -856,7 +935,7 @@ document.addEventListener('click',async ev=>{
   const id=el.dataset.id, action=el.dataset.do;
   if(action.startsWith('intro-')){
     if(introBusy||overlay===action)return;
-    if(action==='intro-enter'&&!s.mode){toast('Chọn một chế độ trước khi vào văn phòng.');return;}
+    if(action==='intro-enter'&&!s.mode){toast('Chọn một chế độ trước khi bắt đầu nhiệm vụ.');return;}
     introBusy=true;
     const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
     if(action==='intro-enter'){
@@ -887,11 +966,12 @@ document.addEventListener('click',async ev=>{
     case 'tab': nav(id); overlay=''; break;
     case 'inbox': nav('Inbox');overlay='';break;
     case 'posting': nav(postingTab);overlay='';break;
+    case 'more-channel': if(s.posts.length!==1)return;choosingMore=true;nav(postingTab);overlay='';break;
     case 'ats': nav('ATS mini');overlay='';break;
-    case 'short': nav('ATS mini');panel='short';overlay='';break;
+    case 'short': nav('Bàn giao');overlay='';break;
     case 'revise':
-      nav('ATS mini');panel='short';overlay='';
-      toast('Sửa bài bàn giao rồi bấm Gửi đề xuất phỏng vấn để nộp phiên bản mới.');break;
+      nav('Bàn giao');overlay='';
+      toast('Sửa quyết định trong ATS hoặc khuyến nghị, rồi bấm Gửi đề xuất cho chị Mai để nộp phiên bản mới.',5000);break;
     case 'view-version':viewVersion=Number(id);break;
     case 'jd':
       if(!jdReturn){
@@ -924,8 +1004,7 @@ document.addEventListener('click',async ev=>{
       (s.assistUses??={})[assistKey()]=(s.assistUses[assistKey()]??0)+1;
       overlay='assistant';break;
     case 'desk-calendar':overlay='deadline';break;
-    case 'phone':case 'verify':method='Điện thoại';overlay='verify';break;
-    case 'method':method=id;break;
+    case 'phone':toast(`Chưa có cuộc gọi nào. Hạn gửi đề xuất: ${CASE.deadline}.`);return;
     case 'close':overlay='';break;
     case 'channel':{
       if(!channelInfo(id)||(!channelAvailable(id)&&!s.posts.some(post=>post.channel===id)))return;
@@ -949,41 +1028,22 @@ document.addEventListener('click',async ev=>{
       if(desk)nav('Inbox');
       markApplicationSeen(id);
       selectedEmail=id;(s.readMail??={})[id]=true;break;
-    case 'cv':selectedEmail=id;overlay='cv';break;
-    case 'save-cv':case 'merge':{
-      const e=openEmails().find(m=>m[0]===id);if(!e||!hasCv(e))return;
-      const existing=Boolean(s.people[e[2]]);
-      ensure(e[2]);person=e[2];quote='';
-      s.done[id]=action==='merge'?'Đã gộp':'Đã lưu ATS';
-      if(action==='merge'){s.merged=true;s.done[e[6]]='Đã gộp';toast('Đã gộp hai email vào cùng một hồ sơ.');}
-      else if(existing){nav('ATS mini');toast('Đã mở hồ sơ hiện có.');}
-      else toast('Đã lưu vào ATS.');
-      overlay='';break;
+    case 'cv':if(!openEmails().some(e=>e.id===id&&e.cv))return;selectedEmail=id;overlay='cv';break;
+    case 'add-ats':{
+      const e=openEmails().find(m=>m.id===id);if(!e?.cv)return;
+      s.added[e.cv]=true;overlay='';
+      toast(inboxDone()?'Đã thêm vào ATS. Bạn đã rà soát xong Inbox, chuyển sang ATS mini để sàng lọc.':'Đã thêm hồ sơ vào ATS.',4200);break;
     }
-    case 'request':{
-      const e=openEmails().find(m=>m[0]===id);
-      if(!s.requests[e[2]]){s.requests[e[2]]=id;s.done[id]='Chờ bổ sung';toast('Đã gửi email yêu cầu bổ sung CV.');}
-      break;
+    case 'open-profile':case 'edit-in-ats':
+      if(!s.added[id])return;
+      person=id;nav('ATS mini');overlay='';break;
+    case 'refresh':toast(unreadCount()?'Đã cập nhật hộp thư.':'Chưa có email mới.');break;
+    case 'reply':{
+      const e=openEmails().find(m=>m.id===id);if(!e?.reply)return;
+      s.replied[id]=true;toast('Đã gửi câu trả lời soạn sẵn.');break;
     }
-    case 'refresh':{
-      const ids=Object.keys(s.requests).filter(id=>!s.received[id]);
-      for(const pid of ids){
-        const thread=CASE.emails.find(m=>m[2]===pid)[0];
-        s.received[pid]=thread;s.done[s.requests[pid]]='Đã nhận CV';s.done[thread]='Đã nhận CV';
-        if(s.readMail&&thread!==selectedEmail)delete s.readMail[thread];
-      }
-      playMailSound(ids.length);
-      toast(ids.length?'Đã nhận CV bổ sung.':'Chưa có email mới.');break;
-    }
-    case 'reply':s.done[id]='Đã trả lời';toast('Đã trả lời câu hỏi về ca làm.');break;
-    case 'person':person=id;quote='';break;
-    case 'quote':quote=cvLines(person)[Number(id)];break;
-    case 'ask':verifyAnswer(id);break;
-    case 'toggle-short':
-      if(s.short[id])delete s.short[id];
-      else if(added().length<3){s.short[id]={};toast('Đã thêm vào shortlist.');}
-      else toast('Shortlist đã đủ ba ứng viên.');
-      break;
+    case 'person':if(!s.added[id])return;person=id;break;
+    case 'cv-zoom':cvZoom=Math.min(1.5,Math.max(.7,Math.round((cvZoom+Number(id)*.1)*10)/10));break;
     case 'retry-review':
       if(!s.submission||s.submission.ai?.status==='pending')return;
       s.submission.payload??=reviewPayload();
@@ -1011,12 +1071,12 @@ document.addEventListener('click',async ev=>{
         }
         write(key+'-before-reset',s);s=initial();
       }else{
-        s=restoreChannelTabs(read(key+'-before-reset',s));write(key+'-before-reset',null);if(s.tab===jdTab)s.tab='Inbox';
+        s=restoreChannelTabs(migrate(read(key+'-before-reset',s)));write(key+'-before-reset',null);if(s.tab===jdTab)s.tab='Inbox';
         // Lượt được khôi phục trở lại là lượt hiện tại, không lặp ở mục Lượt trước.
         const restoredId=allSubmissions()[0]?.id;
         if(restoredId)write(key+'-portfolio',pastRuns().filter(r=>r.id!==restoredId));
       }
-      jdReturn='';desk=true;overlay=s.introSeen?'':'intro-role';selectedEmail='';mailQuery='';person=Object.keys(s.people)[0];quote='';facebookComposer=false;break;
+      jdReturn='';desk=true;overlay=s.introSeen?'':'intro-role';selectedEmail='';mailQuery='';person='';choosingMore=false;facebookComposer=false;break;
     default:return;
   }
   render();
@@ -1036,9 +1096,18 @@ document.addEventListener('input',ev=>{
     return;
   }
   if(bind==='channel-draft')channelDraft(s.tab)[el.name]=el.value;
-  else if(bind==='person')current()[el.name]=el.name==='status'?Number(el.value):el.value;
-  else if(bind==='short'){const [id,f]=el.name.split(':');s.short[id][f]=el.value;}
-  else if(bind==='handoff')s.handoff[el.name]=el.value;
+  else if(bind==='ats-decision'){
+    if(!person)return;
+    atsDraft(person).decision=el.value;
+    const label=app.querySelector('.reason-label');
+    if(label)label.textContent=CASE.decisions.find(([d])=>d===el.value)?.[2]??'Lý do';
+  }
+  else if(bind==='ats-reason'){if(!person)return;atsDraft(person).reason=el.value;}
+  else if(bind==='recommendation'){
+    s.recommendation=el.value;
+    const error=app.querySelector('.recommendation-error');
+    if(error&&el.value.trim())error.hidden=true;
+  }
   else return;
   save();
 });
@@ -1057,21 +1126,29 @@ document.addEventListener('submit',ev=>{
     s.posts.push({channel,channelLabel:channelInfo(channel)[1],...content});
     facebookComposer=false;
     toast('Tin tuyển dụng đã được đăng. Đang chờ ứng viên nộp hồ sơ.',3000);
-  }else if(type==='evidence'){
-    if(!quote&&data.rating!=='1'){toast('Chọn trích đoạn trước khi lưu nhận định.');return;}
-    current().evidence[data.criterion]={quote,rating:Number(data.rating)};quote='';toast('Đã lưu đối chiếu.');
-  }else if(type==='verify'){
-    const normalized=data.question.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu,'');
-    const topic=Object.keys(CASE.people[person].verify??{}).find(t=>t==='weekend'?/cuoi tuan|thu bay|chu nhat|lich lam/.test(normalized):/bang tinh|excel|sheets|vi du|so lieu/.test(normalized));
-    if(!topic){const hint=ev.target.querySelector('.verify-hint');hint.hidden=false;hint.textContent='Câu hỏi ngoài kịch bản. Hãy chọn một chủ đề gợi ý phía trên.';return;}
-    verifyAnswer(topic,data.question);
+  }else if(type==='decision'){
+    if(!person)return;
+    const draft=atsDraft(person), error=ev.target.querySelector('.field-error');
+    const fail=message=>{error.hidden=false;error.textContent=message;};
+    if(!draft.decision)return fail('Chọn một quyết định sàng lọc.');
+    if(!draft.reason.trim())return fail('Nhập lý do trước khi lưu.');
+    if(draft.decision==='interview'&&s.ats[person]?.decision!=='interview'&&proposals().length>=3)return fail('Đã có 3 ứng viên Đề xuất phỏng vấn. Đổi quyết định của một người khác trước.');
+    s.ats[person]={decision:draft.decision,reason:draft.reason.trim(),savedAt:Date.now()};
+    const next=addedIds().find(id=>!decided(id));
+    if(next){person=next;toast('Đã lưu quyết định. Mở hồ sơ tiếp theo.');}
+    else toast(screeningDone()?`Đã rà xong ${candidateIds().length} hồ sơ. Bấm Xem bàn giao để gửi đề xuất cho chị Mai.`:'Đã lưu quyết định. Thêm các CV còn lại từ Inbox.',4500);
   }else if(type==='handoff'){
-    if(Object.values(data).some(v=>!v.trim())){toast('Điền đủ thông tin bàn giao.');return;}
+    const formError=ev.target.querySelector('.handoff-error'), recError=ev.target.querySelector('.recommendation-error');
+    formError.hidden=true;recError.hidden=true;
+    const fail=message=>{formError.hidden=false;formError.textContent=message;};
+    if(!screeningDone())return fail(`Rà hết ${candidateIds().length} hồ sơ trong ATS trước khi gửi.`);
+    if(!proposals().length)return fail('Chọn ít nhất một ứng viên Đề xuất phỏng vấn trong ATS.');
+    if(!s.recommendation.trim()){recError.hidden=false;ev.target.querySelector('#recommendation').focus();return;}
     if(s.submission?.ai?.status==='pending')return;
     // Nộp lại không ghi đè: bản trước chuyển vào lịch sử để người học đối chiếu.
     if(s.submission)(s.history??=[]).push(s.submission);
     const version=(s.history?.length??0)+1;
-    s.submission={id:Date.now(),version,submittedAt:Date.now(),ids:added(),posts:structuredClone(s.posts),short:structuredClone(s.short),handoff:structuredClone(s.handoff),feedback:report(),payload:reviewPayload()};
+    s.submission={id:Date.now(),version,submittedAt:Date.now(),ids:proposals(),posts:structuredClone(s.posts),decisions:structuredClone(s.ats),recommendation:s.recommendation,feedback:report(),payload:reviewPayload()};
     viewVersion=null;
     overlay='feedback';
     requestReview(s.submission);
