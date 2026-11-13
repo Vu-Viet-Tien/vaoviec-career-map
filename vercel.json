@@ -1,0 +1,11 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "outputDirectory": "dist",
+  "cleanUrls": true,
+  "functions": {
+    "api/review.js": {
+      "maxDuration": 60,
+      "includeFiles": "dist/workspace/talent-acquisition-assets/case.js"
+    }
+  }
+}

@@ -1,0 +1,24 @@
+.vaoviec-wordmark {
+  position: relative;
+  display: block;
+  flex: none;
+  width: clamp(112px, 15vw, 166px);
+  aspect-ratio: 4.75;
+  overflow: hidden;
+  mix-blend-mode: multiply;
+}
+
+.vaoviec-wordmark img {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: block;
+  width: 127%;
+  max-width: none;
+  height: auto;
+  transform: translate(-50%, -53%);
+}
+
+.office-topbar .vaoviec-wordmark {
+  width: clamp(92px, 13vw, 148px);
+}

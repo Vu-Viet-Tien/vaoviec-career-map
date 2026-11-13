@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VAOVIEC. · Khám phá nghề qua trải nghiệm</title>
+<meta name="description" content="Khám phá công việc, kỹ năng và công cụ của từng vị trí. Thử sức với nhiệm vụ tuyển dụng tại NOVA Commerce.">
+<link rel="stylesheet" href="./styles.css">
+<link rel="stylesheet" href="/vaoviec-logo.css">
+<link rel="stylesheet" href="./home.css">
+<link rel="stylesheet" href="/site-header.css">
+<script src="/site-header.js" defer></script>
+<script src="./career-data.js" defer></script>
+<script src="./app.js" defer></script>
+</head>
+<body>
+<header class="site-header"></header>
+<main id="home">
+  <svg class="home-ribbons" viewBox="0 0 1672 865" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+    <defs>
+      <linearGradient id="ribbon-fade" x2="0" y2="1">
+        <stop stop-color="white" stop-opacity=".1"/>
+        <stop offset=".52" stop-color="white" stop-opacity=".9"/>
+        <stop offset="1" stop-color="white" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    <path fill="url(#ribbon-fade)" d="M0 166C104 199 214 213 267 247C322 286 192 310 127 335C-89 414 148 463 369 565L425 638C136 519-164 475 0 391C70 345 109 340 127 335C192 310 319 286 265 249C213 215 104 201 0 168Z"/>
+    <path fill="url(#ribbon-fade)" d="M1672 255C1582 270 1501 290 1465 317C1348 398 1510 385 1570 418C1741 502 1386 542 1132 678L1092 733C1423 601 1799 511 1594 420C1511 383 1356 395 1467 319C1503 292 1582 272 1672 257Z"/>
+    <g fill="#6bc9fa" stroke="white" stroke-width="3">
+      <circle cx="183" cy="213" r="5.5"/><circle cx="127" cy="335" r="7"/>
+      <circle cx="1465" cy="317" r="5.5"/><circle cx="1538" cy="405" r="7"/><circle cx="1493" cy="537" r="7"/>
+    </g>
+    <circle class="home-ribbon-spark" cx="0" cy="0" r="4" fill="white"/>
+  </svg>
+  <section class="home-hero" aria-labelledby="home-tagline">
+    <span class="vaoviec-wordmark home-wordmark"><img src="/vaoviec-logo.png" alt="VAOVIEC." width="2172" height="724"></span>
+    <h1 id="home-tagline">
+      <span class="tagline-line">Thử việc để <span class="tagline-gradient">hiểu nghề.</span></span>
+      <span class="tagline-line tagline-line-accent">Thực hành để <span class="tagline-gradient">mở cơ hội.</span></span>
+    </h1>
+    <p>VAOVIEC. giúp sinh viên thử công việc trước khi ứng tuyển, đồng thời giúp doanh nghiệp kết nối với ứng viên thông qua minh chứng thực hành.</p>
+    <a class="home-action" href="#/career-map">Khám phá nghề <span aria-hidden="true">→</span></a>
+    <p id="home-continue" class="home-continue" hidden></p>
+  </section>
+  <ul class="home-features">
+    <li>
+      <svg viewBox="0 0 88 80" aria-hidden="true" focusable="false">
+        <path d="m12 32 19-8 22 8 16-7 5 44-22-8-22 8-23-8zM31 24l-1 45m23-37-1 29"/>
+        <path class="home-icon-accent" d="M68 21c0 9-13 24-13 24S42 30 42 21a13 13 0 1 1 26 0Z" fill="#0975f3" stroke="white"/>
+        <circle cx="55" cy="21" r="5" fill="white" stroke="none"/>
+      </svg>
+      <span>Bản đồ nghề nghiệp</span>
+    </li>
+    <li>
+      <svg viewBox="0 0 88 80" aria-hidden="true" focusable="false">
+        <path d="M12 59V21a7 7 0 0 1 7-7h50a7 7 0 0 1 7 7v38M5 59h78v4a7 7 0 0 1-7 7H12a7 7 0 0 1-7-7z"/>
+        <path class="home-icon-accent" d="m39 27 16 11-16 11z" fill="#0975f3" stroke="none"/>
+      </svg>
+      <span>Mô phỏng công việc</span>
+    </li>
+    <li>
+      <svg viewBox="0 0 88 80" aria-hidden="true" focusable="false">
+        <path d="M30 16H17a6 6 0 0 0-6 6v49a6 6 0 0 0 6 6h54a6 6 0 0 0 6-6V22a6 6 0 0 0-6-6H58M30 20v-7h9a5 5 0 1 1 10 0h9v7ZM44 40h19M44 58h19"/>
+        <path class="home-icon-accent" d="m23 40 4 4 8-9m-12 23 4 4 8-9" stroke="#0975f3"/>
+      </svg>
+      <span>Hồ sơ thực hành</span>
+    </li>
+  </ul>
+</main>
+<main id="explore" hidden>
+<h1>Bản đồ nghề nghiệp</h1>
+<nav id="tabs" aria-label="Lĩnh vực"></nav>
+<div class="layout">
+<section class="map" aria-label="Các vị trí trong ngành">
+<div class="toolbar"><strong>Các vị trí trong ngành</strong><input id="search" type="search" placeholder="Tìm trong tất cả lĩnh vực…" aria-label="Tìm vị trí trong tất cả lĩnh vực"></div>
+<div id="tree"></div>
+</section>
+<aside class="detail" id="detail" aria-label="Chi tiết nghề" tabindex="-1"></aside>
+</div>
+</main>
+</body>
+</html>
