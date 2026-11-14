@@ -27,7 +27,7 @@ Khóa `GEMINI_API_KEY` đặt trong Vercel → Project → Settings → Environm
 
 - `dist/index.html`, `dist/home.css`, `dist/styles.css`, `dist/app.js`, `dist/career-data.js` — Trang chủ và Career Map.
 - `dist/site-header.js`, `dist/site-header.css` — header chung.
-- `dist/workspace/mission-engine.js` + `mission.css` — khung Workspace 6 bước dùng chung cho MISSION_002 (`employer-branding.html`, `employer-branding-assets/case.js`) và MISSION_003 (`business-development.html`, `business-development-assets/case.js`). Chữ riêng mỗi nghề nằm trong `CASE.ui`. Rubric cả hai ở `lib/review-simple.js`; `api/review.js` chọn bộ chấm theo trường `mission`.
+- `dist/workspace/mission-engine.js` + `mission.css` — khung Workspace 6 bước dùng chung cho MISSION_002 (`employer-branding.html`, `employer-branding-assets/case.js`) MISSION_003 (`business-development`), MISSION_004 (`content-marketing`), MISSION_005 (`data-analyst`) và MISSION_006 (`fpa-analyst`); mỗi nhiệm vụ gồm `<tên>.html` và `<tên>-assets/case.js`. Chữ riêng mỗi nghề nằm trong `CASE.ui`. Rubric các nhiệm vụ này ở `lib/review-simple.js`; `api/review.js` chọn bộ chấm theo trường `mission`.
 - `dist/ds.css`, `dist/ui.js` — design system dùng chung; `dist/theme-dark.css` — chế độ tối (nút trên header, lưu `vaoviec-theme`).
 - `dist/workspace/talent-acquisition.html` và `dist/workspace/talent-acquisition-assets/` — Workspace VaVi: `case.js` (nội dung case), `app.js` (logic), `style.css`, ảnh văn phòng, PDF JD và PDF.js.
 - `dist/nova/` — trợ lý VaVi ở góc phải dưới mọi trang: `nova-mascot.js` (robot SVG), `nova-animation.js` (trạng thái hoạt ảnh), `nova-speech-bubble.js`, `nova-chat-window.js`, `nova-assistant.js` (gắn tất cả, gọi `/api/assistant`), `nova.css`.
@@ -62,3 +62,15 @@ Trợ lý linh vật tên VaVi (mã nguồn vẫn ở `dist/nova/`).
 ## MISSION_003 · Business Development Executive (B2B)
 
 NOVA Commerce mở mảng quà Tết doanh nghiệp, mục tiêu ký 2 đơn trước 20/12. Người học đọc 6 tài liệu (8 lead, ghi chú CRM, bảng giá, case study, khảo sát HR, email mẫu cũ), chọn 3 lead ưu tiên kèm lý do, viết email tiếp cận (xem trước như hộp thư), chọn bước theo dõi và 2 chỉ số, trả lời chị Lan. Bẫy: lead đã từ chối hẹn tháng 3, lead 12 người, đối thủ, email chung, hứa giao 48h hoặc in logo dưới 300 hộp, case study chưa được phép, gửi đồng loạt mỗi ngày, chỉ đo số email gửi/lượt mở. Rubric M03-A (bản nháp).
+
+## MISSION_004 · Content Marketing Executive
+
+Ra mắt nồi chiên AirFry 5L, mục tiêu 300 nồi trong tháng 12 chỉ bằng nội dung. Người học đọc từ khoá, câu hỏi khách, thông số đã duyệt, hiệu quả bài cũ, kênh, đánh giá khách và bài đối thủ bị phản ứng; chọn 3 chủ đề, viết bài đầu tiên, chọn kênh và 2 chỉ số, trả lời chị Hằng. Bẫy: "giảm 90% dầu mỡ", trend iPhone 17, chê đối thủ, minigame, đăng vào nhóm cấm bán hàng, đánh giá chưa được đồng ý, chỉ đo tiếp cận/lượt thích. Rubric M04-A (bản nháp).
+
+## MISSION_005 · Data Analyst
+
+Doanh thu tuần 45 giảm 18%. Người học đọc doanh thu 4 tuần, theo kênh, nhật ký hệ thống, phễu app Android; chọn 3 phát hiện có bằng chứng, viết email báo cáo, chọn bước tiếp theo và 2 chỉ số, trả lời anh Hùng. Đáp án: tuần 44 bị thổi phồng (sale + 180 đơn trùng), lỗi thanh toán Android sau bản 3.2, "thêm vào giỏ" giảm do lỗi ghi dữ liệu. Bẫy: thời tiết, đối thủ, giá trị đơn, giảm giá 20%, gửi toàn công ty, đính kèm file có dữ liệu cá nhân. Rubric M05-A (bản nháp).
+
+## MISSION_006 · FP&A Analyst
+
+Tháng 10 lỗ 20 triệu thay vì lãi 350 triệu. Người học đọc báo cáo chênh lệch, ghi chú các phòng, chi phí vận chuyển theo tháng, kế hoạch quý IV và báo giá mới; chọn 3 khoản chênh lệch, viết bản ghi nhớ, chọn hành động và 2 chỉ số, trả lời chị Vân kèm ước tính tác động. Bẫy: giá vốn "nhờ nhà cung cấp", lạm phát, khoản 5 triệu, coi lương thấp là tiết kiệm, cắt 50% marketing trước 11/11, đính kèm bảng lương. Rubric M06-A (bản nháp).
