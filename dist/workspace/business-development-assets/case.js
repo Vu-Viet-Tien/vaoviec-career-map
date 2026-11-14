@@ -97,6 +97,7 @@ const CASE = {
     },
     {
       id: 'insight',
+      total: 50,
       title: 'Khảo sát: HR chọn nhà cung cấp quà Tết thế nào',
       meta: 'Khảo sát 50 phòng Nhân sự/Hành chính · tháng 10',
       items: [

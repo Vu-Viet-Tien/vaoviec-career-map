@@ -80,9 +80,9 @@ function taskBar() {
 function briefView() {
   const b = CASE.brief;
   return `<article class="eb-card eb-mail">
-    <header><span class="eb-avatar">Q</span><div><strong>${esc(b.from)}</strong><small>${esc(CASE.manager)}</small></div><time>08:45</time></header>
+    <header><span class="eb-avatar">${esc(b.from.trim().split(/\s+/).pop()[0])}</span><div><strong>${esc(b.from)}</strong><small>${esc(CASE.manager)}</small></div><time>08:45</time></header>
     <h2>${esc(b.subject)}</h2>${b.body.map(p => `<p>${esc(p)}</p>`).join('')}
-    <div class="eb-actions"><button class="primary" data-do="tab" data-id="data">Mở dữ liệu nghiên cứu →</button></div>
+    <div class="eb-actions"><button class="primary" data-do="tab" data-id="data">Mở ${esc(UI.tabs.data)} →</button></div>
   </article>`;
 }
 function bars(rows, total) {
@@ -90,11 +90,11 @@ function bars(rows, total) {
 }
 function sourceBody(src) {
   if (src.items) {
-    const total = src.id === 'survey' ? 14 : 12;
+    const total = src.total ?? (src.id === 'survey' ? 14 : 12);
     return src.items.map(([h, rows]) => `<h4>${esc(h)}</h4>${bars(rows, total)}`).join('') + (src.note ? `<p class="eb-note">${esc(src.note)}</p>` : '');
   }
-  if (src.quotes) return src.quotes.map(q => `<blockquote class="eb-quote"><p>“${esc(q.text)}”</p><footer>${esc(q.name)} · ${esc(q.role)} ${q.consent ? '<span class="tag ok">Đã đồng ý dùng tên</span>' : '<span class="tag warn">Chưa xác nhận</span>'}</footer></blockquote>`).join('') + `<p class="eb-note">${esc(src.note)}</p>`;
-  if (src.facts) return `<ul class="eb-facts">${src.facts.map(f => `<li>${esc(f)}</li>`).join('')}</ul><h4>Không có / chưa có</h4><ul class="eb-facts no">${src.not.map(f => `<li>${esc(f)}</li>`).join('')}</ul>`;
+  if (src.quotes) return src.quotes.map(q => `<blockquote class="eb-quote"><p>“${esc(q.text)}”</p><footer>${esc(q.name)} · ${esc(q.role)} ${q.consent ? `<span class="tag ok">${esc(src.tags?.[0] ?? 'Đã đồng ý dùng tên')}</span>` : `<span class="tag warn">${esc(src.tags?.[1] ?? 'Chưa xác nhận')}</span>`}</footer></blockquote>`).join('') + `<p class="eb-note">${esc(src.note)}</p>`;
+  if (src.facts) return `<ul class="eb-facts">${src.facts.map(f => `<li>${esc(f)}</li>`).join('')}</ul>${src.not?.length ? `<h4>Không có / chưa có</h4><ul class="eb-facts no">${src.not.map(f => `<li>${esc(f)}</li>`).join('')}</ul>` : ''}`;
   if (src.posts) return src.posts.map(p => `<div class="eb-social mini"><p>${esc(p)}</p></div>`).join('') + `<p class="eb-note">${esc(src.note)}</p>`;
   if (src.rows) return `<table class="eb-table"><thead><tr>${(src.head ?? ['Kênh', 'Số liệu', 'Ghi chú']).map(h => `<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${src.rows.map(r => `<tr>${r.map(c => `<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
   return '';

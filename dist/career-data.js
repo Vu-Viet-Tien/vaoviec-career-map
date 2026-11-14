@@ -526,8 +526,8 @@ const careerData = {
       "role_name_vi": "Chuyên viên Marketing Nội dung",
       "industry_group": "Marketing",
       "function": "Nội dung & Tìm kiếm tự nhiên",
-      "simulation_status": "in_development",
-      "mission_id": null,
+      "simulation_status": "available",
+      "mission_id": "MISSION_004",
       "role_description": "Lập kế hoạch và sản xuất nội dung theo mục tiêu chiến dịch, rồi dùng số liệu để điều chỉnh nội dung.",
       "daily_tasks": [
         "Lên kế hoạch nội dung theo chiến dịch và kênh",

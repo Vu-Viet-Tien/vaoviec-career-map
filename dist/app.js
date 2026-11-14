@@ -25,6 +25,15 @@ const missions = {
     url: "/workspace/business-development",
     // Trùng CASE.ui.storageKey trong workspace/business-development-assets/case.js.
     storageKey: "vaoviec-workspace-mission-003-v1"
+  },
+  MISSION_004: {
+    company: "NOVA Commerce",
+    description: "Ra mắt nồi chiên AirFry 5L: đọc dữ liệu từ khoá và câu hỏi của khách, chọn 3 chủ đề nội dung, viết bài đăng đầu tiên và chọn kênh phân phối để bán 300 nồi trong tháng 12.",
+    duration: "15–20 phút",
+    deliverable: "3 chủ đề nội dung có căn cứ, 1 bài đăng đúng thông tin sản phẩm, kế hoạch kênh kèm 2 chỉ số và khuyến nghị cho trưởng nhóm.",
+    url: "/workspace/content-marketing",
+    // Trùng CASE.ui.storageKey trong workspace/content-marketing-assets/case.js.
+    storageKey: "vaoviec-workspace-mission-004-v1"
   }
 };
 

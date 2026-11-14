@@ -5,11 +5,11 @@
   "functions": {
     "api/review.js": {
       "maxDuration": 60,
-      "includeFiles": "dist/workspace/{talent-acquisition-assets,employer-branding-assets,business-development-assets}/case.js"
+      "includeFiles": "dist/workspace/*-assets/case.js"
     },
     "api/assistant.js": {
       "maxDuration": 30,
-      "includeFiles": "dist/{career-data.js,workspace/talent-acquisition-assets/case.js,workspace/employer-branding-assets/case.js,workspace/business-development-assets/case.js}"
+      "includeFiles": "dist/{career-data.js,workspace/*-assets/case.js}"
     }
   }
 }
