@@ -768,8 +768,8 @@ const careerData = {
       "role_name_vi": "Chuyên viên Hoạch định và Phân tích Tài chính",
       "industry_group": "Tài chính",
       "function": "Tài chính doanh nghiệp",
-      "simulation_status": "in_development",
-      "mission_id": null,
+      "simulation_status": "available",
+      "mission_id": "MISSION_006",
       "role_description": "Hỗ trợ lập ngân sách, dự báo và phân tích kết quả tài chính để các bộ phận ra quyết định.",
       "daily_tasks": [
         "Tổng hợp báo cáo kết quả theo bộ phận",

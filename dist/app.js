@@ -43,6 +43,15 @@ const missions = {
     url: "/workspace/data-analyst",
     // Trùng CASE.ui.storageKey trong workspace/data-analyst-assets/case.js.
     storageKey: "vaoviec-workspace-mission-005-v1"
+  },
+  MISSION_006: {
+    company: "NOVA Commerce",
+    description: "Tháng 10 lỗ 20 triệu thay vì lãi 350 triệu: đọc báo cáo chênh lệch và ghi chú các phòng, chọn 3 khoản quan trọng nhất, viết bản ghi nhớ và đề xuất hành động bảo vệ lợi nhuận quý IV.",
+    duration: "15–20 phút",
+    deliverable: "3 khoản chênh lệch kèm nguyên nhân và tính lặp lại, 1 bản ghi nhớ cho Giám đốc Tài chính, hành động đề xuất kèm 2 chỉ số và ước tính tác động.",
+    url: "/workspace/fpa-analyst",
+    // Trùng CASE.ui.storageKey trong workspace/fpa-analyst-assets/case.js.
+    storageKey: "vaoviec-workspace-mission-006-v1"
   }
 };
 
