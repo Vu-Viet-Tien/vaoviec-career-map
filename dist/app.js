@@ -104,6 +104,7 @@ function renderTree() {
   const query = search.value.trim();
   if (!normalize(query)) {
     tree.innerHTML = treeMarkup(industry, roles.filter(role => role.industry_id === industry));
+    drawTreeLinks();
     return;
   }
 
@@ -115,7 +116,53 @@ function renderTree() {
       <button class="text-link reset" type="button">Xóa tìm kiếm</button></p>
     <div class="trees">${found.map(id => treeMarkup(id, matches.filter(role => role.industry_id === id))).join("")}</div>` :
     '<p role="status">Không tìm thấy vị trí phù hợp. <button class="text-link reset" type="button">Xóa tìm kiếm</button></p>';
+  drawTreeLinks();
 }
+
+// Đường nối cây nghề (feedback 14/11): đo vị trí thật của từng ô rồi vẽ đường cong SVG đồng nhất,
+// thay cho nét CSS cũ (bị thừa nét và không đều giữa các cấp).
+function curvePath(x1, y1, x2, y2) {
+  const mx = x1 + (x2 - x1) / 2;
+  return `M${x1} ${y1}C${mx} ${y1} ${mx} ${y2} ${x2} ${y2}`;
+}
+function drawTreeLinks() {
+  for (const treeEl of tree.querySelectorAll(".tree")) {
+    treeEl.querySelector(":scope > .tree-links")?.remove();
+    const box = treeEl.getBoundingClientRect();
+    if (!box.width) continue;
+    const at = (el, side) => {
+      const r = el.getBoundingClientRect();
+      return { x: (side === "right" ? r.right : side === "left" ? r.left : r.left + r.width / 2) - box.left, y: r.top + r.height / 2 - box.top, top: r.top - box.top, bottom: r.bottom - box.top, left: r.left - box.left };
+    };
+    const paths = [];
+    const root = treeEl.querySelector(".root");
+    const rootPt = at(root, "right");
+    const stacked = innerWidth <= 500;
+    for (const group of treeEl.querySelectorAll(".group")) {
+      const branch = group.querySelector(".branch");
+      const b = at(branch, "left");
+      if (!stacked) paths.push([curvePath(rootPt.x, rootPt.y, b.x, b.y), false]);
+      const bRight = at(branch, "right");
+      for (const role of group.querySelectorAll(".role")) {
+        const r = at(role, "left");
+        const on = role.classList.contains("selected");
+        // Màn hẹp: vị trí nằm dưới nhóm, nối bằng nét gấp khúc bo tròn từ cạnh trái nhóm.
+        const d = r.x > bRight.x + 4 ? curvePath(bRight.x, bRight.y, r.x, r.y)
+          : `M${b.x + 12} ${b.bottom}V${r.y - 8}Q${b.x + 12} ${r.y} ${b.x + 20} ${r.y}H${r.x}`;
+        paths.push([d, on]);
+      }
+    }
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("class", "tree-links");
+    svg.setAttribute("aria-hidden", "true");
+    svg.setAttribute("width", box.width);
+    svg.setAttribute("height", box.height);
+    svg.innerHTML = paths.sort((a, b) => a[1] - b[1]).map(([d, on]) => `<path d="${d}"${on ? ' class="on"' : ""}/>`).join("");
+    treeEl.prepend(svg);
+  }
+}
+new ResizeObserver(() => requestAnimationFrame(drawTreeLinks)).observe(tree);
+document.fonts?.ready.then(drawTreeLinks);
 
 function missionBlock(mission, role) {
   const action = missionActions(mission, role);

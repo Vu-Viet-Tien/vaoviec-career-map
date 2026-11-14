@@ -54,3 +54,12 @@ body:has(#explore:not([hidden])) {
 .branch{position:relative}
 .branch:after{content:'';position:absolute;left:100%;top:50%;width:8px;border-top:1.5px solid #9fb9e8}
 @media(max-width:500px){.branch:after{display:none}}
+/* Đường nối cây nghề vẽ bằng SVG (app.js · drawTreeLinks); tắt toàn bộ nét CSS cũ. */
+.root:after,.group:before,.group:after,.role:before,.role:after,.branch:after{display:none!important}
+.tree{position:relative}
+.tree>:not(.tree-links){position:relative;z-index:1}
+.tree-links{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:visible}
+.tree-links path{fill:none;stroke:#9dbbec;stroke-width:1.6;stroke-linecap:round}
+.tree-links path.on{stroke:#2f6fe0;stroke-width:2.2}
+@media(min-width:501px){.groups{margin-left:22px}.group{padding-left:22px;gap:34px}}
+@media(max-width:500px){.roles{margin-left:26px}}
