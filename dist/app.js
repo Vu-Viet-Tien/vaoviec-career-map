@@ -167,6 +167,7 @@ function render() {
   const route = location.hash;
   const showMap = route === careerMapPath || route === "#/explore" || route.startsWith("#/roles/");
   home.hidden = showMap;
+  document.querySelectorAll(".home-only").forEach(el => { el.hidden = showMap; });
   explore.hidden = !showMap;
   selected = showMap ? roles.find(role => rolePath(role) === route) ?? null : null;
   const currentMission = selected && missions[selected.mission_id];
@@ -224,3 +225,32 @@ explore.addEventListener("click", event => {
 search.addEventListener("input", renderTree);
 window.addEventListener("hashchange", render);
 render();
+
+// Section "Cách VAOVIEC hoạt động": rê chuột, bấm hoặc focus vào bước nào thì mở mô tả và đổi hình minh hoạ.
+// Khi cuộn tới section, bước 1 mở sẵn và ảnh cây nghề chạy lại từ đầu.
+(() => {
+  const how = document.querySelector("#how");
+  if (!how) return;
+  const steps = [...how.querySelectorAll(".how-step")];
+  const panels = [...how.querySelectorAll(".how-panel")];
+  const title = how.querySelector(".how-bar-title");
+  const gif = how.querySelector(".how-gif");
+  const activate = n => {
+    steps.forEach(s => { const on = s.dataset.step === n; s.classList.toggle("is-active", on); s.setAttribute("aria-expanded", on); });
+    panels.forEach(p => p.classList.toggle("is-active", p.id === "how-panel-" + n));
+    title.textContent = how.querySelector("#how-panel-" + n).dataset.title;
+  };
+  steps.forEach(s => {
+    const go = () => activate(s.dataset.step);
+    s.addEventListener("pointerenter", e => { if (e.pointerType !== "touch") go(); });
+    s.addEventListener("focus", go);
+    s.addEventListener("click", go);
+  });
+  new IntersectionObserver(entries => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      activate("1");
+      gif.src = gif.src.split("?")[0] + "?t=" + Date.now();
+    }
+  }, { threshold: .35 }).observe(how);
+})();

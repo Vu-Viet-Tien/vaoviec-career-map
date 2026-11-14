@@ -9,6 +9,10 @@
   border-bottom: 1px solid #dae4f3;
   color: #122342;
   font: 700 14px/1.2 system-ui, sans-serif;
+  /* Header luôn ghim ở đầu trang khi cuộn (feedback 14/11). */
+  position: sticky;
+  top: 0;
+  z-index: 50;
 }
 
 .site-header .site-header-nav {
@@ -61,8 +65,27 @@
   outline-offset: 3px;
 }
 
-.site-header-account {
+.site-header-cta {
   margin-inline-start: auto;
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 20px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #2f6fe0, #1b4fc4);
+  color: #fff;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow: 0 6px 16px #1b4fc433;
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.site-header-cta:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 9px 20px #1b4fc444;
+}
+
+.site-header-account {
   white-space: nowrap;
 }
 
@@ -72,6 +95,8 @@
   .site-header .site-header-nav { gap: 8px; }
   .site-header-nav :is(a, button) { gap: 3px; }
   .site-header-nav svg { width: 13px; height: 13px; }
+  .site-header-cta { display: none; }
+  .site-header-account { margin-inline-start: auto; }
 }
 
 @media (max-width: 380px) {

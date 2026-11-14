@@ -9,7 +9,7 @@ const headerItems = [
 function renderSiteHeader({ active, exploreUrl, workspaceUrl, inCase = false }) {
   siteHeader.innerHTML = `
     <a class="site-header-logo" href="/" aria-label="VAOVIEC. – Trang chủ">
-      <span class="vaoviec-wordmark"><img src="/vaoviec-logo.png" alt="" width="2172" height="724"></span>
+      <span class="vaoviec-wordmark"><img src="/vaoviec-logo.png" alt="" width="1200" height="390"></span>
     </a>
     <nav class="site-header-nav" aria-label="Điều hướng chính">
       ${headerItems.map(([key, label, icon]) => {
@@ -25,5 +25,6 @@ function renderSiteHeader({ active, exploreUrl, workspaceUrl, inCase = false }) 
         return `<a href="${url}"${current}>${content}</a>`;
       }).join("")}
     </nav>
+    <a class="site-header-cta" href="${exploreUrl}">Khám phá nghề</a>
     <span class="site-header-account">Đăng nhập</span>`;
 }

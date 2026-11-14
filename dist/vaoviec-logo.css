@@ -1,22 +1,14 @@
+/* Logo VAOVIEC. dùng file PNG nền trong suốt (14/11), không cần cắt khung hay hoà trộn màu nền. */
 .vaoviec-wordmark {
-  position: relative;
   display: block;
   flex: none;
   width: clamp(112px, 15vw, 166px);
-  aspect-ratio: 4.75;
-  overflow: hidden;
-  mix-blend-mode: multiply;
 }
 
 .vaoviec-wordmark img {
-  position: absolute;
-  top: 50%;
-  left: 50%;
   display: block;
-  width: 127%;
-  max-width: none;
+  width: 100%;
   height: auto;
-  transform: translate(-50%, -53%);
 }
 
 .office-topbar .vaoviec-wordmark {

@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="./styles.css">
 <link rel="stylesheet" href="/vaoviec-logo.css">
 <link rel="stylesheet" href="./home.css">
+<link rel="stylesheet" href="./landing.css">
 <link rel="stylesheet" href="/site-header.css">
 <script src="/site-header.js" defer></script>
 <script src="./career-data.js" defer></script>
@@ -35,7 +36,7 @@
     <circle class="home-ribbon-spark" cx="0" cy="0" r="4" fill="white"/>
   </svg>
   <section class="home-hero" aria-labelledby="home-tagline">
-    <span class="vaoviec-wordmark home-wordmark"><img src="/vaoviec-logo.png" alt="VAOVIEC." width="2172" height="724"></span>
+    <span class="vaoviec-wordmark home-wordmark"><img src="/vaoviec-logo.png" alt="VAOVIEC." width="1200" height="390"></span>
     <h1 id="home-tagline">
       <span class="tagline-line">Thử việc để <span class="tagline-gradient">hiểu nghề.</span></span>
       <span class="tagline-line tagline-line-accent">Thực hành để <span class="tagline-gradient">mở cơ hội.</span></span>
@@ -69,6 +70,66 @@
     </li>
   </ul>
 </main>
+<section id="how" class="how home-only" aria-labelledby="how-title">
+  <div class="how-inner">
+    <h2 id="how-title">Cách VAOVIEC hoạt động</h2>
+    <p class="how-lead">Tìm hiểu công việc, thử một nhiệm vụ và xem lại bài làm của bạn.</p>
+    <div class="how-grid">
+      <ol class="how-steps">
+        <li><button type="button" class="how-step is-active" data-step="1" aria-controls="how-panel-1" aria-expanded="true">
+          <span class="how-num">01</span>
+          <span class="how-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5z"/></svg></span>
+          <span class="how-text"><strong>Bản đồ nghề nghiệp</strong><span class="how-desc">Xem công việc hằng ngày, kỹ năng và công cụ của từng vị trí.</span></span>
+        </button></li>
+        <li><button type="button" class="how-step" data-step="2" aria-controls="how-panel-2" aria-expanded="false">
+          <span class="how-num">02</span>
+          <span class="how-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="4" width="14" height="11" rx="1"/><path d="m5 15-3 4h20l-3-4"/></svg></span>
+          <span class="how-text"><strong>Mô phỏng công việc</strong><span class="how-desc">Nhận nhiệm vụ như một thực tập sinh: đọc yêu cầu, xử lý hồ sơ và gửi đề xuất trong 10–15 phút.</span></span>
+        </button></li>
+        <li><button type="button" class="how-step" data-step="3" aria-controls="how-panel-3" aria-expanded="false">
+          <span class="how-num">03</span>
+          <span class="how-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="12" cy="12.5" r="2.2"/><path d="M8.5 18a3.6 3.6 0 0 1 7 0"/></svg></span>
+          <span class="how-text"><strong>Hồ sơ thực hành</strong><span class="how-desc">Nhận nhận xét theo tiêu chí, sửa bài và lưu bài làm làm minh chứng khi ứng tuyển.</span></span>
+        </button></li>
+      </ol>
+      <div class="how-preview">
+        <div class="how-bar"><img src="/vaoviec-logo.png" alt="VAOVIEC." width="1200" height="390"><span class="how-bar-title">Bản đồ nghề nghiệp</span></div>
+        <div class="how-panels">
+          <figure id="how-panel-1" class="how-panel is-active" data-title="Bản đồ nghề nghiệp">
+            <img class="how-gif" src="/landing/step-1-career-map.gif" alt="Cây nghề mở dần từ lĩnh vực Nhân sự tới các vị trí như Talent Acquisition Intern" width="960" height="456" loading="lazy">
+          </figure>
+          <figure id="how-panel-2" class="how-panel" data-title="Workspace · NOVA Commerce" aria-label="Minh hoạ Workspace: sàng lọc CV trong ATS mini">
+            <div class="mock-tabs"><span>Inbox</span><span>Đăng tin</span><span class="on">ATS mini</span><span>Bàn giao</span></div>
+            <div class="mock-ats">
+              <ul class="mock-list"><li class="on">Khánh Linh<small>Đề xuất phỏng vấn</small></li><li>Minh An<small>Cần xác minh</small></li><li>Gia Huy<small>Chưa quyết định</small></li><li>Tường Vy<small>Chưa quyết định</small></li></ul>
+              <div class="mock-cv"><b>Nguyễn Khánh Linh</b><i style="width:62%"></i><i></i><i style="width:84%"></i><i style="width:70%"></i><i></i><i style="width:55%"></i></div>
+              <div class="mock-decide"><span class="on">Đề xuất phỏng vấn</span><span>Cần xác minh</span><span>Dừng</span><em>Lý do: 8 tháng trả lời chat, làm được ca 13h–21h…</em><b>Lưu</b></div>
+            </div>
+          </figure>
+          <figure id="how-panel-3" class="how-panel" data-title="Hồ sơ thực hành" aria-label="Minh hoạ kết quả: nhận xét theo bốn tiêu chí">
+            <div class="mock-result">
+              <p class="mock-effort">Mức độ đầu tư: Nghiêm túc</p>
+              <ul><li>Tin tuyển dụng bám JD<span class="ok">Đạt</span></li><li>Quyết định sàng lọc khớp CV và JD<span class="ok">Đạt</span></li><li>Lý do có căn cứ cụ thể<span class="warn">Cần bổ sung</span></li><li>Khuyến nghị cho chị Mai<span class="ok">Đạt</span></li></ul>
+              <p class="mock-cvline"><b>Gợi ý ghi vào CV</b>Sàng lọc 5 hồ sơ CSKH theo JD trong dự án mô phỏng VAOVIEC., đề xuất 2 ứng viên kèm căn cứ.</p>
+            </div>
+          </figure>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-brand">
+      <img src="/vaoviec-logo.png" alt="VAOVIEC." width="1200" height="390">
+      <p>Thử việc để hiểu nghề. Thực hành để mở cơ hội.</p>
+      <a class="site-footer-social" href="https://www.facebook.com/profile.php?id=61596428676304&amp;sk=about" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M14 8.5V6.8c0-.8.5-1 1-1h2.3V2.2L14.2 2C10.9 2 10 4.1 10 6.4v2.1H7.6V12H10v10h4V12h2.9l.4-3.5z"/></svg>Facebook VAOVIEC.</a>
+    </div>
+    <nav aria-label="Sản phẩm"><h3>Sản phẩm</h3><a href="#/career-map">Bản đồ nghề nghiệp</a><a href="/workspace/talent-acquisition">Mô phỏng công việc</a><a href="/workspace/talent-acquisition#profile">Hồ sơ thực hành</a></nav>
+    <nav aria-label="Tìm hiểu"><h3>Tìm hiểu</h3><a href="#how">Cách VAOVIEC hoạt động</a><a href="https://www.facebook.com/profile.php?id=61596428676304&amp;sk=about" target="_blank" rel="noopener">Liên hệ qua Facebook</a></nav>
+  </div>
+  <p class="site-footer-note">© 2026 VAOVIEC. Dự án mô phỏng nghề nghiệp dành cho sinh viên. Các công ty và hồ sơ trong nhiệm vụ đều là giả lập; VAOVIEC. không cam kết thực tập hay việc làm.</p>
+</footer>
 <main id="explore" hidden>
 <h1>Bản đồ nghề nghiệp</h1>
 <nav id="tabs" aria-label="Lĩnh vực"></nav>
