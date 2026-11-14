@@ -1,7 +1,7 @@
-// NovaSpeechBubble: bong bóng thoại ngắn phía trên NOVA. Hiện vài giây rồi tự ẩn, không lặp dày.
+// NovaSpeechBubble: bong bóng thoại ngắn phía trên VaVi. Hiện vài giây rồi tự ẩn, không lặp dày.
 
 export const LINES = [
-  'Xin chào! Mình là Nova.',
+  'Xin chào! Mình là VaVi.',
   'Bạn cần mình giúp gì không?',
   'Mình luôn sẵn sàng hỗ trợ!',
   'Cùng khám phá nhé! ✨'

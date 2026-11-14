@@ -14,9 +14,9 @@ export default async function handler(req, res) {
     if (error instanceof SyntaxError) return res.status(400).json({ error: 'Dữ liệu gửi lên không phải JSON hợp lệ.' });
     if (error instanceof ApiError) {
       console.error('Gemini API error', error.status, error.message);
-      if (error.status === 429) return res.status(429).json({ error: 'NOVA đang nhận quá nhiều câu hỏi, bạn thử lại sau ít phút nhé.' });
+      if (error.status === 429) return res.status(429).json({ error: 'VaVi đang nhận quá nhiều câu hỏi, bạn thử lại sau ít phút nhé.' });
       if (error.status === 400 || error.status === 401 || error.status === 403) return res.status(500).json({ error: 'Máy chủ cấu hình khóa API hoặc model chưa đúng.' });
-      return res.status(502).json({ error: 'NOVA tạm mất kết nối, bạn thử lại sau nhé.' });
+      return res.status(502).json({ error: 'VaVi tạm mất kết nối, bạn thử lại sau nhé.' });
     }
     console.error(error);
     return res.status(500).json({ error: 'Lỗi không xác định.' });

@@ -1,4 +1,4 @@
-// NovaAssistant: dựng NOVA ở góc phải dưới, nối linh vật, hoạt ảnh, bong bóng thoại và khung chat.
+// NovaAssistant: dựng VaVi ở góc phải dưới, nối linh vật, hoạt ảnh, bong bóng thoại và khung chat.
 // Gắn vào trang: <link rel="stylesheet" href="/nova/nova.css"> và <script type="module" src="/nova/nova-assistant.js"></script>.
 // Trang có thể khai báo window.novaContext() (ngữ cảnh gửi lên /api/assistant) và window.novaTips() (gợi ý soạn sẵn).
 import { createMascotSVG } from './nova-mascot.js';
@@ -30,7 +30,8 @@ function pageContext() {
 
 function chipsFor(ctx) {
   if (ctx.page === 'workspace') {
-    return [['tips', 'Gợi ý cho việc đang làm'], ['ask:Mình nên làm gì tiếp theo?', 'Mình nên làm gì tiếp?'], ['ask:Giải thích giúp mình thuật ngữ ATS và JD.', 'ATS, JD là gì?']];
+    const term = ctx.mission === 'MISSION_002' ? ['ask:EVP là gì và vì sao cần bằng chứng?', 'EVP là gì?'] : ['ask:Giải thích giúp mình thuật ngữ ATS và JD.', 'ATS, JD là gì?'];
+    return [['tips', 'Gợi ý cho việc đang làm'], ['ask:Mình nên làm gì tiếp theo?', 'Mình nên làm gì tiếp?'], term];
   }
   if (ctx.page === 'role') {
     return [['ask:Nghề này hằng ngày làm gì và cần kỹ năng nào?', 'Nghề này làm gì?'], ['ask:Sinh viên nên chuẩn bị gì để thử nghề này?', 'Cần chuẩn bị gì?'], ['ask:Có nghề nào gần giống nghề này không?', 'Nghề tương tự']];
@@ -44,7 +45,7 @@ class NovaAssistant {
     this.root.className = 'nova-root';
     this.root.innerHTML = `
       <div class="nova-bubble" role="status"></div>
-      <button type="button" class="nova-mascot" aria-label="Mở trợ lý NOVA" aria-expanded="false" aria-controls="nova-chat">
+      <button type="button" class="nova-mascot" aria-label="Mở trợ lý VaVi" aria-expanded="false" aria-controls="nova-chat">
         <span class="nova-stage">
           <span class="nova-shadow"></span>
           <span class="nova-ring"></span><span class="nova-ring"></span>
@@ -86,7 +87,7 @@ class NovaAssistant {
     this.mascot.addEventListener('pointerleave', () => this.root.classList.remove('is-hover'));
     this.root.querySelector('.nova-bubble').addEventListener('click', () => { this.bubble.hide(); this.show(); });
     addEventListener('keydown', e => { if (e.key === 'Escape' && this.open && !this.chat.el.contains(document.activeElement)) this.close(); });
-    // Trang khác (vd. Workspace khi có kết quả chấm) có thể nhờ NOVA phản ứng: dispatchEvent(new CustomEvent('nova:react', {detail: 'excited'})).
+    // Trang khác (vd. Workspace khi có kết quả chấm) có thể nhờ VaVi phản ứng: dispatchEvent(new CustomEvent('nova:react', {detail: 'excited'})).
     addEventListener('nova:react', e => this.anim.play(e.detail));
     addEventListener('hashchange', () => { if (this.open) this.refreshChips(); });
   }
@@ -103,7 +104,7 @@ class NovaAssistant {
       this.anim.later(() => {
         if (this.open) return;
         this.anim.play('wave');
-        this.bubble.say('Xin chào! Mình là Nova 👋', 4200);
+        this.bubble.say('Xin chào! Mình là VaVi 👋', 4200);
         bubbles++;
         try { sessionStorage.setItem(greetedKey, '1'); } catch { /* bỏ qua */ }
       }, 1800);
@@ -136,10 +137,10 @@ class NovaAssistant {
     this.bubble.hide();
     this.root.classList.add('chat-open');
     this.mascot.setAttribute('aria-expanded', 'true');
-    this.mascot.setAttribute('aria-label', 'Đóng trợ lý NOVA');
+    this.mascot.setAttribute('aria-label', 'Đóng trợ lý VaVi');
     this.chat.minimize(false);
     if (!this.chat.log.children.length) {
-      this.chat.add('nova', 'Chào bạn! Mình là NOVA, trợ lý của VAOVIEC. Bạn có thể hỏi mình về các nghề trong Career Map hoặc nhiệm vụ mô phỏng đang làm nhé.');
+      this.chat.add('nova', 'Chào bạn! Mình là VaVi, trợ lý của VAOVIEC. Bạn có thể hỏi mình về các nghề trong Career Map hoặc nhiệm vụ mô phỏng đang làm nhé.');
     }
     this.refreshChips();
     this.anim.play('wave');
@@ -149,7 +150,7 @@ class NovaAssistant {
   close() {
     this.root.classList.remove('chat-open');
     this.mascot.setAttribute('aria-expanded', 'false');
-    this.mascot.setAttribute('aria-label', 'Mở trợ lý NOVA');
+    this.mascot.setAttribute('aria-label', 'Mở trợ lý VaVi');
     if (!this.pending) this.anim.setBase('idle');
     if (this.chat.el.contains(document.activeElement)) this.mascot.focus({ preventScroll: true });
   }
@@ -169,7 +170,7 @@ class NovaAssistant {
   // Gợi ý soạn sẵn của Workspace (nội dung case.js), không gọi AI.
   showTips() {
     const tips = typeof window.novaTips === 'function' ? window.novaTips() : null;
-    if (!tips) return this.chat.add('note', 'Trang này chưa có gợi ý soạn sẵn. Bạn cứ đặt câu hỏi cho NOVA nhé.');
+    if (!tips) return this.chat.add('note', 'Trang này chưa có gợi ý soạn sẵn. Bạn cứ đặt câu hỏi cho VaVi nhé.');
     this.chat.addTips(tips.label, tips.items);
     this.anim.play('excited');
   }
@@ -192,7 +193,7 @@ class NovaAssistant {
         signal: AbortSignal.timeout(35000)
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok || typeof data.reply !== 'string') throw new Error(data.error || 'NOVA tạm mất kết nối, bạn thử lại sau nhé.');
+      if (!res.ok || typeof data.reply !== 'string') throw new Error(data.error || 'VaVi tạm mất kết nối, bạn thử lại sau nhé.');
       typing.remove();
       this.history.push({ role: 'user', text }, { role: 'nova', text: data.reply });
       store.write(this.history);
@@ -203,7 +204,7 @@ class NovaAssistant {
       this.anim.play('jump');
     } catch (error) {
       typing.remove();
-      const message = error?.name === 'TimeoutError' ? 'NOVA phản hồi quá lâu, bạn thử hỏi lại nhé.' : error.message;
+      const message = error?.name === 'TimeoutError' ? 'VaVi phản hồi quá lâu, bạn thử hỏi lại nhé.' : error.message;
       this.chat.add('note', message);
       this.chat.setStatus('offline');
       this.anim.setBase('idle');
@@ -213,7 +214,7 @@ class NovaAssistant {
     }
   }
 
-  // Hiện câu trả lời dần từng đoạn để NOVA "nói", rút ngắn khi người dùng giảm chuyển động.
+  // Hiện câu trả lời dần từng đoạn để VaVi "nói", rút ngắn khi người dùng giảm chuyển động.
   async reveal(text) {
     const msg = this.chat.add('nova', '');
     if (!this.anim.motion) { msg.textContent = text; this.chat.scroll(); return; }

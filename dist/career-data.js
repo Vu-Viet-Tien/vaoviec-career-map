@@ -1499,8 +1499,8 @@ const careerData = {
       "role_name_vi": "Chuyên viên Thương hiệu Tuyển dụng",
       "industry_group": "Nhân sự",
       "function": "Tuyển dụng & Thương hiệu tuyển dụng",
-      "simulation_status": "in_development",
-      "mission_id": null,
+      "simulation_status": "available",
+      "mission_id": "MISSION_002",
       "role_description": "Xây dựng hình ảnh nhà tuyển dụng và truyền thông về môi trường làm việc để tiếp cận nhóm ứng viên phù hợp.",
       "daily_tasks": [
         "Lên kế hoạch nội dung về văn hóa và cơ hội nghề nghiệp",

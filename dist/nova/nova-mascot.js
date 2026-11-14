@@ -1,6 +1,6 @@
-// NovaMascot: hình robot NOVA vẽ bằng SVG, chia thành từng bộ phận (đầu, mắt, miệng, tay, chân)
+// NovaMascot: hình robot VaVi vẽ bằng SVG, chia thành từng bộ phận (đầu, mắt, miệng, tay, chân)
 // để nova-animation.js và nova.css điều khiển riêng từng phần.
-// Mọi id trong <defs> có tiền tố riêng, nên có thể vẽ nhiều NOVA trên một trang (linh vật + avatar trong chat).
+// Mọi id trong <defs> có tiền tố riêng, nên có thể vẽ nhiều VaVi trên một trang (linh vật + avatar trong chat).
 
 function defs(p) {
   return `<defs>

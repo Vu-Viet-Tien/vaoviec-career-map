@@ -27,9 +27,10 @@ Khóa `GEMINI_API_KEY` đặt trong Vercel → Project → Settings → Environm
 
 - `dist/index.html`, `dist/home.css`, `dist/styles.css`, `dist/app.js`, `dist/career-data.js` — Trang chủ và Career Map.
 - `dist/site-header.js`, `dist/site-header.css` — header chung.
-- `dist/workspace/talent-acquisition.html` và `dist/workspace/talent-acquisition-assets/` — Workspace NOVA: `case.js` (nội dung case), `app.js` (logic), `style.css`, ảnh văn phòng, PDF JD và PDF.js.
-- `dist/nova/` — trợ lý NOVA ở góc phải dưới mọi trang: `nova-mascot.js` (robot SVG), `nova-animation.js` (trạng thái hoạt ảnh), `nova-speech-bubble.js`, `nova-chat-window.js`, `nova-assistant.js` (gắn tất cả, gọi `/api/assistant`), `nova.css`.
-- `lib/gemini.js` — gọi Gemini với chuỗi model dự phòng. `lib/review-core.js` — rubric chấm bài. `lib/assistant-core.js` — lời nhắc của NOVA (ngữ cảnh nghề và nhiệm vụ do server tự đọc; chế độ Thử sức không đưa đáp án).
+- `dist/workspace/employer-branding.html` và `dist/workspace/employer-branding-assets/` — MISSION_002 Employer Branding Executive: `case.js` (dữ liệu nghiên cứu, EVP, gợi ý), `app.js`, `style.css`. Rubric ở `lib/review-eb.js`; `api/review.js` chọn bộ chấm theo trường `mission`.
+- `dist/workspace/talent-acquisition.html` và `dist/workspace/talent-acquisition-assets/` — Workspace VaVi: `case.js` (nội dung case), `app.js` (logic), `style.css`, ảnh văn phòng, PDF JD và PDF.js.
+- `dist/nova/` — trợ lý VaVi ở góc phải dưới mọi trang: `nova-mascot.js` (robot SVG), `nova-animation.js` (trạng thái hoạt ảnh), `nova-speech-bubble.js`, `nova-chat-window.js`, `nova-assistant.js` (gắn tất cả, gọi `/api/assistant`), `nova.css`.
+- `lib/gemini.js` — gọi Gemini với chuỗi model dự phòng. `lib/review-core.js` — rubric chấm bài. `lib/assistant-core.js` — lời nhắc của VaVi (ngữ cảnh nghề và nhiệm vụ do server tự đọc; chế độ Thử sức không đưa đáp án).
 - `api/review.js`, `api/assistant.js` là hàm Vercel; `scripts/dev-server.mjs` là máy chủ local.
 
 ## MISSION_001 · Talent Acquisition Intern
@@ -44,3 +45,15 @@ Luồng (cập nhật 14/11 theo feedback 13/11):
 6. AI chấm 4 tiêu chí và mức độ đầu tư. Gợi ý ghi vào CV trong Hồ sơ trải nghiệm chỉ mở khi bài đạt từ 2/4 tiêu chí và không bị đánh giá "Làm cho có".
 
 Nội dung CV, thư và câu trả lời mẫu nằm trong `case.js`. Rubric và ghi chú đáp án nằm trong `lib/review-core.js` (bản nháp, chờ Bôn và Hà Anh duyệt). Tiến độ lưu trên trình duyệt theo tên miền, nên bản local và bản Vercel có tiến độ riêng.
+
+## MISSION_002 · Employer Branding Executive
+
+Tin tuyển CSKH của NOVA Commerce đăng 3 tuần chỉ có 11 hồ sơ. Người học:
+
+1. Đọc brief của anh Quân và 6 tài liệu nghiên cứu (khảo sát nhân viên, câu nói nhân viên, lý do ứng viên bỏ đi, chính sách HR, tin của nơi khác, số liệu kênh).
+2. Chọn đúng 3 trụ cột EVP và ghi bằng chứng. Có 3 lựa chọn bẫy: "không áp lực", "làm từ xa", "lương cao nhất thị trường".
+3. Viết bài đăng cho một kênh, có bản xem trước. Bẫy: trích dẫn của Mai Anh chưa được đồng ý.
+4. Chọn 1–3 kênh và đúng 2 chỉ số đo, rồi trả lời câu hỏi của anh Quân.
+5. AI chấm 4 tiêu chí (rubric M02-A, bản nháp chờ duyệt) và mức độ đầu tư; có nhận xét nhanh dựng sẵn khi AI lỗi.
+
+Trợ lý linh vật tên VaVi (mã nguồn vẫn ở `dist/nova/`).

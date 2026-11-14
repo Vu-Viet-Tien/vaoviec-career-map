@@ -7,6 +7,15 @@ const missions = {
     url: "/workspace/talent-acquisition",
     // Trùng khóa lưu tiến độ trong workspace/talent-acquisition-assets/app.js.
     storageKey: "vaoviec-workspace-mission-001-v1"
+  },
+  MISSION_002: {
+    company: "NOVA Commerce",
+    description: "Tin tuyển CSKH đăng 3 tuần chỉ có 11 hồ sơ. Đọc dữ liệu nhân viên và ứng viên, chọn 3 trụ cột EVP, viết bài đăng tuyển dụng, chọn kênh và chỉ số đo.",
+    duration: "15–20 phút",
+    deliverable: "3 trụ cột EVP có bằng chứng, 1 bài đăng tuyển dụng, kế hoạch kênh kèm 2 chỉ số và khuyến nghị cho trưởng nhóm.",
+    url: "/workspace/employer-branding",
+    // Trùng khóa lưu tiến độ trong workspace/employer-branding-assets/app.js.
+    storageKey: "vaoviec-workspace-mission-002-v1"
   }
 };
 
@@ -126,7 +135,10 @@ function missionBlock(mission, role) {
 
 function renderHomeContinue() {
   const slot = document.querySelector("#home-continue");
-  const role = roles.find(item => item.simulation_status === "available" && missions[item.mission_id]);
+  // Ưu tiên nhiệm vụ đang làm dở, sau đó tới nhiệm vụ đã nộp.
+  const playable = roles.filter(item => item.simulation_status === "available" && missions[item.mission_id]);
+  const rank = { progress: 0, submitted: 1, new: 2 };
+  const role = playable.sort((a, b) => rank[missionProgress(missions[a.mission_id])] - rank[missionProgress(missions[b.mission_id])])[0];
   const action = role && missionActions(missions[role.mission_id], role);
   slot.hidden = !action || action.status === "new";
   if (slot.hidden) return;

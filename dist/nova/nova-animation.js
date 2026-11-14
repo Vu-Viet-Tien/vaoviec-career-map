@@ -1,4 +1,4 @@
-// NovaAnimation: máy trạng thái hoạt ảnh của NOVA.
+// NovaAnimation: máy trạng thái hoạt ảnh của VaVi.
 // Trạng thái nền: idle | listening | thinking | responding. Trạng thái ngắn (chạy xong tự về nền): jump | wave | excited.
 // CSS (nova.css) vẽ chuyển động theo data-state + data-face; file này chỉ quyết định khi nào đổi trạng thái.
 

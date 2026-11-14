@@ -17,22 +17,22 @@ export class NovaChatWindow {
     this.el.className = 'nova-chat';
     this.el.id = 'nova-chat';
     this.el.setAttribute('role', 'dialog');
-    this.el.setAttribute('aria-label', 'Trò chuyện với NOVA');
+    this.el.setAttribute('aria-label', 'Trò chuyện với VaVi');
     this.el.innerHTML = `
       <header class="nova-chat-head">
         <span class="nova-avatar">${createAvatarSVG('nova-av')}</span>
-        <div class="nova-chat-title"><strong>NOVA AI Assistant</strong><span class="nova-status" data-status="online"><i></i><span>Online</span></span></div>
+        <div class="nova-chat-title"><strong>VaVi AI Assistant</strong><span class="nova-status" data-status="online"><i></i><span>Online</span></span></div>
         <button type="button" class="nova-icon-btn" data-nova="min" aria-label="Thu nhỏ">${ICONS.min}</button>
         <button type="button" class="nova-icon-btn" data-nova="close" aria-label="Đóng">${ICONS.close}</button>
       </header>
       <div class="nova-log" role="log" aria-live="polite"></div>
       <div class="nova-chips"></div>
       <form class="nova-form">
-        <label class="nova-sr" for="nova-input">Câu hỏi cho NOVA</label>
-        <textarea id="nova-input" class="nova-input" rows="1" maxlength="600" placeholder="Hỏi NOVA về nghề hoặc nhiệm vụ…"></textarea>
+        <label class="nova-sr" for="nova-input">Câu hỏi cho VaVi</label>
+        <textarea id="nova-input" class="nova-input" rows="1" maxlength="600" placeholder="Hỏi VaVi về nghề hoặc nhiệm vụ…"></textarea>
         <button type="submit" class="nova-send" aria-label="Gửi" disabled>${ICONS.send}</button>
       </form>
-      <p class="nova-foot">NOVA dùng AI nên có thể nhầm. Đừng nhập thông tin cá nhân.</p>`;
+      <p class="nova-foot">VaVi dùng AI nên có thể nhầm. Đừng nhập thông tin cá nhân.</p>`;
     this.log = this.el.querySelector('.nova-log');
     this.chips = this.el.querySelector('.nova-chips');
     this.input = this.el.querySelector('.nova-input');
@@ -125,7 +125,7 @@ export class NovaChatWindow {
   typing() {
     const msg = document.createElement('div');
     msg.className = 'nova-msg nova-msg-nova';
-    msg.setAttribute('aria-label', 'NOVA đang soạn câu trả lời');
+    msg.setAttribute('aria-label', 'VaVi đang soạn câu trả lời');
     msg.innerHTML = '<span class="nova-typing"><i></i><i></i><i></i></span>';
     this.log.append(msg);
     this.scroll();
