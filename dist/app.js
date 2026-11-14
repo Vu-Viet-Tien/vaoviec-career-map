@@ -16,6 +16,15 @@ const missions = {
     url: "/workspace/employer-branding",
     // Trùng khóa lưu tiến độ trong workspace/employer-branding-assets/app.js.
     storageKey: "vaoviec-workspace-mission-002-v1"
+  },
+  MISSION_003: {
+    company: "NOVA Commerce",
+    description: "Mùa quà Tết doanh nghiệp: sàng lọc 8 khách hàng tiềm năng, chọn 3 lead ưu tiên, viết email tiếp cận và lên kế hoạch theo dõi để ký 2 đơn trước 20/12.",
+    duration: "15–20 phút",
+    deliverable: "3 lead ưu tiên kèm lý do, 1 email tiếp cận cá nhân hoá, kế hoạch theo dõi kèm 2 chỉ số và khuyến nghị cho trưởng nhóm.",
+    url: "/workspace/business-development",
+    // Trùng CASE.ui.storageKey trong workspace/business-development-assets/case.js.
+    storageKey: "vaoviec-workspace-mission-003-v1"
   }
 };
 

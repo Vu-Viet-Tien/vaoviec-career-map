@@ -1046,8 +1046,8 @@ const careerData = {
       "role_name_vi": "Chuyên viên Phát triển Kinh doanh B2B",
       "industry_group": "Kinh doanh & Vận hành",
       "function": "Phát triển & Hỗ trợ kinh doanh",
-      "simulation_status": "in_development",
-      "mission_id": null,
+      "simulation_status": "available",
+      "mission_id": "MISSION_003",
       "role_description": "Tìm khách hàng doanh nghiệp, tìm hiểu nhu cầu và phối hợp đưa ra đề xuất giải pháp.",
       "daily_tasks": [
         "Tìm khách hàng tiềm năng qua các kênh tiếp cận",

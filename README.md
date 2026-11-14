@@ -27,7 +27,8 @@ Khóa `GEMINI_API_KEY` đặt trong Vercel → Project → Settings → Environm
 
 - `dist/index.html`, `dist/home.css`, `dist/styles.css`, `dist/app.js`, `dist/career-data.js` — Trang chủ và Career Map.
 - `dist/site-header.js`, `dist/site-header.css` — header chung.
-- `dist/workspace/employer-branding.html` và `dist/workspace/employer-branding-assets/` — MISSION_002 Employer Branding Executive: `case.js` (dữ liệu nghiên cứu, EVP, gợi ý), `app.js`, `style.css`. Rubric ở `lib/review-eb.js`; `api/review.js` chọn bộ chấm theo trường `mission`.
+- `dist/workspace/mission-engine.js` + `mission.css` — khung Workspace 6 bước dùng chung cho MISSION_002 (`employer-branding.html`, `employer-branding-assets/case.js`) và MISSION_003 (`business-development.html`, `business-development-assets/case.js`). Chữ riêng mỗi nghề nằm trong `CASE.ui`. Rubric cả hai ở `lib/review-simple.js`; `api/review.js` chọn bộ chấm theo trường `mission`.
+- `dist/ds.css`, `dist/ui.js` — design system dùng chung; `dist/theme-dark.css` — chế độ tối (nút trên header, lưu `vaoviec-theme`).
 - `dist/workspace/talent-acquisition.html` và `dist/workspace/talent-acquisition-assets/` — Workspace VaVi: `case.js` (nội dung case), `app.js` (logic), `style.css`, ảnh văn phòng, PDF JD và PDF.js.
 - `dist/nova/` — trợ lý VaVi ở góc phải dưới mọi trang: `nova-mascot.js` (robot SVG), `nova-animation.js` (trạng thái hoạt ảnh), `nova-speech-bubble.js`, `nova-chat-window.js`, `nova-assistant.js` (gắn tất cả, gọi `/api/assistant`), `nova.css`.
 - `lib/gemini.js` — gọi Gemini với chuỗi model dự phòng. `lib/review-core.js` — rubric chấm bài. `lib/assistant-core.js` — lời nhắc của VaVi (ngữ cảnh nghề và nhiệm vụ do server tự đọc; chế độ Thử sức không đưa đáp án).
@@ -57,3 +58,7 @@ Tin tuyển CSKH của NOVA Commerce đăng 3 tuần chỉ có 11 hồ sơ. Ngư
 5. AI chấm 4 tiêu chí (rubric M02-A, bản nháp chờ duyệt) và mức độ đầu tư; có nhận xét nhanh dựng sẵn khi AI lỗi.
 
 Trợ lý linh vật tên VaVi (mã nguồn vẫn ở `dist/nova/`).
+
+## MISSION_003 · Business Development Executive (B2B)
+
+NOVA Commerce mở mảng quà Tết doanh nghiệp, mục tiêu ký 2 đơn trước 20/12. Người học đọc 6 tài liệu (8 lead, ghi chú CRM, bảng giá, case study, khảo sát HR, email mẫu cũ), chọn 3 lead ưu tiên kèm lý do, viết email tiếp cận (xem trước như hộp thư), chọn bước theo dõi và 2 chỉ số, trả lời chị Lan. Bẫy: lead đã từ chối hẹn tháng 3, lead 12 người, đối thủ, email chung, hứa giao 48h hoặc in logo dưới 300 hộp, case study chưa được phép, gửi đồng loạt mỗi ngày, chỉ đo số email gửi/lượt mở. Rubric M03-A (bản nháp).

@@ -10,6 +10,17 @@ const CASE = {
   managerShort: 'anh Quân',
   deadline: '17:00 thứ Năm',
   duration: '15–20 phút',
+  ui: {
+    slug: 'employer-branding-executive',
+    storageKey: 'vaoviec-workspace-mission-002-v1',
+    caseName: 'NOVA Commerce · Truyền thông tuyển CSKH',
+    topic: 'thương hiệu tuyển dụng',
+    tabs: { brief: 'Brief từ anh Quân', data: 'Dữ liệu nghiên cứu', evp: 'Bảng EVP', post: 'Bài đăng tuyển dụng', plan: 'Kênh & chỉ số', handoff: 'Bàn giao' },
+    dataLead: 'Mở từng tài liệu để tìm căn cứ cho EVP và bài đăng.',
+    pick: { count: 3, summary: 'EVP', lead: 'Chọn đúng 3 trụ cột giá trị và ghi bằng chứng cho từng trụ cột (con số, chính sách hoặc câu nói của nhân viên).', placeholder: 'Bằng chứng: ví dụ “9/14 nhân viên chọn…”, chính sách HR, câu nói của nhân viên', error: 'Chọn đúng 3 trụ cột và ghi bằng chứng tối thiểu {min} ký tự cho mỗi trụ cột.' },
+    write: { min: 150, summary: 'Bài đăng', preview: 'social', sender: 'NOVA Commerce Tuyển dụng', quoteSource: 'voices', lead: 'Viết một bài cho một kênh. Bên phải là bản xem trước như khi đăng thật.', channelLegend: 'Đăng trên kênh', titleLabel: 'Tiêu đề', titlePlaceholder: 'Ví dụ: NOVA Commerce tuyển 3 Nhân viên CSKH ca chiều…', bodyLabel: 'Nội dung', bodyPlaceholder: 'Công việc, ca làm, thu nhập, hỗ trợ khi mới vào, cách ứng tuyển…', quoteLabel: 'Trích dẫn nhân viên (không bắt buộc)', error: 'Chọn kênh, viết tiêu đề và nội dung bài đăng tối thiểu {min} ký tự.' },
+    plan: { maxChannels: 3, kpiCount: 2, summaryChannels: 'Kênh', summaryKpis: 'Chỉ số', lead: 'Chọn kênh triển khai (1–3 kênh) và đúng 2 chỉ số để đo hiệu quả trong 2 tuần.', channelLegend: 'Kênh triển khai', kpiLegend: 'Chỉ số đo', targetLabel: 'Mục tiêu cụ thể (không bắt buộc)', targetPlaceholder: 'Ví dụ: từ 4 lên 10 hồ sơ/tuần sau 2 tuần', error: 'Chọn ít nhất 1 kênh và đúng 2 chỉ số đo.' }
+  },
   companyIntro: [
     'NOVA Commerce là doanh nghiệp bán lẻ trực tuyến giả lập có văn phòng tại Hà Nội, bán đồ gia dụng nhỏ qua website và sàn thương mại điện tử.',
     'Đội Chăm sóc khách hàng (CSKH) có 18 người, làm theo ca và đang cần tuyển thêm 3 người cho ca chiều và luân phiên cuối tuần.',

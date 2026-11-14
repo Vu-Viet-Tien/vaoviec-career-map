@@ -1,19 +1,15 @@
-// Workspace MISSION_002 · Employer Branding Executive tại NOVA Commerce.
-// Luồng: Brief → Dữ liệu nghiên cứu → Bảng EVP → Bài đăng → Kênh & KPI → Bàn giao → AI chấm → sửa và nộp lại.
-const KEY = 'vaoviec-workspace-mission-002-v1';
+// Workspace dùng chung cho các nhiệm vụ 6 bước (MISSION_002 Employer Branding, MISSION_003 Business Development B2B…).
+// Luồng: Brief → Dữ liệu → Chọn (kèm bằng chứng) → Soạn nội dung có xem trước → Kế hoạch & chỉ số → Bàn giao → AI chấm → sửa và nộp lại.
+// Mọi chữ riêng của từng nghề nằm trong CASE.ui (case.js của nhiệm vụ). Tên khoá state giữ như bản đầu (pillars/post/plan) để không mất tiến độ cũ.
+const UI = CASE.ui;
+const KEY = UI.storageKey;
 const MODES = {
-  guided: { label: 'Làm quen', summary: 'Phù hợp khi bạn mới tìm hiểu thương hiệu tuyển dụng.', points: ['Giải thích thuật ngữ và cách làm từng bước', 'Có thể xem phương án mẫu khi hỏi trợ lý', 'Phù hợp để hình dung công việc hằng ngày'] },
+  guided: { label: 'Làm quen', summary: `Phù hợp khi bạn mới tìm hiểu ${UI.topic}.`, points: ['Giải thích thuật ngữ và cách làm từng bước', 'Có thể xem phương án mẫu khi hỏi trợ lý', 'Phù hợp để hình dung công việc hằng ngày'] },
   self: { label: 'Thử sức', summary: 'Phù hợp khi bạn muốn tự xử lý như một nhân viên thật.', points: ['Trợ lý chỉ đưa câu hỏi định hướng', 'Bạn tự chọn thông điệp và giải thích', 'Không xem phương án mẫu trong lúc làm'] }
 };
-const TABS = [
-  ['brief', 'Brief từ anh Quân', 'research'],
-  ['data', 'Dữ liệu nghiên cứu', 'research'],
-  ['evp', 'Bảng EVP', 'create'],
-  ['post', 'Bài đăng tuyển dụng', 'create'],
-  ['plan', 'Kênh & chỉ số', 'handoff'],
-  ['handoff', 'Bàn giao', 'handoff']
-];
-const MIN_EVIDENCE = 20, MIN_POST = 150, MIN_REC = 40;
+const TABS = ['brief', 'data', 'evp', 'post', 'plan', 'handoff'].map(id => [id, UI.tabs[id]]);
+const MIN_EVIDENCE = 20, MIN_POST = UI.write.min ?? 150, MIN_REC = 40;
+const PICK = UI.pick.count ?? 3, MAX_CH = UI.plan.maxChannels ?? 3, KPI_N = UI.plan.kpiCount ?? 2;
 
 const read = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } };
 const write = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* trình duyệt chặn lưu */ } };
@@ -26,10 +22,10 @@ let overlay = '', viewVersion = null, errors = {};
 const save = () => write(KEY, s);
 const app = $('#app'), modal = $('#dialog');
 
-renderSiteHeader({ active: 'workspace', exploreUrl: '/#/roles/employer-branding-executive', inCase: true });
+renderSiteHeader({ active: 'workspace', exploreUrl: `/#/roles/${UI.slug}`, inCase: true });
 $('.case-position').textContent = CASE.role;
-$('.case-name').textContent = `${CASE.company} · Truyền thông tuyển CSKH`;
-$('.case-return').href = '/#/roles/employer-branding-executive';
+$('.case-name').textContent = UI.caseName;
+$('.case-return').href = `/#/roles/${UI.slug}`;
 
 // ---------- Tiến độ ----------
 const chosen = () => CASE.pillars.filter(p => s.pillars[p.id]?.on);
@@ -37,9 +33,9 @@ const readCount = () => CASE.sources.filter(x => s.read[x.id]).length;
 const done = {
   brief: () => !!s.read.brief,
   data: () => readCount() === CASE.sources.length,
-  evp: () => chosen().length === 3 && chosen().every(p => (s.pillars[p.id].evidence ?? '').trim().length >= MIN_EVIDENCE),
+  evp: () => chosen().length === PICK && chosen().every(p => (s.pillars[p.id].evidence ?? '').trim().length >= MIN_EVIDENCE),
   post: () => !!s.post.channel && s.post.title.trim().length >= 10 && s.post.body.trim().length >= MIN_POST,
-  plan: () => s.plan.channels.length >= 1 && s.plan.kpis.length === 2,
+  plan: () => s.plan.channels.length >= 1 && s.plan.kpis.length === KPI_N,
   handoff: () => !!s.submission
 };
 function stage() {
@@ -68,14 +64,14 @@ function sidebar() {
   return `<nav class="eb-nav" aria-label="Các bước nhiệm vụ">${TABS.map(([id, label], i) => `
     <button type="button" data-do="tab" data-id="${id}" class="${s.tab === id ? 'on' : ''}" ${s.tab === id ? 'aria-current="step"' : ''}>
       <span class="eb-dot ${done[id]() ? 'ok' : ''}">${done[id]() ? '✓' : i + 1}</span><span>${esc(label)}</span>
-      ${id === 'data' ? `<small>${readCount()}/${CASE.sources.length}</small>` : id === 'evp' ? `<small>${chosen().length}/3</small>` : ''}
+      ${id === 'data' ? `<small>${readCount()}/${CASE.sources.length}</small>` : id === 'evp' ? `<small>${chosen().length}/${PICK}</small>` : ''}
     </button>`).join('')}
     <div class="eb-deadline"><span>Hạn gửi</span><strong>${esc(CASE.deadline)}</strong></div>
   </nav>`;
 }
 function taskBar() {
   const next = nextStep();
-  const text = s.submission ? 'Đã gửi đề xuất. Xem nhận xét, sửa và nộp lại nếu cần.' : next ? `Việc tiếp theo: ${next[1]}` : 'Sẵn sàng gửi đề xuất cho anh Quân.';
+  const text = s.submission ? 'Đã gửi đề xuất. Xem nhận xét, sửa và nộp lại nếu cần.' : next ? `Việc tiếp theo: ${next[1]}` : `Sẵn sàng gửi đề xuất cho ${CASE.managerShort}.`;
   const action = s.submission ? `<button class="primary" data-do="feedback">Xem kết quả</button>` : next && next[0] !== s.tab ? `<button class="primary" data-do="tab" data-id="${next[0]}">Mở ${esc(next[1])} →</button>` : '';
   return `<footer class="eb-task"><span>${esc(text)}</span>${action}</footer>`;
 }
@@ -100,69 +96,77 @@ function sourceBody(src) {
   if (src.quotes) return src.quotes.map(q => `<blockquote class="eb-quote"><p>“${esc(q.text)}”</p><footer>${esc(q.name)} · ${esc(q.role)} ${q.consent ? '<span class="tag ok">Đã đồng ý dùng tên</span>' : '<span class="tag warn">Chưa xác nhận</span>'}</footer></blockquote>`).join('') + `<p class="eb-note">${esc(src.note)}</p>`;
   if (src.facts) return `<ul class="eb-facts">${src.facts.map(f => `<li>${esc(f)}</li>`).join('')}</ul><h4>Không có / chưa có</h4><ul class="eb-facts no">${src.not.map(f => `<li>${esc(f)}</li>`).join('')}</ul>`;
   if (src.posts) return src.posts.map(p => `<div class="eb-social mini"><p>${esc(p)}</p></div>`).join('') + `<p class="eb-note">${esc(src.note)}</p>`;
-  if (src.rows) return `<table class="eb-table"><thead><tr><th>Kênh</th><th>Số liệu</th><th>Ghi chú</th></tr></thead><tbody>${src.rows.map(r => `<tr>${r.map(c => `<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+  if (src.rows) return `<table class="eb-table"><thead><tr>${(src.head ?? ['Kênh', 'Số liệu', 'Ghi chú']).map(h => `<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${src.rows.map(r => `<tr>${r.map(c => `<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
   return '';
 }
 function dataView() {
-  return `<div class="eb-head"><h2>Dữ liệu nghiên cứu</h2><p>Mở từng tài liệu để tìm căn cứ cho EVP và bài đăng. Đã đọc ${readCount()}/${CASE.sources.length}.</p></div>
+  return `<div class="eb-head"><h2>${esc(UI.tabs.data)}</h2><p>${esc(UI.dataLead)} Đã đọc ${readCount()}/${CASE.sources.length}.</p></div>
     <div class="eb-sources">${CASE.sources.map(src => `<details class="eb-card eb-source" data-source="${src.id}" ${s.read[src.id] ? '' : ''}>
       <summary><span class="eb-dot ${s.read[src.id] ? 'ok' : ''}">${s.read[src.id] ? '✓' : ''}</span><span><strong>${esc(src.title)}</strong><small>${esc(src.meta)}</small></span></summary>
       <div class="eb-source-body">${sourceBody(src)}</div></details>`).join('')}</div>
-    <div class="eb-actions"><button class="primary" data-do="tab" data-id="evp">Sang Bảng EVP →</button></div>`;
+    <div class="eb-actions"><button class="primary" data-do="tab" data-id="evp">Sang ${esc(UI.tabs.evp)} →</button></div>`;
 }
 function evpView() {
   const n = chosen().length;
-  return `<div class="eb-head"><h2>Bảng EVP</h2><p>Chọn đúng 3 trụ cột giá trị và ghi bằng chứng cho từng trụ cột (con số, chính sách hoặc câu nói của nhân viên). Đã chọn ${n}/3.</p></div>
+  return `<div class="eb-head"><h2>${esc(UI.tabs.evp)}</h2><p>${esc(UI.pick.lead)} Đã chọn ${n}/${PICK}.</p></div>
     ${errors.evp ? `<p class="eb-error" role="alert">${esc(errors.evp)}</p>` : ''}
     <div class="eb-pillars">${CASE.pillars.map(p => {
       const st = s.pillars[p.id] ?? {};
-      const off = !st.on && n >= 3;
+      const off = !st.on && n >= PICK;
       return `<div class="eb-pillar ${st.on ? 'on' : ''}">
-        <label><input type="checkbox" data-bind="pillar" data-id="${p.id}" ${st.on ? 'checked' : ''} ${off ? 'disabled' : ''}><span>${esc(p.label)}</span></label>
-        ${st.on ? `<textarea data-bind="evidence" data-id="${p.id}" rows="2" placeholder="Bằng chứng: ví dụ “9/14 nhân viên chọn…”, chính sách HR, câu nói của nhân viên">${esc(st.evidence ?? '')}</textarea>
+        <label><input type="checkbox" data-bind="pillar" data-id="${p.id}" ${st.on ? 'checked' : ''} ${off ? 'disabled' : ''}><span>${esc(p.label)}${p.meta ? `<small class="eb-meta">${esc(p.meta)}</small>` : ''}</span></label>
+        ${st.on ? `<textarea data-bind="evidence" data-id="${p.id}" rows="2" placeholder="${esc(UI.pick.placeholder)}">${esc(st.evidence ?? '')}</textarea>
         <small class="${(st.evidence ?? '').trim().length >= MIN_EVIDENCE ? 'ok' : ''}">${(st.evidence ?? '').trim().length >= MIN_EVIDENCE ? '✓ Đủ để chấm' : `Tối thiểu ${MIN_EVIDENCE} ký tự`}</small>` : ''}
       </div>`;
     }).join('')}</div>
-    <div class="eb-actions"><button class="primary" data-do="tab" data-id="post">Sang Bài đăng →</button></div>`;
+    <div class="eb-actions"><button class="primary" data-do="tab" data-id="post">Sang ${esc(UI.tabs.post)} →</button></div>`;
 }
 function previewBody(text) {
   return esc(text).replace(/\n/g, '<br>');
 }
 function postView() {
-  const p = s.post, quote = CASE.sources.find(x => x.id === 'voices').quotes.find(q => q.id === p.quote);
+  const p = s.post, W = UI.write;
+  const quotes = CASE.sources.find(x => x.id === W.quoteSource)?.quotes ?? [];
+  const quote = quotes.find(q => q.id === p.quote);
   const ch = CASE.postChannels.find(c => c[0] === p.channel);
-  return `<div class="eb-head"><h2>Bài đăng tuyển dụng</h2><p>Viết một bài cho một kênh. Bên phải là bản xem trước như khi đăng thật.</p></div>
+  const preview = W.preview === 'email'
+    ? `<div class="eb-social eb-email">
+        <dl><dt>Từ</dt><dd>${esc(W.sender)}</dd><dt>Đến</dt><dd>${ch ? esc(ch[1]) : '<span class="ph">Chọn người nhận</span>'}</dd><dt>Tiêu đề</dt><dd><strong>${p.title ? esc(p.title) : '<span class="ph">Tiêu đề email</span>'}</strong></dd></dl>
+        <p>${p.body ? previewBody(p.body) : '<span class="ph">Nội dung email sẽ hiện ở đây…</span>'}</p>
+        ${quote ? `<div class="eb-attach">📎 ${esc(quote.name)}<small>${esc(quote.role)}</small></div>` : ''}
+        <footer><span>↩ Trả lời</span><span>↪ Chuyển tiếp</span></footer>
+      </div>`
+    : `<div class="eb-social">
+        <header><span class="eb-avatar n">N</span><div><strong>${esc(W.sender)}</strong><small>${ch ? esc(ch[1]) : 'Chọn kênh'} · Vừa xong</small></div></header>
+        <h3>${p.title ? esc(p.title) : '<span class="ph">Tiêu đề bài đăng</span>'}</h3>
+        <p>${p.body ? previewBody(p.body) : '<span class="ph">Nội dung sẽ hiện ở đây…</span>'}</p>
+        ${quote ? `<blockquote>“${esc(quote.text)}”<cite>— ${esc(quote.name)}, ${esc(quote.role)}</cite></blockquote>` : ''}
+        <footer><span>👍 Thích</span><span>💬 Bình luận</span><span>↗ Chia sẻ</span></footer>
+      </div>`;
+  return `<div class="eb-head"><h2>${esc(UI.tabs.post)}</h2><p>${esc(W.lead)}</p></div>
     ${errors.post ? `<p class="eb-error" role="alert">${esc(errors.post)}</p>` : ''}
     <div class="eb-post">
       <div class="eb-card eb-form">
-        <fieldset><legend>Đăng trên kênh</legend>${CASE.postChannels.map(([id, label]) => `<label class="eb-radio"><input type="radio" name="post-channel" data-bind="post-channel" value="${id}" ${p.channel === id ? 'checked' : ''}><span>${esc(label)}</span></label>`).join('')}</fieldset>
-        <label>Tiêu đề<input data-bind="post-title" maxlength="120" value="${esc(p.title)}" placeholder="Ví dụ: NOVA Commerce tuyển 3 Nhân viên CSKH ca chiều…"></label>
-        <label>Nội dung<textarea data-bind="post-body" rows="9" maxlength="2000" placeholder="Công việc, ca làm, thu nhập, hỗ trợ khi mới vào, cách ứng tuyển…">${esc(p.body)}</textarea></label>
+        <fieldset><legend>${esc(W.channelLegend)}</legend>${CASE.postChannels.map(([id, label]) => `<label class="eb-radio"><input type="radio" name="post-channel" data-bind="post-channel" value="${id}" ${p.channel === id ? 'checked' : ''}><span>${esc(label)}</span></label>`).join('')}</fieldset>
+        <label>${esc(W.titleLabel)}<input data-bind="post-title" maxlength="120" value="${esc(p.title)}" placeholder="${esc(W.titlePlaceholder)}"></label>
+        <label>${esc(W.bodyLabel)}<textarea data-bind="post-body" rows="9" maxlength="2000" placeholder="${esc(W.bodyPlaceholder)}">${esc(p.body)}</textarea></label>
         <small class="eb-count ${p.body.trim().length >= MIN_POST ? 'ok' : ''}">${p.body.trim().length} ký tự · tối thiểu ${MIN_POST}</small>
-        <label>Trích dẫn nhân viên (không bắt buộc)<select data-bind="post-quote"><option value="">Không dùng</option>${CASE.sources.find(x => x.id === 'voices').quotes.map(q => `<option value="${q.id}" ${p.quote === q.id ? 'selected' : ''}>${esc(q.name)} — ${esc(q.role)}</option>`).join('')}</select></label>
+        <label>${esc(W.quoteLabel)}<select data-bind="post-quote"><option value="">Không dùng</option>${quotes.map(q => `<option value="${q.id}" ${p.quote === q.id ? 'selected' : ''}>${esc(q.name)} — ${esc(q.role)}</option>`).join('')}</select></label>
       </div>
-      <div class="eb-preview" aria-label="Xem trước bài đăng">
-        <div class="eb-social">
-          <header><span class="eb-avatar n">N</span><div><strong>NOVA Commerce Tuyển dụng</strong><small>${ch ? esc(ch[1]) : 'Chọn kênh'} · Vừa xong</small></div></header>
-          <h3>${p.title ? esc(p.title) : '<span class="ph">Tiêu đề bài đăng</span>'}</h3>
-          <p>${p.body ? previewBody(p.body) : '<span class="ph">Nội dung sẽ hiện ở đây…</span>'}</p>
-          ${quote ? `<blockquote>“${esc(quote.text)}”<cite>— ${esc(quote.name)}, ${esc(quote.role)}</cite></blockquote>` : ''}
-          <footer><span>👍 Thích</span><span>💬 Bình luận</span><span>↗ Chia sẻ</span></footer>
-        </div>
-      </div>
+      <div class="eb-preview" aria-label="Xem trước">${preview}</div>
     </div>
-    <div class="eb-actions"><button class="primary" data-do="tab" data-id="plan">Sang Kênh & chỉ số →</button></div>`;
+    <div class="eb-actions"><button class="primary" data-do="tab" data-id="plan">Sang ${esc(UI.tabs.plan)} →</button></div>`;
 }
 function planView() {
-  const pl = s.plan;
-  return `<div class="eb-head"><h2>Kênh & chỉ số</h2><p>Chọn kênh triển khai (1–3 kênh) và đúng 2 chỉ số để đo hiệu quả trong 2 tuần.</p></div>
+  const pl = s.plan, P = UI.plan;
+  return `<div class="eb-head"><h2>${esc(UI.tabs.plan)}</h2><p>${esc(P.lead)}</p></div>
     ${errors.plan ? `<p class="eb-error" role="alert">${esc(errors.plan)}</p>` : ''}
     <div class="eb-plan">
-      <fieldset class="eb-card"><legend>Kênh triển khai <small>${pl.channels.length}/3</small></legend>${CASE.planChannels.map(([id, label]) => `<label class="eb-check"><input type="checkbox" data-bind="plan-channel" value="${id}" ${pl.channels.includes(id) ? 'checked' : ''} ${!pl.channels.includes(id) && pl.channels.length >= 3 ? 'disabled' : ''}><span>${esc(label)}</span></label>`).join('')}</fieldset>
-      <fieldset class="eb-card"><legend>Chỉ số đo <small>${pl.kpis.length}/2</small></legend>${CASE.kpis.map(([id, label]) => `<label class="eb-check"><input type="checkbox" data-bind="plan-kpi" value="${id}" ${pl.kpis.includes(id) ? 'checked' : ''} ${!pl.kpis.includes(id) && pl.kpis.length >= 2 ? 'disabled' : ''}><span>${esc(label)}</span></label>`).join('')}
-        <label class="eb-target">Mục tiêu cụ thể (không bắt buộc)<input data-bind="plan-target" maxlength="160" value="${esc(pl.target)}" placeholder="Ví dụ: từ 4 lên 10 hồ sơ/tuần sau 2 tuần"></label></fieldset>
+      <fieldset class="eb-card"><legend>${esc(P.channelLegend)} <small>${pl.channels.length}/${MAX_CH}</small></legend>${CASE.planChannels.map(([id, label]) => `<label class="eb-check"><input type="checkbox" data-bind="plan-channel" value="${id}" ${pl.channels.includes(id) ? 'checked' : ''} ${!pl.channels.includes(id) && pl.channels.length >= MAX_CH ? 'disabled' : ''}><span>${esc(label)}</span></label>`).join('')}</fieldset>
+      <fieldset class="eb-card"><legend>${esc(P.kpiLegend)} <small>${pl.kpis.length}/${KPI_N}</small></legend>${CASE.kpis.map(([id, label]) => `<label class="eb-check"><input type="checkbox" data-bind="plan-kpi" value="${id}" ${pl.kpis.includes(id) ? 'checked' : ''} ${!pl.kpis.includes(id) && pl.kpis.length >= KPI_N ? 'disabled' : ''}><span>${esc(label)}</span></label>`).join('')}
+        <label class="eb-target">${esc(P.targetLabel)}<input data-bind="plan-target" maxlength="160" value="${esc(pl.target)}" placeholder="${esc(P.targetPlaceholder)}"></label></fieldset>
     </div>
-    <div class="eb-actions"><button class="primary" data-do="tab" data-id="handoff">Sang Bàn giao →</button></div>`;
+    <div class="eb-actions"><button class="primary" data-do="tab" data-id="handoff">Sang ${esc(UI.tabs.handoff)} →</button></div>`;
 }
 function handoffView() {
   const missing = TABS.slice(2, 5).filter(([id]) => !done[id]());
@@ -172,10 +176,10 @@ function handoffView() {
       <dl><dt>Người nhận</dt><dd>${esc(CASE.manager)}</dd><dt>Tiêu đề</dt><dd>${esc(CASE.handoff.subject)}</dd></dl>
       <h3>Tóm tắt</h3>
       <ul class="eb-summary">
-        <li><strong>EVP:</strong> ${chosen().map(p => esc(p.label)).join(' · ') || '<em>chưa chọn</em>'}</li>
-        <li><strong>Bài đăng:</strong> ${s.post.title ? esc(s.post.title) : '<em>chưa có tiêu đề</em>'} ${s.post.channel ? `(${esc(CASE.postChannels.find(c => c[0] === s.post.channel)[1])})` : ''}</li>
-        <li><strong>Kênh:</strong> ${s.plan.channels.map(id => esc(CASE.planChannels.find(c => c[0] === id)[1])).join(', ') || '<em>chưa chọn</em>'}</li>
-        <li><strong>Chỉ số:</strong> ${s.plan.kpis.map(id => esc(CASE.kpis.find(c => c[0] === id)[1])).join('; ') || '<em>chưa chọn</em>'}</li>
+        <li><strong>${esc(UI.pick.summary)}:</strong> ${chosen().map(p => esc(p.label)).join(' · ') || '<em>chưa chọn</em>'}</li>
+        <li><strong>${esc(UI.write.summary)}:</strong> ${s.post.title ? esc(s.post.title) : '<em>chưa có tiêu đề</em>'} ${s.post.channel ? `(${esc(CASE.postChannels.find(c => c[0] === s.post.channel)[1])})` : ''}</li>
+        <li><strong>${esc(UI.plan.summaryChannels)}:</strong> ${s.plan.channels.map(id => esc(CASE.planChannels.find(c => c[0] === id)[1])).join(', ') || '<em>chưa chọn</em>'}</li>
+        <li><strong>${esc(UI.plan.summaryKpis)}:</strong> ${s.plan.kpis.map(id => esc(CASE.kpis.find(c => c[0] === id)[1])).join('; ') || '<em>chưa chọn</em>'}</li>
       </ul>
       <div class="eb-question"><h3>💬 Câu hỏi từ ${esc(CASE.managerShort)}</h3><p>“${esc(CASE.handoff.question)}”</p>
         <label for="eb-rec">Khuyến nghị của em <span aria-hidden="true">*</span></label>
@@ -197,8 +201,9 @@ function payload() {
     recommendation: s.recommendation
   };
 }
-// Nhận xét nhanh dựng sẵn khi không gọi được AI.
+// Nhận xét nhanh dựng sẵn khi không gọi được AI: nhiệm vụ nào có CASE.report thì dùng hàm đó.
 function report(p) {
+  if (typeof CASE.report === 'function') return CASE.report(p);
   const f = CASE.fallback, notes = [];
   for (const id of ['nostress', 'remote', 'toppay']) if (p.pillars.some(x => x.id === id)) notes.push(f[id]);
   const text = `${p.post.title}\n${p.post.body}`.toLowerCase();
@@ -335,7 +340,7 @@ document.addEventListener('click', e => {
 });
 document.addEventListener('toggle', e => {
   const src = e.target.closest?.('[data-source]');
-  if (src && src.open && !s.read[src.dataset.source]) { s.read[src.dataset.source] = true; save(); stagesBar(); const nav = app.querySelector('.eb-nav'); if (nav) nav.outerHTML = sidebar(); app.querySelector('.eb-head p').textContent = `Mở từng tài liệu để tìm căn cứ cho EVP và bài đăng. Đã đọc ${readCount()}/${CASE.sources.length}.`; app.querySelector('.eb-task').outerHTML = taskBar(); }
+  if (src && src.open && !s.read[src.dataset.source]) { s.read[src.dataset.source] = true; save(); stagesBar(); const nav = app.querySelector('.eb-nav'); if (nav) nav.outerHTML = sidebar(); app.querySelector('.eb-head p').textContent = `${UI.dataLead} Đã đọc ${readCount()}/${CASE.sources.length}.`; app.querySelector('.eb-task').outerHTML = taskBar(); }
 }, true);
 document.addEventListener('input', e => {
   const el = e.target, b = el.dataset.bind;
@@ -357,9 +362,9 @@ document.addEventListener('submit', e => {
   if (e.target.dataset.form !== 'handoff') return;
   e.preventDefault();
   errors = {};
-  if (!done.evp()) errors.evp = `Chọn đúng 3 trụ cột và ghi bằng chứng tối thiểu ${MIN_EVIDENCE} ký tự cho mỗi trụ cột.`;
-  if (!done.post()) errors.post = `Chọn kênh, viết tiêu đề và nội dung bài đăng tối thiểu ${MIN_POST} ký tự.`;
-  if (!done.plan()) errors.plan = 'Chọn ít nhất 1 kênh và đúng 2 chỉ số đo.';
+  if (!done.evp()) errors.evp = UI.pick.error.replace('{min}', MIN_EVIDENCE);
+  if (!done.post()) errors.post = UI.write.error.replace('{min}', MIN_POST);
+  if (!done.plan()) errors.plan = UI.plan.error;
   if (s.recommendation.trim().length < MIN_REC) errors.handoff = `Viết khuyến nghị cho ${CASE.managerShort} (tối thiểu ${MIN_REC} ký tự): việc ưu tiên, căn cứ và con số theo dõi.`;
   if (Object.keys(errors).length) {
     const first = ['evp', 'post', 'plan'].find(k => errors[k]);

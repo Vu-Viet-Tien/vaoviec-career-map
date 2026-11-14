@@ -1,6 +1,6 @@
 import { ApiError } from '@google/genai';
 import { reviewSubmission, ReviewError } from '../lib/review-core.js';
-import { reviewEmployerBranding } from '../lib/review-eb.js';
+import { reviewSimpleMission, isSimpleMission } from '../lib/review-simple.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -10,8 +10,8 @@ export default async function handler(req, res) {
   try {
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
     if (!body || typeof body !== 'object') throw new ReviewError(400, 'Thiếu dữ liệu bài nộp.');
-    // MISSION_002 gửi kèm mission; bài không có mission là MISSION_001 (Talent Acquisition).
-    const review = body.mission === 'MISSION_002' ? reviewEmployerBranding : reviewSubmission;
+    // MISSION_002/003 gửi kèm mission; bài không có mission là MISSION_001 (Talent Acquisition).
+    const review = isSimpleMission(body.mission) ? reviewSimpleMission : reviewSubmission;
     return res.status(200).json(await review(body));
   } catch (error) {
     if (error instanceof ReviewError) return res.status(error.status).json({ error: error.message });

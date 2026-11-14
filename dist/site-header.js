@@ -26,6 +26,7 @@ function renderSiteHeader({ active, exploreUrl, workspaceUrl, inCase = false }) 
       }).join("")}
     </nav>
     <a class="site-header-cta" href="${exploreUrl}">Khám phá nghề</a>
+    ${themeButton()}
     <span class="site-header-account">${accountMarkup()}</span>`;
 }
 
@@ -125,4 +126,27 @@ document.addEventListener("click", event => {
 });
 document.addEventListener("keydown", event => {
   if (event.key === "Escape" && closeAccountMenu()) document.querySelector(".account-chip")?.focus();
+});
+
+// Chế độ sáng/tối (14/11): người dùng chọn, lưu theo trình duyệt; mặc định theo cài đặt máy.
+// Giá trị được đặt sớm bằng đoạn script nhỏ trong <head> để không nháy màu khi tải trang.
+const THEME_KEY = "vaoviec-theme";
+const currentTheme = () => document.documentElement.dataset.theme === "dark" ? "dark" : "light";
+function themeButton() {
+  const dark = currentTheme() === "dark";
+  const icon = dark
+    ? '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>'
+    : '<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>';
+  const label = dark ? "Chuyển sang giao diện sáng" : "Chuyển sang giao diện tối";
+  return `<button type="button" class="theme-toggle" data-theme-toggle aria-label="${label}" aria-pressed="${dark}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icon}</svg></button>`;
+}
+document.addEventListener("click", event => {
+  const btn = event.target.closest("[data-theme-toggle]");
+  if (!btn) return;
+  const next = currentTheme() === "dark" ? "light" : "dark";
+  document.documentElement.dataset.theme = next;
+  try { localStorage.setItem(THEME_KEY, next); } catch { /* trình duyệt chặn lưu: vẫn đổi trong phiên này */ }
+  btn.outerHTML = themeButton();
+  document.querySelector("[data-theme-toggle]")?.focus();
+  dispatchEvent(new CustomEvent("vaoviec:theme", { detail: next }));
 });

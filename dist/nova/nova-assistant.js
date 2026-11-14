@@ -30,7 +30,7 @@ function pageContext() {
 
 function chipsFor(ctx) {
   if (ctx.page === 'workspace') {
-    const term = ctx.mission === 'MISSION_002' ? ['ask:EVP là gì và vì sao cần bằng chứng?', 'EVP là gì?'] : ['ask:Giải thích giúp mình thuật ngữ ATS và JD.', 'ATS, JD là gì?'];
+    const term = { MISSION_002: ['ask:EVP là gì và vì sao cần bằng chứng?', 'EVP là gì?'], MISSION_003: ['ask:Lead, CRM và B2B là gì?', 'Lead, CRM là gì?'] }[ctx.mission] ?? ['ask:Giải thích giúp mình thuật ngữ ATS và JD.', 'ATS, JD là gì?'];
     return [['tips', 'Gợi ý cho việc đang làm'], ['ask:Mình nên làm gì tiếp theo?', 'Mình nên làm gì tiếp?'], term];
   }
   if (ctx.page === 'role') {

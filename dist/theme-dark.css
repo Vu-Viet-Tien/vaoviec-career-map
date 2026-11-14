@@ -1,0 +1,143 @@
+/* Chế độ tối (14/11). Bật khi <html data-theme="dark"> (nút trên header, lưu theo trình duyệt).
+   Nạp sau ds.css. Trang chủ, Career Map, Workspace Employer Branding, header, footer và VaVi được tô màu riêng;
+   Workspace Talent Acquisition (giao diện laptop nhiều màu cố định) dùng bộ lọc đảo màu có giữ nguyên ảnh. */
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --vv-ink: #e6edf8; --vv-muted: #9fb0cb; --vv-line: #24324f; --vv-line-strong: #33466b;
+  --vv-surface: #121b2e; --vv-bg: #0b1220; --vv-blue-soft: #1a2a4a; --vv-blue: #5b8cff;
+  --vv-ok: #6ee7a8; --vv-ok-bg: #12352a; --vv-warn: #fcd38d; --vv-warn-bg: #3a2a10; --vv-err: #fca5a5; --vv-err-bg: #3b1518;
+  --vv-shadow-sm: 0 1px 2px #0006, 0 2px 8px #0004; --vv-shadow-md: 0 8px 24px #0007; --vv-shadow-lg: 0 24px 60px #000a;
+  --vv-focus: 0 0 0 3px #0b1220, 0 0 0 5px #6ea2ff;
+}
+html[data-theme="dark"] body { background: #0b1220; color: #e6edf8; }
+html[data-theme="dark"] ::selection { background: #2b4a85; color: #fff; }
+
+/* ---------- Header ---------- */
+html[data-theme="dark"] .site-header { background: #0f1729; border-color: #1f2b45; color: #e6edf8; }
+html[data-theme="dark"] .site-header .vaoviec-wordmark img, html[data-theme="dark"] .site-footer-brand img, html[data-theme="dark"] .how-bar img, html[data-theme="dark"] #home .home-wordmark img { filter: brightness(0) invert(1) opacity(.92); }
+html[data-theme="dark"] .site-header-nav :is(a, button):hover, html[data-theme="dark"] .site-header-nav [aria-current] { color: #8fb4ff; }
+html[data-theme="dark"] .site-header .theme-toggle, html[data-theme="dark"] .site-header .account-chip { background: #16213a; border-color: #2a3a5c; color: #e6edf8; }
+html[data-theme="dark"] .site-header .theme-toggle:hover { color: #ffd166; border-color: #4a6aa5; }
+html[data-theme="dark"] .account-menu { background: #121b2e; border-color: #24324f; }
+html[data-theme="dark"] .account-menu p { color: #e6edf8; border-color: #24324f; }
+html[data-theme="dark"] .account-menu p strong { color: #e6edf8; }
+html[data-theme="dark"] .account-menu :is(a, button) { color: #c9d6ec; }
+html[data-theme="dark"] .account-menu :is(a, button):hover { background: #1a2a4a; color: #fff; }
+
+/* ---------- Hộp thoại, ô nhập dùng chung ---------- */
+html[data-theme="dark"] :is(dialog.account-dialog, dialog.vv-confirm) { background: #121b2e; color: #e6edf8; }
+html[data-theme="dark"] .account-note { background: #16213a; color: #c9d6ec; }
+html[data-theme="dark"] :is(.account-form input, .vv-btn-ghost, .account-actions button:not(.account-save)) { background: #0f1729; border-color: #33466b; color: #e6edf8; }
+html[data-theme="dark"] .vv-btn-ghost:hover { background: #16213a; }
+html[data-theme="dark"] .vv-toast { background: #1d2b4a; }
+html[data-theme="dark"] [data-tip]::after { background: #e6edf8; color: #0b1220; }
+
+/* ---------- Trang chủ ---------- */
+html[data-theme="dark"] #home { color: #e6edf8; background: radial-gradient(ellipse 52% 83% at 50% 42%, #13213d 38%, #0f1a30eb 61%, #0b122000 100%), linear-gradient(to top, #0b1220 0%, #0b122000 46%), linear-gradient(108deg, #0d1b33 0%, #10274a 18%, #0c1628 40%, #0c1628 60%, #10274a 100%); }
+html[data-theme="dark"] .home-ribbons { opacity: .12; }
+html[data-theme="dark"] .home-hero h1, html[data-theme="dark"] .tagline-line { color: #f1f5fc; }
+@supports (background-clip: text) { html[data-theme="dark"] .tagline-gradient { background-image: linear-gradient(105deg, #9cc2ff, #4f8bff 50%, #9cc2ff); } }
+html[data-theme="dark"] .tagline-line-accent { color: #8fb4ff; }
+html[data-theme="dark"] .home-hero p, html[data-theme="dark"] .home-continue { color: #b6c4dc; }
+html[data-theme="dark"] .home-features li { background: linear-gradient(#16213aef, #121b2ef0); border-color: #24324f; color: #e6edf8; }
+html[data-theme="dark"] .home-features li:hover { border-color: #4a6aa5; box-shadow: 0 14px 30px #0008; }
+html[data-theme="dark"] .home-features svg { stroke: #b6c4dc; }
+
+/* ---------- Section Cách hoạt động + footer ---------- */
+html[data-theme="dark"] .how { color: #e6edf8; background: radial-gradient(40% 50% at 80% 30%, #13284a 0%, #13284a00 70%), linear-gradient(#0b1220, #0d1526 60%, #0b1220); }
+html[data-theme="dark"] .how-lead, html[data-theme="dark"] .how-desc { color: #9fb0cb; }
+html[data-theme="dark"] .how-num { background: #1a2540; color: #9fb0cb; }
+html[data-theme="dark"] .how-steps::before, html[data-theme="dark"] .how-text { border-color: #2a3a5c; }
+html[data-theme="dark"] .how-step.is-active { background: linear-gradient(90deg, #17294d, #121e38); box-shadow: inset 4px 0 0 #5b8cff, 0 10px 26px #0006; }
+html[data-theme="dark"] .how-step.is-active .how-num { background: #23396a; color: #cfe0ff; }
+html[data-theme="dark"] .how-icon { color: #8fb4ff; }
+html[data-theme="dark"] .how-preview { background: #121b2e; border-color: #24324f; box-shadow: 0 30px 70px #0009, 0 0 0 8px #ffffff08; }
+html[data-theme="dark"] .how-bar { border-color: #24324f; }
+html[data-theme="dark"] .how-bar-title { color: #c9d6ec; border-color: #33466b; }
+html[data-theme="dark"] .site-footer { background: #0a101d; border-color: #1f2b45; color: #c9d6ec; }
+html[data-theme="dark"] .site-footer h3 { color: #f1f5fc; }
+html[data-theme="dark"] .site-footer-brand p, html[data-theme="dark"] .site-footer nav a, html[data-theme="dark"] .site-footer-note { color: #9fb0cb; }
+html[data-theme="dark"] .site-footer-note { border-color: #1f2b45; }
+html[data-theme="dark"] .site-footer-social, html[data-theme="dark"] .site-footer a:hover { color: #8fb4ff; }
+
+/* ---------- Career Map ---------- */
+html[data-theme="dark"] #explore h1 { color: #f1f5fc; }
+html[data-theme="dark"] #explore p, html[data-theme="dark"] .detail ul, html[data-theme="dark"] .related { color: #b6c4dc; }
+html[data-theme="dark"] :is(nav button, .root, .branch, .role) { border-color: #2a3a5c; color: #e6edf8; }
+html[data-theme="dark"] #tabs button { background: #121b2e; }
+html[data-theme="dark"] #tabs button:not(.active):hover { background: #16213a; border-color: #4a6aa5; }
+html[data-theme="dark"] #tabs .active, html[data-theme="dark"] .primary { background: #3b6ff0; border-color: #3b6ff0; color: #fff; }
+html[data-theme="dark"] :is(.map, .detail) { background-color: #121b2e; border-color: #24324f; }
+html[data-theme="dark"] .map { background-image: radial-gradient(#22304d 1px, transparent 1px); }
+html[data-theme="dark"] .toolbar strong { color: #8fb4ff; }
+html[data-theme="dark"] .toolbar input { background-color: #0f1729; border-color: #33466b; color: #e6edf8; }
+html[data-theme="dark"] .root { background: #1d3366; color: #cfe0ff; }
+html[data-theme="dark"] .branch { background: #172440; }
+html[data-theme="dark"] .role { background: #0f1729; }
+html[data-theme="dark"] .role:hover { background: #16213a; border-color: #4a6aa5; }
+html[data-theme="dark"] .role.selected { background: #1a2d55; border-color: #5b8cff; color: #cfe0ff; box-shadow: 0 0 0 1px #5b8cff, 0 6px 16px #0006; }
+html[data-theme="dark"] .tree-links path { stroke: #3a5384; }
+html[data-theme="dark"] .tree-links path.on { stroke: #6ea2ff; }
+html[data-theme="dark"] .chips span { background: #1a2540; color: #c9d6ec; }
+html[data-theme="dark"] .mission { background: #16213a; border-color: #2a3a5c; }
+html[data-theme="dark"] .badge { background: #12352a; color: #6ee7a8; }
+html[data-theme="dark"] .badge.off { background: #1f2a40; color: #9fb0cb; }
+html[data-theme="dark"] :is(.text-link, .detail a:not(.primary)) { color: #8fb4ff; }
+html[data-theme="dark"] .empty, html[data-theme="dark"] .vv-empty { background: #0f1729; border-color: #33466b; color: #9fb0cb; }
+
+/* ---------- VaVi ---------- */
+html[data-theme="dark"] .nova-root { --nova-ink: #e6edf8; --nova-muted: #9fb0cb; --nova-line: #24324f; }
+html[data-theme="dark"] .nova-chat { background: #121b2e; box-shadow: 0 24px 60px #000b, 0 0 0 1px #24324f; }
+html[data-theme="dark"] .nova-log { background: linear-gradient(#0f1729, #121b2e 120px); }
+html[data-theme="dark"] .nova-msg-nova { background: #16213a; border-color: #24324f; color: #e6edf8; }
+html[data-theme="dark"] .nova-msg-tips { background: #10283a; border-color: #1f4a63; }
+html[data-theme="dark"] .nova-msg-tips b { color: #7dd3fc; }
+html[data-theme="dark"] .nova-sample { background: #0f1729; border-color: #1f4a63; }
+html[data-theme="dark"] .nova-sample summary { color: #7dd3fc; }
+html[data-theme="dark"] .nova-msg-note { background: #3a2a10; border-color: #6b4b1a; color: #fcd38d; }
+html[data-theme="dark"] .nova-chip { background: #16213a; border-color: #2f4778; color: #9cc2ff; }
+html[data-theme="dark"] .nova-chip:hover { background: #1a2d55; }
+html[data-theme="dark"] .nova-form { border-color: #24324f; }
+html[data-theme="dark"] .nova-input { background: #0f1729; border-color: #33466b; color: #e6edf8; }
+html[data-theme="dark"] .nova-input:focus { background: #0b1220; }
+html[data-theme="dark"] .nova-bubble { background: #16213a; color: #e6edf8; box-shadow: 0 10px 30px #000a, 0 0 0 1px #2a3a5c; }
+html[data-theme="dark"] .nova-dots { background: #16213a; }
+
+/* ---------- Workspace Employer Branding (dùng biến màu) ---------- */
+html[data-theme="dark"] .eb-page { --ink: #e6edf8; --muted: #9fb0cb; --line: #24324f; --soft: #16213a; --ok: #6ee7a8; --ok-bg: #12352a; --warn: #fcd38d; --warn-bg: #3a2a10; background: #0b1220; }
+html[data-theme="dark"] .eb-page :is(.eb-card, .eb-nav, .eb-pillar, .eb-social, .eb-criteria article, dialog, .modal-body .actions) { background: #121b2e; border-color: #24324f; color: #e6edf8; }
+html[data-theme="dark"] .eb-page :is(button:not(.primary):not(.link):not(.vv-btn), .mode-option) { background: #16213a; border-color: #2f4778; color: #e6edf8; }
+html[data-theme="dark"] .eb-page :is(input, textarea, select) { background: #0f1729 !important; border-color: #33466b !important; color: #e6edf8; }
+html[data-theme="dark"] .eb-page .eb-nav button { background: none; }
+html[data-theme="dark"] .eb-page .eb-nav button.on { background: #1a2d55; color: #9cc2ff; }
+html[data-theme="dark"] .eb-page :is(.case-context, .modal-head) { background: #0f1729; border-color: #24324f; }
+html[data-theme="dark"] .eb-page :is(.case-position, .case-return, .eyebrow, .link) { color: #8fb4ff; }
+html[data-theme="dark"] .eb-page .case-stages .current { background: #16213a; color: #e6edf8; box-shadow: 0 0 0 1px #2f4778; }
+html[data-theme="dark"] .eb-page .case-stages span, html[data-theme="dark"] .eb-page .eb-dot { background: #1f2a40; color: #9fb0cb; }
+html[data-theme="dark"] .eb-page .case-mode { background: #1a2d55; color: #9cc2ff; }
+html[data-theme="dark"] .eb-page :is(.eb-bars li, .eb-quote, .eb-social.mini, .eb-question, .eb-callout, .eb-cvline, .assistant-sample, .eb-radio:has(input:checked), .eb-check:has(input:checked), .mode-option[aria-checked=true], .eb-social blockquote) { background: #16213a; border-color: #2f4778; }
+html[data-theme="dark"] .eb-page .eb-bars li i { background: #1d3366; }
+html[data-theme="dark"] .eb-page :is(.eb-radio, .eb-check) { border-color: #24324f; }
+html[data-theme="dark"] .eb-page .eb-pillar.on { border-color: #5b8cff; box-shadow: 0 8px 20px #0006; }
+html[data-theme="dark"] .eb-page .eb-task { background: #0f1729; border-color: #24324f; }
+html[data-theme="dark"] .eb-page .eb-error { background: #3b1518; color: #fca5a5; }
+html[data-theme="dark"] .eb-page .eb-facts.no { color: #fcd38d; }
+html[data-theme="dark"] .eb-page .ph { color: #4f6185; }
+
+/* ---------- Workspace Talent Acquisition: đảo màu vùng làm việc, giữ nguyên ảnh và PDF ---------- */
+html[data-theme="dark"] body.simulation-page:not(.eb-page) { background: #0b1220; }
+html[data-theme="dark"] body.simulation-page:not(.eb-page) :is(#app, .case-context, dialog#dialog) { filter: invert(.9) hue-rotate(180deg) contrast(.95); }
+html[data-theme="dark"] body.simulation-page:not(.eb-page) :is(#app, .case-context, dialog#dialog) :is(img, video, canvas, .scene, .fb-cover, .pdf-page) { filter: invert(1) hue-rotate(180deg); }
+html[data-theme="dark"] body.simulation-page:not(.eb-page) dialog#dialog::backdrop { background: #000a; }
+
+/* Career Map: nền trang và hai khung chính có quy tắc riêng độ ưu tiên cao trong styles.css. */
+html[data-theme="dark"] body:has(#explore:not([hidden])) {
+  background-color: #0b1220;
+  background-image: radial-gradient(ellipse at top right, #13284a, transparent 63%), radial-gradient(ellipse at bottom left, #10223f, transparent 57%);
+  background-size: 100% 100%; background-position: center;
+}
+html[data-theme="dark"] #explore :is(.map, .detail) { background-color: rgb(18 27 46 / 96%); }
+html[data-theme="dark"] .mission-facts dt { color: #8fb4ff; }
+html[data-theme="dark"] .mission-facts dd { color: #b6c4dc; }
+html[data-theme="dark"] .mission-status { color: #6ee7a8; }
+html[data-theme="dark"] .detail h2, html[data-theme="dark"] .detail h3 { color: #f1f5fc; }

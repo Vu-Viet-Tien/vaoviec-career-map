@@ -201,3 +201,11 @@ dialog::backdrop { background: #0b1d3d73; backdrop-filter: blur(3px); }
 @media (prefers-reduced-motion: reduce) { .spinner { animation-duration: 3s; } }
 /* Điện thoại: thanh việc tiếp theo chỉ giữ nút, chừa chỗ cho VaVi bên phải. */
 @media (max-width: 600px) { .eb-task { justify-content: flex-start; padding-right: 84px; } .eb-task > span { display: none; } }
+
+/* Xem trước dạng email (MISSION_003) và dòng phụ dưới mỗi lựa chọn. */
+.eb-email dl { display: grid; grid-template-columns: 70px 1fr; gap: 4px 10px; margin: 0 0 12px; padding-bottom: 10px; border-bottom: 1px solid var(--line); font-size: 13.5px; }
+.eb-email dt { color: var(--muted); }
+.eb-email dd { margin: 0; overflow-wrap: anywhere; }
+.eb-attach { display: inline-grid; gap: 2px; margin: 0 0 10px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--soft); font-weight: 700; font-size: 13.5px; }
+.eb-attach small { color: var(--muted); font-weight: 500; }
+.eb-meta { display: block; margin-top: 2px; color: var(--muted); font-weight: 500; font-size: 12.5px; }

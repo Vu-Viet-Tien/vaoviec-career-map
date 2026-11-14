@@ -139,3 +139,10 @@ dialog.account-dialog::backdrop { background: #0b1d3d73; backdrop-filter: blur(3
 .account-actions .account-save { border-color: #1b4fc4; background: #1b4fc4; color: #fff; }
 @media (max-width: 620px) { .account-name { display: none; } .site-header .account-chip { padding: 2px; } }
 .account-menu p strong { display: block; font: 700 15px/1.3 system-ui, sans-serif; letter-spacing: normal; color: #122342; }
+
+/* Nút chuyển sáng/tối */
+.site-header .theme-toggle { display: grid; place-items: center; flex: none; width: 40px; height: 40px; padding: 0; border: 1px solid #d5e1f3; border-radius: 50%; background: #fff; color: #22385f; cursor: pointer; }
+.site-header .theme-toggle:hover { border-color: #9cbcf0; color: #1b4fc4; }
+.site-header .theme-toggle svg { width: 18px; height: 18px; }
+.site-header-cta + .theme-toggle { margin-inline-start: -4px; }
+@media (max-width: 620px) { .site-header .theme-toggle { width: 32px; height: 32px; margin-inline-start: auto; } .site-header .theme-toggle + .site-header-account { margin-inline-start: 0; } }
