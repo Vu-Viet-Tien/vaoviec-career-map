@@ -28,7 +28,9 @@ Khóa `GEMINI_API_KEY` đặt trong Vercel → Project → Settings → Environm
 - `dist/index.html`, `dist/home.css`, `dist/styles.css`, `dist/app.js`, `dist/career-data.js` — Trang chủ và Career Map.
 - `dist/site-header.js`, `dist/site-header.css` — header chung.
 - `dist/workspace/talent-acquisition.html` và `dist/workspace/talent-acquisition-assets/` — Workspace NOVA: `case.js` (nội dung case), `app.js` (logic), `style.css`, ảnh văn phòng, PDF JD và PDF.js.
-- `lib/review-core.js` — rubric và lời gọi Gemini để chấm bài. `api/review.js` là hàm Vercel, `scripts/dev-server.mjs` là máy chủ local.
+- `dist/nova/` — trợ lý NOVA ở góc phải dưới mọi trang: `nova-mascot.js` (robot SVG), `nova-animation.js` (trạng thái hoạt ảnh), `nova-speech-bubble.js`, `nova-chat-window.js`, `nova-assistant.js` (gắn tất cả, gọi `/api/assistant`), `nova.css`.
+- `lib/gemini.js` — gọi Gemini với chuỗi model dự phòng. `lib/review-core.js` — rubric chấm bài. `lib/assistant-core.js` — lời nhắc của NOVA (ngữ cảnh nghề và nhiệm vụ do server tự đọc; chế độ Thử sức không đưa đáp án).
+- `api/review.js`, `api/assistant.js` là hàm Vercel; `scripts/dev-server.mjs` là máy chủ local.
 
 ## MISSION_001 · Talent Acquisition Intern
 

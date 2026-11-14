@@ -306,6 +306,15 @@ function assistantView(){
       ?`<ul class="assistant-tips">${tip.guided.map(t=>`<li>${esc(t)}</li>`).join('')}</ul>${tip.sample?`<details class="assistant-sample"><summary>Xem phương án mẫu</summary><p>${esc(tip.sample)}</p></details>`:''}`
       :`<p>Trong chế độ Thử sức, trợ lý không đưa đáp án. Hãy tự trả lời các câu hỏi sau trước khi làm tiếp:</p><ul class="assistant-tips">${tip.self.map(t=>`<li>${esc(t)}</li>`).join('')}</ul>`}`;
 }
+// Trợ lý NOVA (/nova/nova-assistant.js) đọc ngữ cảnh và gợi ý soạn sẵn của việc đang làm qua hai hàm này.
+window.novaContext=()=>({page:'workspace',mode:s.mode||'',task:assistKey(),submitted:!!s.submission});
+window.novaTips=()=>{
+  const tip=CASE.assistant[assistKey()];
+  if(!tip)return null;
+  return s.mode==='self'
+    ?{label:`Câu hỏi định hướng · ${tip.title}`,items:tip.self}
+    :{label:`Gợi ý · ${tip.title}`,items:tip.guided};
+};
 function nextTask(){
   if(s.delivery?.screeningStarted&&!s.submission){
     const total=CASE.emails.length, handled=CASE.emails.filter(mailHandled).length;
@@ -738,6 +747,8 @@ async function requestReview(sub){
   if(s.submission?.id!==sub.id)return;
   s.submission.ai=result;save();
   if(overlay==='feedback')render();
+  // NOVA vui mừng khi bài đạt từ 3/4 tiêu chí.
+  if(result.status==='done'&&result.review.criteria.filter(c=>c.status==='Đạt').length>=3)dispatchEvent(new CustomEvent('nova:react',{detail:'excited'}));
 }
 // Phiên bản đang xem trong màn kết quả; null = bản mới nhất.
 let viewVersion=null;

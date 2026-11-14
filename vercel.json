@@ -6,6 +6,10 @@
     "api/review.js": {
       "maxDuration": 60,
       "includeFiles": "dist/workspace/talent-acquisition-assets/case.js"
+    },
+    "api/assistant.js": {
+      "maxDuration": 30,
+      "includeFiles": "dist/{career-data.js,workspace/talent-acquisition-assets/case.js}"
     }
   }
 }
