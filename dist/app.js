@@ -227,26 +227,17 @@ window.addEventListener("hashchange", render);
 render();
 
 // Section "Cách VAOVIEC hoạt động": rê chuột, bấm hoặc focus vào bước nào thì mở mô tả và đổi hình minh hoạ.
-// Khi cuộn tới section, bước 1 mở sẵn và ảnh cây nghề chạy lại từ đầu.
+// Khi cuộn tới section, bước 1 mở sẵn; hình minh hoạ là SVG động, chạy lại mỗi khi bước được mở.
 (() => {
   const how = document.querySelector("#how");
   if (!how) return;
   const steps = [...how.querySelectorAll(".how-step")];
   const panels = [...how.querySelectorAll(".how-panel")];
   const title = how.querySelector(".how-bar-title");
-  const gif = how.querySelector(".how-gif");
-  const video = how.querySelector(".how-video");
   const activate = n => {
     steps.forEach(s => { const on = s.dataset.step === n; s.classList.toggle("is-active", on); s.setAttribute("aria-expanded", on); });
     panels.forEach(p => p.classList.toggle("is-active", p.id === "how-panel-" + n));
     title.textContent = how.querySelector("#how-panel-" + n).dataset.title;
-    // Video bước 2 chỉ tải khi mở bước 2; trình duyệt không phát được thì vẫn hiện ảnh bìa.
-    if (video) {
-      if (n === "2") {
-        if (!video.src) video.src = video.dataset.src;
-        if (!matchMedia("(prefers-reduced-motion: reduce)").matches) video.play().catch(() => {});
-      } else video.pause();
-    }
   };
   steps.forEach(s => {
     const go = () => activate(s.dataset.step);
@@ -258,7 +249,6 @@ render();
     for (const entry of entries) {
       if (!entry.isIntersecting) continue;
       activate("1");
-      gif.src = gif.src.split("?")[0] + "?t=" + Date.now();
     }
   }, { threshold: .35 }).observe(how);
 })();

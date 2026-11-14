@@ -1,0 +1,97 @@
+
+/* Minh hoạ bước 1 và 2 (SVG động, vòng 7.5s, sinh bởi script; cùng phong cách bước 3). */
+.s1, .s2 { display: block; width: 100%; height: 100%; font-family: "Be Vietnam Pro", system-ui, sans-serif; }
+.s1 *, .s2 * { transform-box: fill-box; }
+.s1-cursor, .s2-cursor { transform-box: view-box; transform-origin: 0 0; }
+.s2-tabline { transform-box: fill-box; transform-origin: left center; }
+@keyframes k-s1-root { 0%, 2% { opacity: 0; transform: scale(.6); } 6%, 93% { opacity: 1; transform: none; } 97%, 100% { opacity: 0; transform: none; } }
+.how-panel.is-active .s1-root { animation: k-s1-root 7.5s cubic-bezier(.3,1.35,.5,1) both infinite; }
+.s1-c0 { stroke-dasharray: 400; stroke-dashoffset: 400; }
+@keyframes k-s1-c0 { 0%, 8% { stroke-dashoffset: 400; opacity: 1; } 16%, 93% { stroke-dashoffset: 0; opacity: 1; } 97%, 100% { stroke-dashoffset: 0; opacity: 0; } }
+.how-panel.is-active .s1-c0 { animation: k-s1-c0 7.5s ease-in-out both infinite; }
+.s1-c1 { stroke-dasharray: 400; stroke-dashoffset: 400; }
+@keyframes k-s1-c1 { 0%, 10% { stroke-dashoffset: 400; opacity: 1; } 18%, 93% { stroke-dashoffset: 0; opacity: 1; } 97%, 100% { stroke-dashoffset: 0; opacity: 0; } }
+.how-panel.is-active .s1-c1 { animation: k-s1-c1 7.5s ease-in-out both infinite; }
+.s1-c2 { stroke-dasharray: 400; stroke-dashoffset: 400; }
+@keyframes k-s1-c2 { 0%, 12% { stroke-dashoffset: 400; opacity: 1; } 20%, 93% { stroke-dashoffset: 0; opacity: 1; } 97%, 100% { stroke-dashoffset: 0; opacity: 0; } }
+.how-panel.is-active .s1-c2 { animation: k-s1-c2 7.5s ease-in-out both infinite; }
+@keyframes k-s1-b0 { 0%, 13% { opacity: 0; transform: translateY(10px) scale(.92); } 17%, 93% { opacity: 1; transform: none; } 97%, 100% { opacity: 0; transform: none; } }
+.how-panel.is-active .s1-b0 { animation: k-s1-b0 7.5s cubic-bezier(.3,1.35,.5,1) both infinite; }
+@keyframes k-s1-b1 { 0%, 15% { opacity: 0; transform: translateY(10px) scale(.92); } 19%, 93% { opacity: 1; transform: none; } 97%, 100% { opacity: 0; transform: none; } }
+.how-panel.is-active .s1-b1 { animation: k-s1-b1 7.5s cubic-bezier(.3,1.35,.5,1) both infinite; }
+@keyframes k-s1-b2 { 0%, 17% { opacity: 0; transform: translateY(10px) scale(.92); } 21%, 93% { opacity: 1; transform: none; } 97%, 100% { opacity: 0; transform: none; } }
+.how-panel.is-active .s1-b2 { animation: k-s1-b2 7.5s cubic-bezier(.3,1.35,.5,1) both infinite; }
+.s1-d0 { stroke-dasharray: 400; stroke-dashoffset: 400; }
+@keyframes k-s1-d0 { 0%, 21% { stroke-dashoffset: 400; opacity: 1; } 29%, 93% { stroke-dashoffset: 0; opacity: 1; } 97%, 100% { stroke-dashoffset: 0; opacity: 0; } }
+.how-panel.is-active .s1-d0 { animation: k-s1-d0 7.5s ease-in-out both infinite; }
+.s1-d1 { stroke-dasharray: 400; stroke-dashoffset: 400; }
+@keyframes k-s1-d1 { 0%, 23% { stroke-dashoffset: 400; opacity: 1; } 31%, 93% { stroke-dashoffset: 0; opacity: 1; } 97%, 100% { stroke-dashoffset: 0; opacity: 0; } }
+.how-panel.is-active .s1-d1 { animation: k-s1-d1 7.5s ease-in-out both infinite; }
+.s1-d2 { stroke-dasharray: 400; stroke-dashoffset: 400; }
+@keyframes k-s1-d2 { 0%, 25% { stroke-dashoffset: 400; opacity: 1; } 33%, 93% { stroke-dashoffset: 0; opacity: 1; } 97%, 100% { stroke-dashoffset: 0; opacity: 0; } }
+.how-panel.is-active .s1-d2 { animation: k-s1-d2 7.5s ease-in-out both infinite; }
+.s1-d3 { stroke-dasharray: 400; stroke-dashoffset: 400; }
+@keyframes k-s1-d3 { 0%, 27% { stroke-dashoffset: 400; opacity: 1; } 35%, 93% { stroke-dashoffset: 0; opacity: 1; } 97%, 100% { stroke-dashoffset: 0; opacity: 0; } }
+.how-panel.is-active .s1-d3 { animation: k-s1-d3 7.5s ease-in-out both infinite; }
+@keyframes k-s1-r0 { 0%, 26% { opacity: 0; transform: translateX(-10px) scale(.95); } 30%, 93% { opacity: 1; transform: none; } 97%, 100% { opacity: 0; transform: none; } }
+.how-panel.is-active .s1-r0 { animation: k-s1-r0 7.5s cubic-bezier(.3,1.35,.5,1) both infinite; }
+@keyframes k-s1-r1 { 0%, 28% { opacity: 0; transform: translateX(-10px) scale(.95); } 32%, 93% { opacity: 1; transform: none; } 97%, 100% { opacity: 0; transform: none; } }
+.how-panel.is-active .s1-r1 { animation: k-s1-r1 7.5s cubic-bezier(.3,1.35,.5,1) both infinite; }
+@keyframes k-s1-r2 { 0%, 30% { opacity: 0; transform: translateX(-10px) scale(.95); } 34%, 93% { opacity: 1; transform: none; } 97%, 100% { opacity: 0; transform: none; } }
+.how-panel.is-active .s1-r2 { animation: k-s1-r2 7.5s cubic-bezier(.3,1.35,.5,1) both infinite; }
+@keyframes k-s1-r3 { 0%, 32% { opacity: 0; transform: translateX(-10px) scale(.95); } 36%, 93% { opacity: 1; transform: none; } 97%, 100% { opacity: 0; transform: none; } }
+.how-panel.is-active .s1-r3 { animation: k-s1-r3 7.5s cubic-bezier(.3,1.35,.5,1) both infinite; }
+@keyframes k-s1-cursor { 0%, 38% { opacity: 0; transform: translate(520px, 330px); } 42% { opacity: 1; transform: translate(520px, 330px); } 52%, 54% { opacity: 1; transform: translate(746px, 86px); } 56% { opacity: 1; transform: translate(746px, 86px) scale(.85); } 58%, 66% { opacity: 1; transform: translate(746px, 86px); } 76%, 84% { opacity: 1; transform: translate(800px, 310px); } 85% { opacity: 1; transform: translate(800px, 310px) scale(.85); } 86%, 93% { opacity: 1; transform: translate(800px, 310px); } 97%, 100% { opacity: 0; transform: translate(800px, 310px); } }
+.how-panel.is-active .s1-cursor { animation: k-s1-cursor 7.5s cubic-bezier(.45,0,.25,1) both infinite; }
+@keyframes k-s1-ta-hi { 0%, 54% { opacity: 0; transform: scale(1); } 58%, 93% { opacity: 1; transform: none; } 97%, 100% { opacity: 0; transform: none; } }
+.how-panel.is-active .s1-ta-hi { animation: k-s1-ta-hi 7.5s cubic-bezier(.3,1.35,.5,1) both infinite; }
+@keyframes k-s1-ripple { 0%, 54% { opacity: 0; transform: scale(.4); } 56% { opacity: 1; transform: scale(.6); } 64%, 100% { opacity: 0; transform: scale(2.2); } }
+.how-panel.is-active .s1-ripple { animation: k-s1-ripple 7.5s ease-out both infinite; }
+@keyframes k-s1-detail { 0%, 58% { opacity: 0; transform: translateY(18px) scale(.96); } 62%, 93% { opacity: 1; transform: none; } 97%, 100% { opacity: 0; transform: none; } }
+.how-panel.is-active .s1-detail { animation: k-s1-detail 7.5s cubic-bezier(.3,1.35,.5,1) both infinite; }
+@keyframes k-s1-cta { 0%, 84% { transform: none; } 85.5% { transform: scale(.95); } 88%, 100% { transform: none; } }
+.how-panel.is-active .s1-cta { animation: k-s1-cta 7.5s cubic-bezier(.45,0,.25,1) both infinite; }
+.s1-ripple, .s1-cta, .s1 [class^="s1-r"], .s1 [class^="s1-b"], .s1-root, .s1-detail, .s1-ta-hi { transform-origin: center; }
+@keyframes k-s2-m0 { 0%, 3% { opacity: 0; transform: translateX(-24px); } 7%, 30% { opacity: 1; transform: none; } 34%, 100% { opacity: 0; transform: none; } }
+.how-panel.is-active .s2-m0 { animation: k-s2-m0 7.5s cubic-bezier(.3,1.35,.5,1) both infinite; }
+@keyframes k-s2-m1 { 0%, 7% { opacity: 0; transform: translateX(-24px); } 11%, 30% { opacity: 1; transform: none; } 34%, 100% { opacity: 0; transform: none; } }
+.how-panel.is-active .s2-m1 { animation: k-s2-m1 7.5s cubic-bezier(.3,1.35,.5,1) both infinite; }
+@keyframes k-s2-m2 { 0%, 11% { opacity: 0; transform: translateX(-24px); } 15%, 30% { opacity: 1; transform: none; } 34%, 100% { opacity: 0; transform: none; } }
+.how-panel.is-active .s2-m2 { animation: k-s2-m2 7.5s cubic-bezier(.3,1.35,.5,1) both infinite; }
+@keyframes k-s2-open { 0%, 16% { opacity: 0; transform: translateX(16px); } 20%, 30% { opacity: 1; transform: none; } 34%, 100% { opacity: 0; transform: none; } }
+.how-panel.is-active .s2-open { animation: k-s2-open 7.5s cubic-bezier(.3,1.35,.5,1) both infinite; }
+@keyframes k-s2-add { 0%, 26% { transform: none; } 27.5% { transform: scale(.94); } 30%, 100% { transform: none; } }
+.how-panel.is-active .s2-add { animation: k-s2-add 7.5s cubic-bezier(.45,0,.25,1) both infinite; }
+@keyframes k-s2-inbox { 0%, 31% { opacity: 1; } 34%, 100% { opacity: 0; } }
+.how-panel.is-active .s2-inbox { animation: k-s2-inbox 7.5s ease both infinite; }
+@keyframes k-s2-ats { 0%, 31% { opacity: 0; transform: translateX(30px); } 35%, 93% { opacity: 1; transform: none; } 97%, 100% { opacity: 0; transform: none; } }
+.how-panel.is-active .s2-ats { animation: k-s2-ats 7.5s ease both infinite; }
+@keyframes k-s2-tabline { 0%, 31% { transform: none; width: 38px; } 35%, 93% { transform: translateX(55px); width: 56px; } 97%, 100% { transform: translateX(55px); width: 56px; } }
+.how-panel.is-active .s2-tabline { animation: k-s2-tabline 7.5s cubic-bezier(.45,0,.25,1) both infinite; }
+@keyframes k-s2-cv { 0%, 36% { opacity: 0; transform: translateY(14px); } 40%, 93% { opacity: 1; transform: none; } 97%, 100% { opacity: 0; transform: none; } }
+.how-panel.is-active .s2-cv { animation: k-s2-cv 7.5s cubic-bezier(.3,1.35,.5,1) both infinite; }
+@keyframes k-s2-hl { 0%, 42% { opacity: 0; } 46%, 93% { opacity: .7; } 97%, 100% { opacity: 0; } }
+.how-panel.is-active .s2-hl { animation: k-s2-hl 7.5s ease both infinite; }
+@keyframes k-s2-pick { 0%, 50% { opacity: 0; transform: scale(.9); } 54%, 93% { opacity: 1; transform: none; } 97%, 100% { opacity: 0; transform: none; } }
+.how-panel.is-active .s2-pick { animation: k-s2-pick 7.5s cubic-bezier(.3,1.35,.5,1) both infinite; }
+.s2-type1 { stroke-dasharray: 160; }
+@keyframes k-s2-type1 { 0%, 55% { stroke-dashoffset: 160; opacity: 1; } 61%, 93% { stroke-dashoffset: 0; opacity: 1; } 97%, 100% { stroke-dashoffset: 0; opacity: 0; } }
+.how-panel.is-active .s2-type1 { animation: k-s2-type1 7.5s linear both infinite; }
+.s2-type2 { stroke-dasharray: 160; }
+@keyframes k-s2-type2 { 0%, 60% { stroke-dashoffset: 160; opacity: 1; } 64%, 93% { stroke-dashoffset: 0; opacity: 1; } 97%, 100% { stroke-dashoffset: 0; opacity: 0; } }
+.how-panel.is-active .s2-type2 { animation: k-s2-type2 7.5s linear both infinite; }
+@keyframes k-s2-save { 0%, 67% { transform: none; } 68.5% { transform: scale(.92); } 71%, 100% { transform: none; } }
+.how-panel.is-active .s2-save { animation: k-s2-save 7.5s cubic-bezier(.45,0,.25,1) both infinite; }
+@keyframes k-s2-toast { 0%, 72% { opacity: 0; transform: translateY(20px); } 76%, 90% { opacity: 1; transform: none; } 94%, 100% { opacity: 0; transform: none; } }
+.how-panel.is-active .s2-toast { animation: k-s2-toast 7.5s cubic-bezier(.3,1.35,.5,1) both infinite; }
+@keyframes k-s2-cursor { 0%, 18% { opacity: 0; transform: translate(634px, 294px); } 20% { opacity: 1; transform: translate(634px, 294px); } 25.5%, 26.5% { opacity: 1; transform: translate(554px, 276px); } 27.5% { opacity: 1; transform: translate(554px, 276px) scale(.85); } 29%, 44% { opacity: 1; transform: translate(554px, 276px); } 49% { opacity: 1; transform: translate(634px, 132px); } 50% { opacity: 1; transform: translate(634px, 132px) scale(.85); } 52%, 62% { opacity: 1; transform: translate(634px, 132px); } 67% { opacity: 1; transform: translate(698px, 298px); } 68.5% { opacity: 1; transform: translate(698px, 298px) scale(.85); } 71%, 88% { opacity: 1; transform: translate(698px, 298px); } 92%, 100% { opacity: 0; transform: translate(698px, 298px); } }
+.how-panel.is-active .s2-cursor { animation: k-s2-cursor 7.5s cubic-bezier(.45,0,.25,1) both infinite; }
+@keyframes k-s2-steam { 0% { opacity: 0; transform: translateY(6px); } 30% { opacity: .8; } 60%, 100% { opacity: 0; transform: translateY(-10px); } }
+.how-panel.is-active .s2-steam { animation: k-s2-steam 7.5s ease-out both infinite; }
+.s2 [class^="s2-m"], .s2-open, .s2-add, .s2-cv, .s2-pick, .s2-save, .s2-toast { transform-origin: center; }
+
+@media (prefers-reduced-motion: reduce) {
+  .how-panel .s1 *, .how-panel .s2 * { animation: none !important; }
+  .s1-cursor, .s1-ripple, .s2-cursor, .s2-toast, .s2-inbox, .s2-steam { display: none; }
+  .s1 path[class^="s1-"], .s2 path[class^="s2-type"] { stroke-dashoffset: 0; }
+}
