@@ -34,6 +34,15 @@ const missions = {
     url: "/workspace/content-marketing",
     // Trùng CASE.ui.storageKey trong workspace/content-marketing-assets/case.js.
     storageKey: "vaoviec-workspace-mission-004-v1"
+  },
+  MISSION_005: {
+    company: "NOVA Commerce",
+    description: "Doanh thu tuần 45 giảm 18%: đọc dữ liệu theo kênh, phễu mua hàng và nhật ký hệ thống, chọn 3 phát hiện có bằng chứng, viết email báo cáo và đề xuất chỉ số theo dõi.",
+    duration: "15–20 phút",
+    deliverable: "3 phát hiện có số liệu chứng minh, 1 email báo cáo ngắn, các bước tiếp theo kèm 2 chỉ số theo dõi và khuyến nghị cho trưởng phòng.",
+    url: "/workspace/data-analyst",
+    // Trùng CASE.ui.storageKey trong workspace/data-analyst-assets/case.js.
+    storageKey: "vaoviec-workspace-mission-005-v1"
   }
 };
 

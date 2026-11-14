@@ -1349,8 +1349,8 @@ const careerData = {
       "role_name_vi": "Chuyên viên Phân tích Dữ liệu",
       "industry_group": "Dữ liệu & Phân tích nghiệp vụ",
       "function": "Phân tích dữ liệu, BI & Sản phẩm",
-      "simulation_status": "in_development",
-      "mission_id": null,
+      "simulation_status": "available",
+      "mission_id": "MISSION_005",
       "role_description": "Chuyển câu hỏi nghiệp vụ thành phân tích dữ liệu để giải thích xu hướng, biến động và đưa ra đề xuất.",
       "daily_tasks": [
         "Thống nhất câu hỏi phân tích và định nghĩa chỉ tiêu",
