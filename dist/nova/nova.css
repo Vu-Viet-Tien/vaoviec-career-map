@@ -457,3 +457,6 @@ body.laptop-mode .nova-root { --nova-bottom: 58px; }
   .nova-spark { display: none; }
   .nova-root[data-state="listening"] .nova-ring { opacity: .6; scale: 1; }
 }
+.nova-sample { margin-top: 8px; padding: 7px 10px; border-radius: 10px; background: #fff; border: 1px solid #c9ecf8; white-space: normal; }
+.nova-sample summary { cursor: pointer; font-weight: 700; color: #0d5e86; font-size: 13px; }
+.nova-sample p { margin: 6px 0 0; font-size: 13.5px; }

@@ -284,8 +284,9 @@ function inboxHint(){
     ?'<span class="inbox-hint" role="status"><span aria-hidden="true">↑</span> Kiểm tra mail ứng viên</span>'
     :'';
 }
+// Gợi ý theo việc nay nằm trong VaVi (góc phải dưới), nên thanh này chỉ còn Việc tiếp theo.
 function workTask(){
-  return btn(`${uiIcon('chat')} Hỏi trợ lý`,'assistant','','assistant-button')+nextTask();
+  return nextTask();
 }
 // Gợi ý theo việc đang làm, chi tiết hơn ba chặng của thanh tiến độ.
 function assistKey(){
@@ -309,11 +310,13 @@ function assistantView(){
 // Trợ lý NOVA (/nova/nova-assistant.js) đọc ngữ cảnh và gợi ý soạn sẵn của việc đang làm qua hai hàm này.
 window.novaContext=()=>({page:'workspace',mode:s.mode||'',task:assistKey(),submitted:!!s.submission});
 window.novaTips=()=>{
-  const tip=CASE.assistant[assistKey()];
+  const k=assistKey(), tip=CASE.assistant[k];
   if(!tip)return null;
+  // Đếm số lần mở gợi ý theo việc, để sau này đối chiếu mức hỗ trợ đã dùng (trước đây đếm ở nút Hỏi trợ lý).
+  (s.assistUses??={})[k]=(s.assistUses[k]??0)+1;save();
   return s.mode==='self'
     ?{label:`Câu hỏi định hướng · ${tip.title}`,items:tip.self}
-    :{label:`Gợi ý · ${tip.title}`,items:tip.guided};
+    :{label:`Gợi ý · ${tip.title}`,items:tip.guided,sample:tip.sample};
 };
 function nextTask(){
   if(s.delivery?.screeningStarted&&!s.submission){

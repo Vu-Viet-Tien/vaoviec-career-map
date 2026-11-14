@@ -106,7 +106,7 @@ export class NovaChatWindow {
   }
 
   // Gợi ý soạn sẵn (không phải câu trả lời AI): tiêu đề + danh sách ý.
-  addTips(label, items) {
+  addTips(label, items, sample) {
     const msg = document.createElement('div');
     msg.className = 'nova-msg nova-msg-nova nova-msg-tips';
     const b = document.createElement('b');
@@ -118,6 +118,18 @@ export class NovaChatWindow {
       ul.append(li);
     }
     msg.append(b, ul);
+    // Chế độ Làm quen: phương án mẫu thu gọn, người học tự bấm mở khi cần.
+    if (sample) {
+      const details = document.createElement('details');
+      details.className = 'nova-sample';
+      const summary = document.createElement('summary');
+      summary.textContent = 'Xem phương án mẫu';
+      const p = document.createElement('p');
+      p.textContent = sample;
+      details.append(summary, p);
+      details.addEventListener('toggle', () => this.scroll());
+      msg.append(details);
+    }
     this.log.append(msg);
     this.scroll();
   }

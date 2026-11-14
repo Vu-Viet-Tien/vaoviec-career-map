@@ -104,7 +104,7 @@ class NovaAssistant {
       this.anim.later(() => {
         if (this.open) return;
         this.anim.play('wave');
-        this.bubble.say('Xin chào! Mình là VaVi 👋', 4200);
+        this.bubble.say(typeof window.novaTips === 'function' ? 'Cần gợi ý cho việc đang làm? Bấm vào mình nhé 👋' : 'Xin chào! Mình là VaVi 👋', 5000);
         bubbles++;
         try { sessionStorage.setItem(greetedKey, '1'); } catch { /* bỏ qua */ }
       }, 1800);
@@ -171,7 +171,7 @@ class NovaAssistant {
   showTips() {
     const tips = typeof window.novaTips === 'function' ? window.novaTips() : null;
     if (!tips) return this.chat.add('note', 'Trang này chưa có gợi ý soạn sẵn. Bạn cứ đặt câu hỏi cho VaVi nhé.');
-    this.chat.addTips(tips.label, tips.items);
+    this.chat.addTips(tips.label, tips.items, tips.sample);
     this.anim.play('excited');
   }
 

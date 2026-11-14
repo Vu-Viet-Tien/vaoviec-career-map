@@ -77,7 +77,7 @@ function taskBar() {
   const next = nextStep();
   const text = s.submission ? 'Đã gửi đề xuất. Xem nhận xét, sửa và nộp lại nếu cần.' : next ? `Việc tiếp theo: ${next[1]}` : 'Sẵn sàng gửi đề xuất cho anh Quân.';
   const action = s.submission ? `<button class="primary" data-do="feedback">Xem kết quả</button>` : next && next[0] !== s.tab ? `<button class="primary" data-do="tab" data-id="${next[0]}">Mở ${esc(next[1])} →</button>` : '';
-  return `<footer class="eb-task"><button data-do="assistant" class="assistant-button">💬 Hỏi trợ lý</button><span>${esc(text)}</span>${action}</footer>`;
+  return `<footer class="eb-task"><span>${esc(text)}</span>${action}</footer>`;
 }
 
 // ---------- Các màn ----------
@@ -370,8 +370,9 @@ addEventListener('hashchange', () => { if (location.hash === '#profile' && s.int
 // VaVi đọc ngữ cảnh và gợi ý soạn sẵn qua hai hàm này.
 window.novaContext = () => ({ page: 'workspace', mission: CASE.id, mode: s.mode || '', task: assistKey(), submitted: !!s.submission });
 window.novaTips = () => {
-  const tip = CASE.assistant[assistKey()];
-  return s.mode === 'self' ? { label: `Câu hỏi định hướng · ${tip.title}`, items: tip.self } : { label: `Gợi ý · ${tip.title}`, items: tip.guided };
+  const k = assistKey(), tip = CASE.assistant[k];
+  (s.assistUses ??= {})[k] = (s.assistUses[k] ?? 0) + 1; save();
+  return s.mode === 'self' ? { label: `Câu hỏi định hướng · ${tip.title}`, items: tip.self } : { label: `Gợi ý · ${tip.title}`, items: tip.guided, sample: tip.sample };
 };
 
 render();
