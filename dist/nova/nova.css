@@ -1,6 +1,6 @@
 /* NOVA – linh vật trợ lý. Mọi lớp bắt đầu bằng .nova- hoặc .nv- để không đụng CSS sẵn có của web. */
 .nova-root {
-  --nova-size: 128px;
+  --nova-size: 86px;
   --nova-right: 24px;
   --nova-bottom: 20px;
   --nova-navy: #0b1f4d;
@@ -21,8 +21,8 @@
   transition: bottom .35s ease;
 }
 .nova-root *, .nova-root *::before, .nova-root *::after { box-sizing: border-box; }
-@media (max-width: 900px) { .nova-root { --nova-size: 108px; --nova-right: 16px; --nova-bottom: 14px; } }
-@media (max-width: 600px) { .nova-root { --nova-size: 82px; --nova-right: 10px; --nova-bottom: 10px; } }
+@media (max-width: 900px) { .nova-root { --nova-size: 74px; --nova-right: 16px; --nova-bottom: 14px; } }
+@media (max-width: 600px) { .nova-root { --nova-size: 60px; --nova-right: 10px; --nova-bottom: 10px; } }
 /* Workspace: chừa chỗ cho thanh "Hỏi trợ lý / Việc tiếp theo" ghim ở đáy màn hình laptop. */
 body.laptop-mode .nova-root { --nova-bottom: 58px; }
 @media (max-width: 600px) { body.laptop-mode .nova-root { --nova-bottom: 64px; } }

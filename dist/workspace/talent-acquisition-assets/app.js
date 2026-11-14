@@ -708,9 +708,9 @@ function handoffView(){
   const total=candidateIds().length, done=candidateIds().filter(id=>s.added[id]&&decided(id)).length;
   const editing=s.submission?versionOf(s.submission,allSubmissions().length-1):0;
   return `<div class="handoff-screen">
-    <div class="section-head"><div><h1>Bàn giao đề xuất phỏng vấn</h1></div>${btn('← Về ATS','ats')}</div>
+    <div class="section-head"><div><h1>Bàn giao đề xuất phỏng vấn</h1></div><div class="handoff-nav">${btn('Mở Inbox','tab','Inbox')}${btn('Về ATS','ats')}</div></div>
     ${editing?`<div class="callout">Bạn đang sửa sau phiên bản ${editing}. Bấm Gửi đề xuất cho chị Mai để nộp phiên bản ${editing+1}; bản cũ vẫn được giữ để đối chiếu. ${btn('Xem phản hồi','feedback')}</div>`:''}
-    ${done<total?`<div class="warning">Bạn mới rà ${done}/${total} hồ sơ. Rà hết các CV trong ATS trước khi gửi đề xuất. ${btn('Về ATS','ats')}</div>`:''}
+    ${done<total?`<div class="warning">Bạn mới rà ${done}/${total} hồ sơ. Rà hết các CV trong ATS trước khi gửi đề xuất.</div>`:''}
     <form class="card handoff-card" data-form="handoff" novalidate>
       <dl class="handoff-meta"><div><dt>Người nhận</dt><dd>${esc(CASE.manager)}</dd></div><div><dt>Tiêu đề</dt><dd>${esc(CASE.handoff.subject)}</dd></div></dl>
       <div class="handoff-list-head"><h2>Danh sách đề xuất</h2><span class="pill">${ids.length} ứng viên</span></div>

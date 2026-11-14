@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="./home.css">
 <link rel="stylesheet" href="./landing.css">
 <link rel="stylesheet" href="/site-header.css">
-<script src="/site-header.js" defer></script>
+<script src="/site-header.js" defer></script><script src="/analytics.js" defer></script>
 <script src="./career-data.js" defer></script>
 <script src="./app.js" defer></script>
 <link rel="stylesheet" href="/nova/nova.css">
@@ -118,6 +118,17 @@
     </div>
   </div>
 </section>
+<main id="explore" hidden>
+<h1>Bản đồ nghề nghiệp</h1>
+<nav id="tabs" aria-label="Lĩnh vực"></nav>
+<div class="layout">
+<section class="map" aria-label="Các vị trí trong ngành">
+<div class="toolbar"><strong>Các vị trí trong ngành</strong><input id="search" type="search" placeholder="Tìm trong tất cả lĩnh vực…" aria-label="Tìm vị trí trong tất cả lĩnh vực"></div>
+<div id="tree"></div>
+</section>
+<aside class="detail" id="detail" aria-label="Chi tiết nghề" tabindex="-1"></aside>
+</div>
+</main>
 <footer class="site-footer">
   <div class="site-footer-inner">
     <div class="site-footer-brand">
@@ -130,16 +141,5 @@
   </div>
   <p class="site-footer-note">© 2026 VAOVIEC. Dự án mô phỏng nghề nghiệp dành cho sinh viên. Các công ty và hồ sơ trong nhiệm vụ đều là giả lập; VAOVIEC. không cam kết thực tập hay việc làm.</p>
 </footer>
-<main id="explore" hidden>
-<h1>Bản đồ nghề nghiệp</h1>
-<nav id="tabs" aria-label="Lĩnh vực"></nav>
-<div class="layout">
-<section class="map" aria-label="Các vị trí trong ngành">
-<div class="toolbar"><strong>Các vị trí trong ngành</strong><input id="search" type="search" placeholder="Tìm trong tất cả lĩnh vực…" aria-label="Tìm vị trí trong tất cả lĩnh vực"></div>
-<div id="tree"></div>
-</section>
-<aside class="detail" id="detail" aria-label="Chi tiết nghề" tabindex="-1"></aside>
-</div>
-</main>
 </body>
 </html>
