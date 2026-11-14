@@ -1170,3 +1170,5 @@ modal.addEventListener('cancel',event=>{if(overlay.startsWith('intro-')||overlay
 modal.addEventListener('close',()=>{if(!modal.open)overlay='';});
 render();
 setInterval(refreshDeliveryUI,250);
+// Bấm "Hồ sơ thực hành" trong menu tài khoản khi đang ở Workspace: chỉ đổi hash, nên mở Hồ sơ trải nghiệm tại chỗ.
+addEventListener('hashchange',()=>{if(location.hash==='#profile'&&s.introSeen){overlay='portfolio';render();}});

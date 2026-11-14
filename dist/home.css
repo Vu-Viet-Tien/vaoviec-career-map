@@ -262,3 +262,9 @@
   }
 }
 .home-continue{margin-top:16px;font-size:15px;color:#3e526f}
+
+/* Ba thẻ tính năng bấm được (14/11): liên kết phủ toàn thẻ. */
+.home-features li { position: relative; transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
+.home-features li:hover { transform: translateY(-3px); box-shadow: 0 14px 30px #1b4fc41f; border-color: #9cbcf0; }
+.home-feature-link { position: absolute; inset: 0; border-radius: inherit; }
+.home-feature-link:focus-visible { outline: 3px solid #7198ec; outline-offset: 3px; }

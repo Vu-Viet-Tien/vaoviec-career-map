@@ -89,7 +89,7 @@ html { scroll-behavior: smooth; scroll-padding-top: 76px; }
   transition: opacity .4s ease, transform .5s cubic-bezier(.3, 1.2, .5, 1), visibility 0s linear .4s;
 }
 .how-panel.is-active { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
-.how-gif { display: block; width: 100%; height: 100%; object-fit: cover; }
+.how-gif, .how-video { display: block; width: 100%; height: 100%; object-fit: cover; }
 
 /* Minh hoạ bước 2: Workspace / ATS mini dựng bằng HTML. */
 .mock-tabs { display: flex; gap: 6px; padding: 12px 16px 0; font-size: 13px; color: #4b5f80; }
@@ -147,4 +147,53 @@ html { scroll-behavior: smooth; scroll-padding-top: 76px; }
   .mock-ats { grid-template-columns: 1fr 1fr; }
   .mock-cv { display: none; }
   .how-bar img { width: 84px; }
+}
+
+/* Minh hoạ bước 3 (SVG động, vòng lặp 7.5s): phiếu kết quả hiện, 4 tiêu chí lần lượt Đạt, bấm Lưu, thẻ minh chứng bay vào bìa hồ sơ. */
+.s3 { display: block; width: 100%; height: 100%; font-family: "Be Vietnam Pro", system-ui, sans-serif; }
+.s3 * { transform-box: fill-box; }
+.s3-label { font-size: 17px; font-weight: 800; fill: #1b4fc4; }
+.s3-title { font-size: 19px; font-weight: 800; fill: #08234d; }
+.s3-effort-t { font-size: 12px; font-weight: 700; fill: #136c3f; }
+.s3-row-t { font-size: 13.5px; font-weight: 600; fill: #22385f; }
+.s3-ok { font-size: 11.5px; font-weight: 700; fill: #136c3f; }
+.s3-save-t { font-size: 13px; font-weight: 700; fill: #fff; }
+.s3-fly-t { font-size: 13px; font-weight: 700; fill: #22385f; }
+.how-panel.is-active .s3-card, .how-panel.is-active .s3-card-body { animation: s3-card 7.5s ease both infinite; }
+.how-panel.is-active .s3-row { animation: s3-row 7.5s ease both infinite; }
+.s3-r2 { animation-delay: .1s !important; } .s3-r3 { animation-delay: .2s !important; } .s3-r4 { animation-delay: .3s !important; }
+.s3-pill { transform-origin: center; }
+.how-panel.is-active .s3-r1 .s3-pill { animation: s3-pop1 7.5s cubic-bezier(.3, 1.6, .5, 1) both infinite; }
+.how-panel.is-active .s3-r2 .s3-pill { animation: s3-pop2 7.5s cubic-bezier(.3, 1.6, .5, 1) both infinite; }
+.how-panel.is-active .s3-r3 .s3-pill { animation: s3-pop3 7.5s cubic-bezier(.3, 1.6, .5, 1) both infinite; }
+.how-panel.is-active .s3-r4 .s3-pill { animation: s3-pop4 7.5s cubic-bezier(.3, 1.6, .5, 1) both infinite; }
+.s3-effort, .s3-save { transform-origin: center; }
+.how-panel.is-active .s3-effort { animation: s3-effort 7.5s cubic-bezier(.3, 1.6, .5, 1) both infinite; }
+.how-panel.is-active .s3-save { animation: s3-save 7.5s ease both infinite; }
+.how-panel.is-active .s3-fly { animation: s3-fly 7.5s cubic-bezier(.5, 0, .3, 1) both infinite; }
+.s3-folder { transform-origin: 50% 100%; }
+.how-panel.is-active .s3-folder { animation: s3-folder 7.5s ease both infinite; }
+.how-panel.is-active .s3-sheet { animation: s3-sheet 7.5s ease both infinite; }
+.how-panel.is-active .s3-spark { animation: s3-spark 7.5s ease both infinite; }
+
+@keyframes s3-card { 0% { opacity: 0; transform: translateY(18px); } 6%, 90% { opacity: 1; transform: none; } 100% { opacity: 0; transform: translateY(-6px); } }
+@keyframes s3-row { 0%, 4% { opacity: 0; transform: translateX(14px); } 10%, 100% { opacity: 1; transform: none; } }
+@keyframes s3-pop1 { 0%, 13% { opacity: 0; transform: scale(.2); } 17%, 100% { opacity: 1; transform: none; } }
+@keyframes s3-pop2 { 0%, 20% { opacity: 0; transform: scale(.2); } 24%, 100% { opacity: 1; transform: none; } }
+@keyframes s3-pop3 { 0%, 27% { opacity: 0; transform: scale(.2); } 31%, 100% { opacity: 1; transform: none; } }
+@keyframes s3-pop4 { 0%, 34% { opacity: 0; transform: scale(.2); } 38%, 100% { opacity: 1; transform: none; } }
+@keyframes s3-effort { 0%, 42% { opacity: 0; transform: scale(.4); } 47%, 100% { opacity: 1; transform: none; } }
+@keyframes s3-save { 0%, 50% { transform: none; filter: none; } 53% { transform: scale(.94); } 56%, 100% { transform: none; } }
+@keyframes s3-fly {
+  0%, 54% { opacity: 0; transform: translate(0, 0) scale(.9); }
+  58% { opacity: 1; transform: translate(0, -12px) scale(1); }
+  72% { opacity: 1; transform: translate(-390px, -96px) scale(.55) rotate(-6deg); }
+  76%, 100% { opacity: 0; transform: translate(-390px, -60px) scale(.4) rotate(-6deg); }
+}
+@keyframes s3-folder { 0%, 71% { transform: none; } 74% { transform: scale(1.03, .97); } 78% { transform: scale(.99, 1.02); } 82%, 100% { transform: none; } }
+@keyframes s3-sheet { 0%, 72% { transform: none; } 80%, 92% { transform: translateY(-16px); } 100% { transform: none; } }
+@keyframes s3-spark { 0%, 72% { opacity: .35; } 78% { opacity: 1; } 90%, 100% { opacity: .35; } }
+@media (prefers-reduced-motion: reduce) {
+  .how-panel .s3 * { animation: none !important; opacity: 1; }
+  .s3-fly { display: none; }
 }

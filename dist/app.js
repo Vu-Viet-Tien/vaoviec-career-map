@@ -235,10 +235,18 @@ render();
   const panels = [...how.querySelectorAll(".how-panel")];
   const title = how.querySelector(".how-bar-title");
   const gif = how.querySelector(".how-gif");
+  const video = how.querySelector(".how-video");
   const activate = n => {
     steps.forEach(s => { const on = s.dataset.step === n; s.classList.toggle("is-active", on); s.setAttribute("aria-expanded", on); });
     panels.forEach(p => p.classList.toggle("is-active", p.id === "how-panel-" + n));
     title.textContent = how.querySelector("#how-panel-" + n).dataset.title;
+    // Video bước 2 chỉ tải khi mở bước 2; trình duyệt không phát được thì vẫn hiện ảnh bìa.
+    if (video) {
+      if (n === "2") {
+        if (!video.src) video.src = video.dataset.src;
+        if (!matchMedia("(prefers-reduced-motion: reduce)").matches) video.play().catch(() => {});
+      } else video.pause();
+    }
   };
   steps.forEach(s => {
     const go = () => activate(s.dataset.step);
