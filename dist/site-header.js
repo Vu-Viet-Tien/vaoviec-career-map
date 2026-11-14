@@ -88,6 +88,7 @@ function openAccountDialog() {
       return fail(event, "Trình duyệt đang chặn lưu dữ liệu, nên chưa tạo được hồ sơ.");
     }
     refreshAccount();
+    window.vvToast?.(account ? "Đã lưu thông tin hồ sơ." : `Chào ${name.split(/\s+/).pop()}! Hồ sơ đã được tạo.`, "success");
   });
   accountDialog.querySelector('[data-account="cancel"]').addEventListener("click", () => accountDialog.close());
   accountDialog.showModal();
@@ -109,9 +110,17 @@ document.addEventListener("click", event => {
     menu.hidden = !menu.hidden;
     target.setAttribute("aria-expanded", String(!menu.hidden));
   }
-  if (action === "logout" && confirm("Đăng xuất khỏi hồ sơ trên trình duyệt này? Tiến độ nhiệm vụ vẫn được giữ.")) {
-    writeAccount(null);
-    refreshAccount();
+  if (action === "logout") {
+    closeAccountMenu();
+    const ask = window.vvConfirm
+      ? window.vvConfirm({ title: "Đăng xuất?", message: "Hồ sơ trên trình duyệt này sẽ được đăng xuất. Tiến độ nhiệm vụ vẫn được giữ.", confirmLabel: "Đăng xuất" })
+      : Promise.resolve(confirm("Đăng xuất khỏi hồ sơ trên trình duyệt này? Tiến độ nhiệm vụ vẫn được giữ."));
+    ask.then(ok => {
+      if (!ok) return;
+      writeAccount(null);
+      refreshAccount();
+      window.vvToast?.("Đã đăng xuất.", "info");
+    });
   }
 });
 document.addEventListener("keydown", event => {

@@ -775,7 +775,7 @@ function feedback(){
   const previous=list.slice(0,index).reverse().find(p=>p.ai?.status==='done')?.ai.review;
   const ai=sub.ai;
   const ruleBased=`<div class="feedback">${sub.feedback.map(([title,content])=>`<article><h3>${esc(title)}</h3><p>${esc(content)}</p></article>`).join('')}</div>`;
-  const body=ai?.status==='pending'?'<p class="review-pending" role="status">Đang đánh giá bài bàn giao của bạn…</p>'
+  const body=ai?.status==='pending'?'<div role="status"><p class="vv-skeleton-label">Đang đánh giá bài bàn giao của bạn… thường mất 5–20 giây.</p><div class="vv-skeleton" aria-hidden="true"><i></i><i></i><i></i><i class="card"></i><i class="card"></i></div></div>'
     :ai?.status==='done'?aiReview(ai.review,previous)
     :`${ai?.status==='error'?`<div class="warning" role="status">${esc(ai.message)} Dưới đây là nhận xét nhanh theo thao tác bạn đã làm. ${latest?btn('Thử chấm lại','retry-review'):''}</div>`:''}${ruleBased}`;
   const versions=list.length>1?`<nav class="version-tabs" aria-label="Các phiên bản đã nộp">${list.map((item,i)=>btn(`Phiên bản ${versionOf(item,i)}`,'view-version',i,i===index?'selected':'')).join('')}</nav>`:'';

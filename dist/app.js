@@ -115,7 +115,7 @@ function renderTree() {
     <p class="search-summary" role="status">Tìm thấy ${matches.length} vị trí trong ${found.length} lĩnh vực.
       <button class="text-link reset" type="button">Xóa tìm kiếm</button></p>
     <div class="trees">${found.map(id => treeMarkup(id, matches.filter(role => role.industry_id === id))).join("")}</div>` :
-    '<p role="status">Không tìm thấy vị trí phù hợp. <button class="text-link reset" type="button">Xóa tìm kiếm</button></p>';
+    '<p class="vv-empty" role="status"><strong>Không tìm thấy vị trí phù hợp.</strong><span>Thử từ khoá ngắn hơn, ví dụ "tuyển dụng", "data" hoặc "marketing".</span><button class="text-link reset" type="button">Xóa tìm kiếm</button></p>';
   drawTreeLinks();
 }
 

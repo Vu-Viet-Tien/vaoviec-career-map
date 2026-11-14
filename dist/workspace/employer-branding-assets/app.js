@@ -236,7 +236,7 @@ function cvGate(sub) {
 }
 function reviewHtml(sub) {
   const ai = sub.ai ?? {};
-  if (ai.status === 'pending' || !ai.status) return `<div class="eb-pending"><span class="spinner"></span><p>AI đang đọc bài của bạn theo 4 tiêu chí… thường mất 5–20 giây.</p></div>`;
+  if (ai.status === 'pending' || !ai.status) return `<div role="status"><p class="vv-skeleton-label">AI đang đọc bài của bạn theo 4 tiêu chí… thường mất 5–20 giây.</p><div class="vv-skeleton" aria-hidden="true"><i></i><i></i><i></i><i class="card"></i><i class="card"></i></div></div>`;
   if (ai.status === 'error') return `<div class="eb-warning"><strong>Chưa chấm được bằng AI:</strong> ${esc(ai.message)} <button class="link" data-do="retry">Thử chấm lại</button></div>
     <h3>Nhận xét nhanh</h3><ul class="eb-quick">${report(sub.payload).map(n => `<li>${esc(n)}</li>`).join('')}</ul>`;
   const r = ai.review;
@@ -259,7 +259,7 @@ function feedbackView() {
 function portfolioView() {
   const subs = allSubs();
   return `<p>Các phiên bản bạn đã nộp cho nhiệm vụ ${esc(CASE.role)}. Dữ liệu lưu trên trình duyệt này.</p>
-    ${subs.length ? `<table class="eb-table"><thead><tr><th>Bản</th><th>Thời gian</th><th>Kết quả</th><th></th></tr></thead><tbody>${subs.slice().reverse().map(x => `<tr><td>Bản ${x.version}</td><td>${new Date(x.at).toLocaleString('vi-VN')}</td><td>${passCount(x) != null ? `${passCount(x)}/4 tiêu chí Đạt` : x.ai?.status === 'error' ? 'Chưa chấm AI' : 'Đang chấm'}</td><td><button class="link" data-do="version" data-id="${x.id}">Xem</button></td></tr>`).join('')}</tbody></table>` : '<p class="eb-note">Chưa có bài nộp. Hoàn thành nhiệm vụ để lưu vào hồ sơ.</p>'}
+    ${subs.length ? `<table class="eb-table"><thead><tr><th>Bản</th><th>Thời gian</th><th>Kết quả</th><th></th></tr></thead><tbody>${subs.slice().reverse().map(x => `<tr><td>Bản ${x.version}</td><td>${new Date(x.at).toLocaleString('vi-VN')}</td><td>${passCount(x) != null ? `${passCount(x)}/4 tiêu chí Đạt` : x.ai?.status === 'error' ? 'Chưa chấm AI' : 'Đang chấm'}</td><td><button class="link" data-do="version" data-id="${x.id}">Xem</button></td></tr>`).join('')}</tbody></table>` : '<p class="empty">Chưa có bài nộp. Hoàn thành nhiệm vụ và gửi đề xuất, bài làm sẽ tự lưu ở đây kèm nhận xét.</p>'}
     <div class="actions"><button data-do="reset">Chơi lại case</button><button class="primary" data-do="close">Đóng</button></div>`;
 }
 function introView() {
@@ -320,9 +320,17 @@ document.addEventListener('click', e => {
     case 'version': viewVersion = id; open('feedback'); return;
     case 'retry': if (s.submission) aiReview(s.submission); renderModal(); return;
     case 'revise': overlay = ''; renderModal(); s.tab = 'evp'; save(); render(); return;
-    case 'reset':
-      if (!confirm('Bắt đầu lại nhiệm vụ? Các phiên bản đã nộp vẫn được giữ trong Hồ sơ trải nghiệm.')) return;
-      s = Object.assign(initial(), { introSeen: true, mode: s.mode, history: allSubs() }); save(); overlay = ''; renderModal(); render(); return;
+    case 'reset': {
+      const ask = window.vvConfirm
+        ? window.vvConfirm({ title: 'Bắt đầu lại nhiệm vụ?', message: 'Bài đang làm sẽ được xoá. Các phiên bản đã nộp vẫn được giữ trong Hồ sơ trải nghiệm.', confirmLabel: 'Bắt đầu lại', tone: 'danger' })
+        : Promise.resolve(confirm('Bắt đầu lại nhiệm vụ? Các phiên bản đã nộp vẫn được giữ trong Hồ sơ trải nghiệm.'));
+      ask.then(ok => {
+        if (!ok) return;
+        s = Object.assign(initial(), { introSeen: true, mode: s.mode, history: allSubs() }); save(); overlay = ''; renderModal(); render();
+        window.vvToast?.('Đã bắt đầu lại nhiệm vụ.', 'success');
+      });
+      return;
+    }
   }
 });
 document.addEventListener('toggle', e => {

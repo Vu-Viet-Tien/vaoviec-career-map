@@ -1,0 +1,147 @@
+/* VAOVIEC. Design System (14/11) — nạp SAU CSS riêng của từng trang.
+   Chỉ chuẩn hoá trình bày: token, font, trạng thái tương tác, và vài thành phần dùng chung.
+   Không đổi bố cục; selector dùng :where() để độ ưu tiên thấp, trang nào cần khác vẫn ghi đè được. */
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --vv-font: "Be Vietnam Pro", "Segoe UI", system-ui, sans-serif;
+  --vv-navy: #0b1f4d;
+  --vv-ink: #12223f;
+  --vv-muted: #5b6b86;
+  --vv-blue: #1b4fc4;
+  --vv-blue-hover: #163f9e;
+  --vv-blue-soft: #e8f0fe;
+  --vv-line: #dce6f4;
+  --vv-line-strong: #c3d3ea;
+  --vv-surface: #ffffff;
+  --vv-bg: #f4f7fc;
+  --vv-ok: #136c3f;  --vv-ok-bg: #e3f7ec;
+  --vv-warn: #8a4b00; --vv-warn-bg: #fff3dc;
+  --vv-err: #a11d1d; --vv-err-bg: #fdecec;
+  --vv-r-sm: 10px; --vv-r-md: 14px; --vv-r-lg: 18px;
+  --vv-shadow-sm: 0 1px 2px #0b1f4d0d, 0 2px 8px #0b1f4d0a;
+  --vv-shadow-md: 0 4px 12px #0b1f4d0f, 0 12px 32px #0b1f4d14;
+  --vv-shadow-lg: 0 24px 60px #0b1f4d29;
+  --vv-focus: 0 0 0 3px #ffffff, 0 0 0 5px #2f6fe0;
+  --vv-ease: cubic-bezier(.2, .7, .3, 1);
+}
+
+/* ---------- Nền tảng ---------- */
+body { font-family: var(--vv-font); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+.site-header { font-family: var(--vv-font); }
+::selection { background: #cfe0ff; color: var(--vv-navy); }
+
+/* Focus rõ ràng và đồng nhất cho mọi thứ bấm được (chỉ khi dùng bàn phím). */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: none !important;
+  box-shadow: var(--vv-focus) !important;
+  border-radius: max(6px, inherit);
+}
+:where(input, select, textarea):not([type=checkbox]):not([type=radio]):focus { border-color: #2f6fe0; }
+
+/* Chuyển trạng thái mượt cho nút, thẻ, ô nhập. */
+:where(button, .primary, .role, .branch, nav button, .mode-option, input, select, textarea) {
+  transition: background-color .16s var(--vv-ease), border-color .16s var(--vv-ease), box-shadow .16s var(--vv-ease), color .16s var(--vv-ease), transform .16s var(--vv-ease);
+}
+:where(button, .primary):not(:disabled):active { transform: translateY(1px); }
+:where(button, input, select, textarea):disabled { cursor: not-allowed; opacity: .55; }
+:where(input, textarea, select)::placeholder { color: #94a3ba; }
+
+/* ---------- Career Map ---------- */
+#explore h1 { letter-spacing: -.03em; color: var(--vv-navy); }
+#tabs button { border-radius: 999px; box-shadow: var(--vv-shadow-sm); }
+#tabs button:not(.active):hover { border-color: #8db6f2; background: #f6f9ff; }
+.map, .detail { border-radius: var(--vv-r-lg); box-shadow: var(--vv-shadow-sm); border-color: var(--vv-line); }
+.toolbar input { border-radius: 999px; padding-left: 34px; background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3ba' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E") 11px 50% / 16px no-repeat; }
+.role { box-shadow: var(--vv-shadow-sm); }
+.role:hover { background: #f6f9ff; transform: translateX(2px); }
+.role.selected { box-shadow: 0 0 0 1px #6491e8, 0 6px 16px #1b4fc41f; }
+.branch { box-shadow: var(--vv-shadow-sm); }
+.detail .primary, .mission .primary { border-radius: var(--vv-r-sm); box-shadow: 0 6px 16px #1b4fc433; }
+.detail .badge { border-radius: 999px; padding: 4px 10px; }
+.chips span { border-radius: 999px; padding: 4px 10px; }
+.mission { border: 1px solid #d8e5f8; border-radius: var(--vv-r-md); }
+
+/* ---------- Trạng thái trống (dùng chung, không đổi markup: .empty có sẵn ở Workspace) ---------- */
+.empty, .vv-empty {
+  display: grid; justify-items: center; gap: 6px; text-align: center;
+  padding: 26px 18px; margin: 8px 0;
+  border: 1px dashed var(--vv-line-strong); border-radius: var(--vv-r-md);
+  background: #fafcff; color: var(--vv-muted); line-height: 1.55;
+}
+.empty::before, .vv-empty::before {
+  content: ""; width: 44px; height: 44px; border-radius: 50%;
+  background: var(--vv-blue-soft) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231b4fc4' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'/%3E%3C/svg%3E") 50% 50% / 22px no-repeat;
+}
+.empty[hidden], .vv-empty[hidden] { display: none; }
+.mail-empty::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231b4fc4' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E"); }
+
+/* ---------- Skeleton (đang chấm bài / đang tải) ---------- */
+.vv-skeleton { display: grid; gap: 10px; padding: 6px 0 4px; }
+.vv-skeleton i { display: block; height: 12px; border-radius: 6px; background: linear-gradient(90deg, #edf2f9 25%, #f7f9fd 37%, #edf2f9 63%); background-size: 400% 100%; animation: vv-shimmer 1.4s ease infinite; }
+.vv-skeleton i.card { height: 64px; border-radius: 12px; }
+.vv-skeleton i:nth-child(2) { width: 82%; } .vv-skeleton i:nth-child(3) { width: 64%; }
+.vv-skeleton-label { display: flex; align-items: center; gap: 10px; margin: 4px 0 10px; color: var(--vv-muted); font-weight: 600; }
+.vv-skeleton-label::before { content: ""; width: 16px; height: 16px; border-radius: 50%; border: 2.5px solid #dbe8fb; border-top-color: var(--vv-blue); animation: vv-spin .9s linear infinite; }
+@keyframes vv-shimmer { 0% { background-position: 100% 50%; } 100% { background-position: 0 50%; } }
+@keyframes vv-spin { to { transform: rotate(360deg); } }
+
+/* ---------- Toast ---------- */
+.vv-toasts { position: fixed; left: 50%; bottom: 24px; z-index: 9500; display: grid; gap: 8px; translate: -50% 0; width: max-content; max-width: calc(100vw - 32px); pointer-events: none; }
+.vv-toast { display: flex; align-items: center; gap: 10px; padding: 11px 16px; border-radius: 12px; background: var(--vv-navy); color: #fff; font: 600 14px/1.4 var(--vv-font); box-shadow: var(--vv-shadow-lg); animation: vv-toast-in .28s var(--vv-ease); }
+.vv-toast svg { flex: none; width: 18px; height: 18px; }
+.vv-toast-success svg { color: #4ade80; } .vv-toast-error svg { color: #fca5a5; } .vv-toast-info svg { color: #93c5fd; }
+.vv-toast.out { opacity: 0; transform: translateY(6px); transition: opacity .22s, transform .22s; }
+@keyframes vv-toast-in { from { opacity: 0; transform: translateY(10px) scale(.97); } }
+/* Toast sẵn có của Workspace TA: cùng phong cách. */
+#toast:not(:empty) { border-radius: 12px !important; padding: 11px 16px !important; background: var(--vv-navy) !important; font-weight: 600; box-shadow: var(--vv-shadow-lg) !important; animation: vv-toast-in .28s var(--vv-ease); }
+
+/* ---------- Hộp xác nhận ---------- */
+dialog.vv-confirm { width: min(420px, calc(100vw - 32px)); max-height: none; padding: 0; border: 0; border-radius: var(--vv-r-lg); box-shadow: var(--vv-shadow-lg); color: var(--vv-ink); font: 15px/1.55 var(--vv-font); animation: vv-pop .22s var(--vv-ease); }
+dialog.vv-confirm::backdrop { background: #0b1d3d66; backdrop-filter: blur(2px); }
+dialog.vv-confirm form { display: grid; gap: 8px; padding: 24px; }
+dialog.vv-confirm h2 { margin: 6px 0 0; font-size: 19px; letter-spacing: -.01em; }
+dialog.vv-confirm p { margin: 0; color: var(--vv-muted); }
+.vv-confirm-icon { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 12px; background: var(--vv-blue-soft); color: var(--vv-blue); }
+.vv-confirm-icon.danger { background: var(--vv-err-bg); color: #c02626; }
+.vv-confirm-icon svg { width: 22px; height: 22px; }
+.vv-confirm-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 14px; }
+.vv-btn { padding: 9px 18px; border-radius: var(--vv-r-sm); border: 1px solid var(--vv-line-strong); background: #fff; color: var(--vv-ink); font: 700 14px/1.2 var(--vv-font); cursor: pointer; }
+.vv-btn-ghost:hover { background: #f4f7fc; }
+.vv-btn-primary { background: var(--vv-blue); border-color: var(--vv-blue); color: #fff; }
+.vv-btn-primary:hover { background: var(--vv-blue-hover); }
+.vv-btn-danger { background: #c02626; border-color: #c02626; color: #fff; }
+.vv-btn-danger:hover { background: #a11d1d; }
+@keyframes vv-pop { from { opacity: 0; transform: translateY(8px) scale(.98); } }
+
+/* ---------- Tooltip cho nút chỉ có biểu tượng ---------- */
+[data-tip] { position: relative; }
+[data-tip]::after {
+  content: attr(data-tip); position: absolute; left: 50%; top: calc(100% + 8px); z-index: 60;
+  translate: -50% -4px; padding: 5px 9px; border-radius: 8px; background: var(--vv-navy); color: #fff;
+  font: 600 12px/1.3 var(--vv-font); white-space: nowrap; pointer-events: none; opacity: 0;
+  transition: opacity .15s, translate .15s; box-shadow: var(--vv-shadow-md);
+}
+[data-tip]:hover::after, [data-tip]:focus-visible::after { opacity: 1; translate: -50% 0; transition-delay: .35s; }
+.nova-chat-head [data-tip]::after { top: auto; bottom: calc(100% + 6px); translate: -50% 4px; }
+.nova-chat-head [data-tip]:hover::after, .nova-chat-head [data-tip]:focus-visible::after { translate: -50% 0; }
+
+/* ---------- Badge, hộp thoại, bảng (đồng nhất bo góc và đổ bóng) ---------- */
+:where(.pill, .tag, .badge) { border-radius: 999px; font-weight: 700; letter-spacing: .01em; }
+dialog:not(.vv-confirm):not(.account-dialog) { border-radius: var(--vv-r-lg); box-shadow: var(--vv-shadow-lg); }
+dialog[open]:not(.vv-confirm) { animation: vv-pop .24s var(--vv-ease); }
+:where(.eb-table, .portfolio table) th { font-weight: 700; }
+
+@media (prefers-reduced-motion: reduce) {
+  .vv-skeleton i, .vv-skeleton-label::before { animation: none; }
+  .vv-toast, dialog.vv-confirm, dialog[open], #toast:not(:empty) { animation: none !important; }
+  .role:hover { transform: none; }
+}
+
+/* ---------- Cảnh báo / lỗi có nút thử lại (Workspace) ---------- */
+:where(.warning, .eb-warning) { position: relative; padding-left: 44px !important; border: 1px solid #f3d6a2; border-radius: var(--vv-r-md) !important; line-height: 1.5; }
+:where(.warning, .eb-warning)::before {
+  content: ""; position: absolute; left: 14px; top: 13px; width: 20px; height: 20px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238a4b00' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z'/%3E%3Cpath d='M12 9v4M12 17v.5'/%3E%3C/svg%3E") 50% 50% / contain no-repeat;
+}
+.eb-error, .field-error, .error { border-radius: var(--vv-r-sm); }
