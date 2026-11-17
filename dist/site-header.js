@@ -6,7 +6,9 @@ const headerItems = [
   ["profile", "Hồ sơ", '<circle cx="12" cy="7" r="3"/><path d="M5 21v-2a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v2z"/>']
 ];
 
-function renderSiteHeader({ active, exploreUrl, workspaceUrl, inCase = false }) {
+// Feedback 16–17/11: Workspace mở danh sách case (/#/workspace), Hồ sơ mở trang tổng hợp (/#/ho-so), ở mọi trang.
+const HEADER_URLS = { workspace: "/#/workspace", profile: "/#/ho-so" };
+function renderSiteHeader({ active, exploreUrl }) {
   siteHeader.innerHTML = `
     <a class="site-header-logo" href="/" aria-label="VAOVIEC. – Trang chủ">
       <span class="vaoviec-wordmark"><img src="/vaoviec-logo.png" alt="" width="1200" height="390"></span>
@@ -16,12 +18,7 @@ function renderSiteHeader({ active, exploreUrl, workspaceUrl, inCase = false }) 
         const content = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icon}</svg><span>${label}</span>`;
         const current = active === key ? ' aria-current="page"' : "";
-        if (inCase && key !== "explore") {
-          const action = key === "profile" ? "portfolio" : key;
-          return `<button type="button" data-do="${action}"${current}>${content}</button>`;
-        }
-
-        const url = key === "explore" ? exploreUrl : workspaceUrl + (key === "profile" ? "#profile" : "");
+        const url = key === "explore" ? (exploreUrl.startsWith("#") && location.pathname !== "/" ? "/" + exploreUrl : exploreUrl) : HEADER_URLS[key];
         return `<a href="${url}"${current}>${content}</a>`;
       }).join("")}
     </nav>
@@ -56,7 +53,7 @@ function accountMarkup() {
       <span class="account-avatar" aria-hidden="true">${escapeHeader(initials(account.name))}</span><span class="account-name">${escapeHeader(first)}</span></button>
     <div class="account-menu" role="menu" hidden>
       <p><strong>${escapeHeader(account.name)}</strong>${account.school ? `<span>${escapeHeader(account.school)}</span>` : ""}</p>
-      <a role="menuitem" href="/workspace/talent-acquisition#profile">Hồ sơ thực hành</a>
+      <a role="menuitem" href="/#/ho-so">Hồ sơ trải nghiệm</a>
       <button type="button" role="menuitem" data-account="edit">Sửa thông tin</button>
       <button type="button" role="menuitem" data-account="logout">Đăng xuất</button>
     </div>`;

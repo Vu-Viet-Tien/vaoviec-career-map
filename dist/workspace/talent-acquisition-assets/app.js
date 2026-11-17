@@ -94,7 +94,15 @@ let facebookComposer=false;
 let draggedTab='';
 if(s.tab===jdTab)s.tab='Inbox';
 let jdReturn='';
-const save=()=>write(key,s);
+// Lưu kèm thời điểm và tiến độ (5 bước) cho Trang chủ, trang Workspace và Hồ sơ trải nghiệm.
+const save=()=>{
+  s.updatedAt=Date.now();
+  try{
+    const steps=[!!s.jdViewed,s.posts.length>0,inboxDone(),screeningDone(),!!s.submission];
+    s.progress={done:steps.filter(Boolean).length,total:steps.length,label:s.submission?'Đã nộp bàn giao':task()[0]};
+  }catch{/* Thiếu dữ liệu cũ: bỏ qua tiến độ, vẫn lưu bài. */}
+  write(key,s);
+};
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const btn=(label,action,value='',cls='')=>`<button class="${cls}" data-do="${action}" data-id="${esc(value)}">${label}</button>`;
 const primary=(label,action,value)=>btn(label,action,value,'primary');
@@ -260,7 +268,42 @@ function deskView(){
         </div>
       </foreignObject>`:''}
     </svg>
+    ${deskCta()}
   </section>`;
+}
+// Feedback 17/11: người mới không biết phải bấm laptop. Thẻ nổi nói rõ việc cần làm, đổi theo tiến độ.
+const DESK_NEXT={jd:['Mở JD tuyển dụng','Đọc JD để biết vị trí cần tuyển'],posting:['Tiếp tục đăng tin','Chọn kênh và đăng tin tuyển dụng'],inbox:['Tiếp tục rà soát Inbox','Đọc thư ứng viên, thêm CV vào ATS'],ats:['Tiếp tục sàng lọc','Ra quyết định cho từng CV trong ATS mini'],short:['Mở bàn giao','Viết khuyến nghị và gửi chị Mai']};
+function deskCta(){
+  if(!s.introSeen||overlay.startsWith?.('intro'))return '';
+  const steps=s.progress?.total??5, doneSteps=s.progress?.done??0;
+  let eyebrow, title, sub, actions, tone='';
+  if(s.submission){
+    const r=s.submission.ai?.status==='done'?s.submission.ai.review:null;
+    const pass=r?r.criteria.filter(c=>c.status==='Đạt').length:null;
+    eyebrow='Đã nộp bàn giao';
+    title=pass==null?'Bài của bạn đã được gửi cho chị Mai':`Kết quả: ${pass}/${r.criteria.length} tiêu chí Đạt`;
+    sub=pass===4?'Làm tốt lắm! Xem nhận xét chi tiết hoặc thử một nghề khác.':'Xem nhận xét của AI, sửa bài và nộp lại để cải thiện.';
+    actions=`${btn('Xem kết quả →','feedback','','desk-cta-btn')}${btn('Mở laptop','workspace','','desk-cta-ghost')}`;
+    tone='done';
+  }else if(!s.readMail?.brief){
+    eyebrow='Bắt đầu tại đây';
+    title='Chị Mai vừa gửi nhiệm vụ cho bạn';
+    sub='Mở Inbox trên laptop để đọc yêu cầu tuyển nhân viên CSKH.';
+    actions=btn(`${uiIcon('mail')}<span>Mở Inbox để nhận nhiệm vụ</span>`,'email','brief','desk-cta-btn');
+    tone='start';
+  }else{
+    const [, next]=task(), [label, hint]=DESK_NEXT[next]??['Mở laptop','Tiếp tục công việc'];
+    eyebrow=`Bước ${Math.min(doneSteps+1,steps)}/${steps}`;
+    title=hint;
+    sub='';
+    actions=btn(`<span>${label}</span><span aria-hidden="true">→</span>`,next,'','desk-cta-btn');
+  }
+  return `<div class="desk-cta ${tone}" role="region" aria-label="Việc cần làm tiếp theo">
+    <span class="desk-cta-icon" aria-hidden="true">${uiIcon(s.submission?'file':'laptop')}${!s.readMail?.brief&&!s.submission?'<i></i>':''}</span>
+    <div class="desk-cta-copy"><small>${esc(eyebrow)}</small><strong>${esc(title)}</strong>${sub?`<span>${esc(sub)}</span>`:''}
+      ${!s.submission&&s.readMail?.brief?`<span class="desk-cta-bar" aria-hidden="true"><i style="width:${Math.round(doneSteps/steps*100)}%"></i></span>`:''}</div>
+    <div class="desk-cta-actions">${actions}</div>
+  </div>`;
 }
 function workView(){
   const tools=[...laptopTabs,...channelTabs().map(([id,,,icon,label,address])=>[id,icon,address,label])];

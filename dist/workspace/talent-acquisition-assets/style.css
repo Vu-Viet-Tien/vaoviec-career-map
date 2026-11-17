@@ -491,3 +491,30 @@ a.mail-attachment{width:fit-content;color:inherit;text-decoration:none;border:1p
 @media(max-width:700px){.ats-board{grid-template-columns:1fr}.ats-list{display:flex;flex-wrap:wrap;gap:6px}.ats-list h2{width:100%}.ats-list button{width:auto;margin:0}.cv-paper{padding:1.4em 1.3em}.handoff-meta div{grid-template-columns:90px 1fr}.handoff-table td:last-child{text-align:left}}
 @media(max-width:700px){.cv-paper{--cv-size:calc(10.5px * var(--cv-zoom,1))}.cv-stage{padding:10px}}
 .handoff-nav{display:flex;gap:8px;flex-wrap:wrap}
+
+/* Feedback 17/11: thẻ "việc cần làm" nổi trên cảnh bàn làm việc. */
+.office-scene .desk-cta{position:absolute;left:50%;bottom:clamp(16px,4vh,40px);translate:-50% 0;z-index:3;display:flex;align-items:center;gap:16px;width:min(680px,calc(100% - 32px));padding:14px 14px 14px 16px;border-radius:20px;background:#ffffffeb;backdrop-filter:blur(14px) saturate(1.4);-webkit-backdrop-filter:blur(14px) saturate(1.4);border:1px solid #ffffffb3;box-shadow:0 24px 60px #0b1f4d47,0 2px 8px #0b1f4d1f;font-family:var(--vv-font,inherit);animation:desk-cta-in .5s cubic-bezier(.2,.7,.3,1) .25s both}
+.desk-cta-icon{position:relative;flex:none;display:grid;place-items:center;width:48px;height:48px;border-radius:14px;background:linear-gradient(140deg,#3d7cf0,#1b4fc4);color:#fff;box-shadow:0 8px 18px #1b4fc455}
+.desk-cta-icon .ui-icon,.desk-cta-icon svg{width:24px;height:24px}
+.desk-cta-icon i{position:absolute;top:-4px;right:-4px;width:14px;height:14px;border-radius:50%;background:#ef4766;border:3px solid #fff;animation:desk-cta-ping 1.8s ease-out infinite}
+.desk-cta.done .desk-cta-icon{background:linear-gradient(140deg,#25b97b,#128a59);box-shadow:0 8px 18px #128a5955}
+.desk-cta-copy{flex:1;min-width:0;display:grid;gap:2px}
+.desk-cta-copy small{font-size:11.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#1b4fc4}
+.desk-cta.done .desk-cta-copy small{color:#128a59}
+.desk-cta-copy strong{font-size:16.5px;line-height:1.3;color:#0b1f4d}
+.desk-cta-copy span{font-size:13.5px;color:#4a5d77;line-height:1.4}
+.desk-cta-bar{display:block;height:6px;margin-top:6px;border-radius:9px;background:#dfe8f6;overflow:hidden;max-width:260px}
+.desk-cta-bar i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#5b8ff0,#1b4fc4)}
+.desk-cta-actions{display:flex;gap:8px;flex:none}
+.desk-cta .desk-cta-btn{display:inline-flex;align-items:center;gap:8px;padding:12px 18px;border:0;border-radius:12px;background:#1b4fc4;color:#fff;font:700 15px/1.2 var(--vv-font,inherit);cursor:pointer;box-shadow:0 8px 20px #1b4fc440;white-space:nowrap}
+.desk-cta .desk-cta-btn:hover{background:#163f9e;transform:translateY(-1px)}
+.desk-cta .desk-cta-btn .ui-icon,.desk-cta .desk-cta-btn svg{width:18px;height:18px}
+.desk-cta.start .desk-cta-btn{animation:desk-cta-glow 2.4s ease-in-out 1s infinite}
+.desk-cta .desk-cta-ghost{padding:12px 14px;border:1px solid #c9d7ec;border-radius:12px;background:#fff;color:#12223f;font:650 14px/1.2 var(--vv-font,inherit);cursor:pointer;white-space:nowrap}
+.desk-cta .desk-cta-ghost:hover{border-color:#1b4fc4;color:#1b4fc4}
+@keyframes desk-cta-in{from{opacity:0;translate:-50% 18px}}
+@keyframes desk-cta-ping{0%{box-shadow:0 0 0 0 #ef476699}70%,100%{box-shadow:0 0 0 10px #ef476600}}
+@keyframes desk-cta-glow{0%,100%{box-shadow:0 8px 20px #1b4fc440}50%{box-shadow:0 8px 20px #1b4fc440,0 0 0 6px #1b4fc426}}
+@media(max-width:640px){.office-scene .desk-cta{flex-wrap:wrap;gap:12px;padding:14px}.desk-cta-icon{width:40px;height:40px;border-radius:12px}.desk-cta-copy{flex-basis:calc(100% - 56px)}.desk-cta-actions{width:100%}.desk-cta .desk-cta-btn{flex:1;justify-content:center}.desk-cta-copy strong{font-size:15px}}
+@media(prefers-reduced-motion:reduce){.office-scene .desk-cta,.desk-cta-icon i,.desk-cta.start .desk-cta-btn{animation:none}}
+html[data-theme="dark"] .office-scene .desk-cta{filter:none}

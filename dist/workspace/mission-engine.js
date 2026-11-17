@@ -19,7 +19,13 @@ const initial = () => ({ v: 1, tab: 'brief', read: {}, pillars: {}, post: { chan
 
 let s = Object.assign(initial(), read(KEY, {}));
 let overlay = '', viewVersion = null, errors = {};
-const save = () => write(KEY, s);
+// Mỗi lần lưu kèm thời điểm và tiến độ để Trang chủ, trang Workspace và Hồ sơ biết case nào làm gần nhất, đang ở bước nào.
+const save = () => {
+  s.updatedAt = Date.now();
+  const next = nextStep();
+  s.progress = { done: TABS.filter(([id]) => done[id]()).length, total: TABS.length, label: s.submission ? 'Đã gửi đề xuất' : next ? next[1] : `Gửi đề xuất cho ${CASE.managerShort}` };
+  write(KEY, s);
+};
 const app = $('#app'), modal = $('#dialog');
 
 renderSiteHeader({ active: 'workspace', exploreUrl: `/#/roles/${UI.slug}`, inCase: true });

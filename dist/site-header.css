@@ -146,3 +146,16 @@ dialog.account-dialog::backdrop { background: #0b1d3d73; backdrop-filter: blur(3
 .site-header .theme-toggle svg { width: 18px; height: 18px; }
 .site-header-cta + .theme-toggle { margin-inline-start: -4px; }
 @media (max-width: 620px) { .site-header .theme-toggle { width: 32px; height: 32px; margin-inline-start: auto; } .site-header .theme-toggle + .site-header-account { margin-inline-start: 0; } }
+
+/* Điện thoại (17/11): logo, 3 mục menu, nút sáng/tối và Đăng nhập phải vừa 360–480px mà không tràn ngang. */
+@media (max-width: 480px) {
+  .site-header { gap: 7px; padding-inline: 12px; }
+  .site-header .vaoviec-wordmark { width: 66px; }
+  .site-header .site-header-nav { gap: 10px; }
+  .site-header-nav svg { display: none; }
+  .site-header .account-login { padding-inline: 2px; }
+}
+@media (max-width: 360px) {
+  .site-header { font-size: 10.5px; gap: 5px; padding-inline: 8px; }
+  .site-header .site-header-nav { gap: 7px; }
+}
