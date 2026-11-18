@@ -103,3 +103,16 @@ Cài một lần trên Vercel: Storage → tạo Upstash Redis (Free) → Connec
 Đăng nhập bằng Google hoặc email + mật khẩu (`api/auth.js`, `lib/accounts.js`, giao diện trong `dist/site-header.js`). Mật khẩu băm scrypt; phiên đăng nhập là cookie `vv_session` HttpOnly, 30 ngày; giới hạn số lần thử theo IP. Tiến độ (`vaoviec-workspace-*` trong localStorage) tự đồng bộ lên Redis (`vv:data:<id>`) sau mỗi lần lưu; đăng nhập ở máy khác sẽ gộp và tải về. Đăng xuất xoá bài làm khỏi trình duyệt đó (vẫn còn trên tài khoản).
 
 Bật đăng nhập Google: tạo OAuth Client ID (Web) trong Google Cloud Console, thêm Authorized JavaScript origin `https://vaoviec-career-map.vercel.app`, rồi đặt biến `GOOGLE_CLIENT_ID` trong Vercel. Không có biến này thì hộp đăng nhập chỉ hiện email + mật khẩu.
+
+### Tiện ích trải nghiệm (nâng cấp 19/11)
+
+`dist/ux.js` + `dist/ux.css` nạp ở mọi trang (kể cả Workspace), không đổi luồng nhiệm vụ hay cách chấm:
+- Tìm kiếm toàn trang (Ctrl/⌘+K hoặc `/`): nghề, nhiệm vụ, bài làm; Truy cập nhanh có ghim; Đã xem gần đây.
+- Trung tâm thông báo: chuông + số chưa đọc, dropdown, trang `#/thong-bao` (lọc loại, chưa đọc, tải thêm, xoá). Thông báo sinh từ dữ liệu thật: kết quả AI, bài làm dở > 1 ngày, gợi ý hồ sơ, cập nhật sản phẩm.
+- Hồ sơ cá nhân: ảnh đại diện / ảnh bìa (cắt, thu phóng, nén WebP), tên, trường, chuyên ngành, khoá, giới thiệu, kỹ năng, LinkedIn/GitHub/Portfolio, CV PDF (≤ 2 MB trên máy bằng IndexedDB; ≤ 680 KB lưu thêm lên tài khoản), % hoàn thiện có gợi ý.
+- Portfolio: dự án nổi bật (sắp xếp ↑↓), yêu thích, tìm / lọc / sắp xếp, thời gian làm bài, xem như người khác, xuất PDF (in), liên kết công khai `/ho-so-cong-khai?id=…` (cần đăng nhập; không gồm email, CV).
+- Workspace: tìm, lọc trạng thái / lĩnh vực / yêu thích, lưới / danh sách, hoạt động gần đây, gợi ý nhiệm vụ liên quan.
+- Career Map: lưu nghề + bộ lọc Đã lưu, lọc theo kỹ năng, kỹ năng dạng thẻ, breadcrumb, chia sẻ, so sánh tối đa 3 nghề, Đã xem gần đây / số nghề đã khám phá.
+- Hướng dẫn người mới (xem lại ở chân trang hoặc phím `?`), phím tắt `g` + `k/w/h/n`, nút lên đầu trang.
+
+Dữ liệu người dùng lưu ở localStorage `vaoviec-user-*` (object có `updatedAt`), đồng bộ lên tài khoản cùng tiến độ nhiệm vụ. Chưa có: lọc theo cấp độ (dữ liệu nghề ghi `varies_by_jd`), thông báo đẩy từ máy chủ, quên mật khẩu qua email.

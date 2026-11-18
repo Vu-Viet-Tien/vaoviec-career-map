@@ -23,8 +23,10 @@ function renderSiteHeader({ active, exploreUrl }) {
       }).join("")}
     </nav>
     <a class="site-header-cta" href="${exploreUrl}">Khám phá nghề</a>
+    <span class="site-header-tools"></span>
     ${themeButton()}
     <span class="site-header-account">${accountMarkup()}</span>`;
+  window.vv?.headerTools();
 }
 
 // Tài khoản (feedback 19/11): đăng nhập bằng Google hoặc email + mật khẩu; máy chủ giữ phiên (cookie HttpOnly).
@@ -32,6 +34,8 @@ function renderSiteHeader({ active, exploreUrl }) {
 // và được đồng bộ lên tài khoản: đăng nhập ở máy khác sẽ thấy lại. Bộ nhớ đệm hồ sơ: localStorage "vaoviec-account".
 const ACCOUNT_KEY = "vaoviec-account";
 const SYNC_PREFIX = "vaoviec-workspace-";
+// Dữ liệu cá nhân (hồ sơ, yêu thích, thông báo… do ux.js ghi) cũng đồng bộ theo tài khoản.
+const isSynced = key => key?.startsWith(SYNC_PREFIX) || key?.startsWith("vaoviec-user-");
 function readAccount() {
   try { return JSON.parse(localStorage.getItem(ACCOUNT_KEY)) || null; } catch { return null; }
 }
@@ -48,8 +52,8 @@ function initials(name) {
   const parts = name.trim().split(/\s+/);
   return (parts.length > 1 ? parts[0][0] + parts[parts.length - 1][0] : parts[0].slice(0, 2)).toUpperCase();
 }
-const avatarMarkup = account => account.picture
-  ? `<span class="account-avatar has-photo" aria-hidden="true"><img src="${escapeHeader(account.picture)}" alt="" referrerpolicy="no-referrer"></span>`
+const avatarMarkup = account => (window.vv?.avatarSrc() || account.picture)
+  ? `<span class="account-avatar has-photo" aria-hidden="true"><img src="${escapeHeader(window.vv?.avatarSrc() || account.picture)}" alt="" referrerpolicy="no-referrer"></span>`
   : `<span class="account-avatar" aria-hidden="true">${escapeHeader(initials(account.name))}</span>`;
 function accountMarkup() {
   const account = readAccount();
@@ -80,7 +84,7 @@ async function authApi(action, body) {
   if (!res.ok) throw Object.assign(new Error(data.error || "Không kết nối được máy chủ. Kiểm tra mạng rồi thử lại."), { status: res.status });
   return data;
 }
-const remember = user => writeAccount({ id: user.id, name: user.name, email: user.email, school: user.school, picture: user.picture, providers: user.providers });
+const remember = user => writeAccount({ id: user.id, name: user.name, email: user.email, school: user.school, picture: user.picture, providers: user.providers, shareId: user.shareId || undefined });
 
 // ---- Đồng bộ tiến độ ----
 let syncState = "idle"; // idle | saving | saved | offline
@@ -103,7 +107,7 @@ function localItems() {
   try {
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
-      if (key?.startsWith(SYNC_PREFIX)) items[key] = localStorage.getItem(key);
+      if (isSynced(key)) items[key] = localStorage.getItem(key);
     }
   } catch { /* trình duyệt chặn đọc */ }
   return items;
@@ -164,7 +168,7 @@ for (const method of ["setItem", "removeItem"]) {
   const original = Storage.prototype[method];
   Storage.prototype[method] = function (key, ...rest) {
     const out = original.call(this, key, ...rest);
-    try { if (this === localStorage && String(key).startsWith(SYNC_PREFIX)) schedulePush(); } catch { /* bỏ qua */ }
+    try { if (this === localStorage && isSynced(String(key))) schedulePush(); } catch { /* bỏ qua */ }
     return out;
   };
 }
@@ -337,6 +341,7 @@ document.addEventListener("click", event => {
       applyingRemote = true;
       try { for (const key of Object.keys(localItems())) localStorage.removeItem(key); } catch { /* bỏ qua */ }
       applyingRemote = false;
+      await window.vv?.cv.clearLocal();
       writeAccount(null);
       try { sessionStorage.removeItem("vv-account-checked"); } catch { /* bỏ qua */ }
       location.reload();

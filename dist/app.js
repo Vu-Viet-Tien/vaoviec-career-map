@@ -154,6 +154,15 @@ const detail = document.querySelector("#detail");
 let industry = industries.keys().next().value;
 // Bộ lọc "Có thể trải nghiệm" (feedback 17/11): chỉ hiện nghề đã có mô phỏng, gom theo lĩnh vực.
 let playableOnly = false;
+// Nâng cấp 19/11: lọc nghề đã lưu, lọc theo kỹ năng, so sánh nghề.
+let savedOnly = false;
+const skillInput = document.querySelector("#skill-filter");
+const favRoles = () => window.vv?.fav("role");
+const isSaved = role => !!favRoles()?.has(role.role_slug);
+const matchesSkill = (role, q) => !normalize(q) || [...role.required_skills, ...role.common_tools].some(s => normalize(s).includes(normalize(q)));
+const COMPARE_KEY = "vaoviec-compare";
+const readCompare = () => { try { return JSON.parse(localStorage.getItem(COMPARE_KEY)) ?? []; } catch { return []; } };
+const writeCompare = list => { try { localStorage.setItem(COMPARE_KEY, JSON.stringify(list)); } catch {} };
 const isPlayable = role => role.simulation_status === "available" && !!missions[role.mission_id];
 let selected = null;
 let focusRole = false;
@@ -198,7 +207,7 @@ function treeMarkup(industryId, matches) {
           <div class="roles">${group.roles.map(role => `
             <a class="role${role === selected ? " selected" : ""}${isPlayable(role) ? " playable" : ""}" href="${escape(rolePath(role))}"
               data-role="${escape(role.role_id)}"${role === selected ? ' aria-current="true"' : ""}>
-              ${escape(role.role_name)}${isPlayable(role) ? '<span class="role-play" title="Có thể trải nghiệm"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M4 2.6v6.8L9.4 6Z"/></svg><span class="sr-only"> (có thể trải nghiệm)</span></span>' : ""}
+              ${escape(role.role_name)}${isSaved(role) ? '<span class="role-saved" title="Đã lưu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v16l-5-3.5L7 20z"/></svg><span class="sr-only"> (đã lưu)</span></span>' : ""}${isPlayable(role) ? '<span class="role-play" title="Có thể trải nghiệm"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M4 2.6v6.8L9.4 6Z"/></svg><span class="sr-only"> (có thể trải nghiệm)</span></span>' : ""}
             </a>`).join("")}</div>
         </div>`).join("")}</div>
     </div>`;
@@ -206,20 +215,26 @@ function treeMarkup(industryId, matches) {
 
 function renderTree() {
   const query = search.value.trim();
+  const skill = skillInput?.value.trim() ?? "";
   renderFilter();
-  if (!normalize(query) && !playableOnly) {
+  if (!normalize(query) && !playableOnly && !savedOnly && !normalize(skill)) {
     tree.innerHTML = treeMarkup(industry, roles.filter(role => role.industry_id === industry));
     drawTreeLinks();
     return;
   }
 
   // Có từ khóa hoặc đang lọc: tìm trên toàn bộ danh mục, gom kết quả theo lĩnh vực.
-  const matches = roles.filter(role => matchesRole(role, query) && (!playableOnly || isPlayable(role)));
+  const matches = roles.filter(role => matchesRole(role, query) && (!playableOnly || isPlayable(role)) && (!savedOnly || isSaved(role)) && matchesSkill(role, skill));
   const found = [...industries.keys()].filter(id => matches.some(role => role.industry_id === id));
-  const what = playableOnly ? "vị trí có thể trải nghiệm" : "vị trí";
+  const what = [savedOnly ? "đã lưu" : "", playableOnly ? "có thể trải nghiệm" : "", normalize(skill) ? `cần kỹ năng “${escape(skill)}”` : ""].filter(Boolean).join(", ");
+  if (savedOnly && !roles.some(isSaved)) {
+    tree.innerHTML = '<p class="vv-empty" role="status"><strong>Bạn chưa lưu nghề nào.</strong><span>Mở một nghề rồi bấm “Lưu nghề” để thêm vào danh sách này.</span><button class="text-link reset" type="button">Xem tất cả nghề</button></p>';
+    drawTreeLinks();
+    return;
+  }
   tree.innerHTML = matches.length ? `
-    <p class="search-summary" role="status">${normalize(query) ? "Tìm thấy " : ""}${matches.length} ${what} trong ${found.length} lĩnh vực.
-      <button class="text-link reset" type="button">${playableOnly ? "Xem tất cả nghề" : "Xóa tìm kiếm"}</button></p>
+    <p class="search-summary" role="status">${normalize(query) ? "Tìm thấy " : ""}${matches.length} vị trí${what ? " " + what : ""} trong ${found.length} lĩnh vực.
+      <button class="text-link reset" type="button">${playableOnly || savedOnly || normalize(skill) ? "Bỏ bộ lọc" : "Xóa tìm kiếm"}</button></p>
     <div class="trees">${found.map(id => treeMarkup(id, matches.filter(role => role.industry_id === id))).join("")}</div>` :
     (playableOnly ? '<p class="vv-empty" role="status"><strong>Không có nghề có thể trải nghiệm nào khớp từ khoá.</strong><span>Bỏ bộ lọc để tìm trong toàn bộ ${roles.length} nghề.</span><button class="text-link reset" type="button">Xem tất cả nghề</button></p>' : '') ||
     '<p class="vv-empty" role="status"><strong>Không tìm thấy vị trí phù hợp.</strong><span>Thử từ khoá ngắn hơn, ví dụ "tuyển dụng", "data" hoặc "marketing".</span><button class="text-link reset" type="button">Xóa tìm kiếm</button></p>';
@@ -325,11 +340,12 @@ function renderDetail() {
   }
 
   const role = selected;
+  window.vv?.recent.add({ type: "role", id: role.role_slug, title: role.role_name, sub: role.role_name_vi, url: "/" + rolePath(role) });
   const mission = role.simulation_status === "available" ? missions[role.mission_id] : null;
+  const saved = isSaved(role), comparing = readCompare().includes(role.role_slug);
   const related = role.related_role_ids.map(id => rolesById.get(id)).filter(Boolean);
   const sections = [
     ["Công việc hằng ngày", role.daily_tasks],
-    ["Kỹ năng cần có", role.required_skills],
     ["Công cụ thường dùng", role.common_tools],
     ["Ví dụ đầu ra", role.typical_outputs]
   ];
@@ -340,11 +356,18 @@ function renderDetail() {
   const sources = role.sources ?? [];
   const host = url => { try { return new URL(url).hostname.replace(/^www\./, ""); } catch { return ""; } };
   detail.innerHTML = `
+    <nav class="vv-crumbs" aria-label="Breadcrumb"><a href="#/career-map">Khám phá</a><span aria-hidden="true">/</span><a href="#/career-map" data-crumb-industry="${escape(role.industry_id)}">${escape(industryTabs[role.industry_id] ?? role.industry_group)}</a><span aria-hidden="true">/</span><span>${escape(role.function)}</span></nav>
     <div class="badges"><span class="badge${mission ? "" : " off"}">${mission ? "Có thể trải nghiệm" : "Chưa có mô phỏng"}</span>${pending ? '<span class="badge review">Chờ rà soát chuyên môn</span>' : ""}</div>
     <h2>${escape(role.role_name)}</h2>
     <p class="role-subtitle">${escape(role.role_name_vi)}</p>
     <p>${escape(role.role_description)}</p>
+    <div class="role-actions">
+      <button type="button" class="role-act${saved ? " on" : ""}" data-save-role="${escape(role.role_slug)}" aria-pressed="${saved}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v16l-5-3.5L7 20z"/></svg>${saved ? "Đã lưu" : "Lưu nghề"}</button>
+      <button type="button" class="role-act${comparing ? " on" : ""}" data-compare-role="${escape(role.role_slug)}" aria-pressed="${comparing}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4v16M16 4v16M4 8h4M16 16h4"/></svg>${comparing ? "Đang so sánh" : "So sánh"}</button>
+      <button type="button" class="role-act" data-vv="share" data-title="${escape(role.role_name)} · VAOVIEC." data-url="${escape("/" + rolePath(role))}"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5.5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="18.5" r="2.5"/><path d="m8.2 10.8 7.6-4M8.2 13.2l7.6 4"/></svg>Chia sẻ</button>
+    </div>
     ${mission ? missionBlock(mission, role) : ""}
+    ${role.required_skills.length ? `<h3>Kỹ năng cần có</h3><div class="skill-tags">${role.required_skills.map(s => `<button type="button" class="skill-tag" data-skill="${escape(s)}" title="Lọc các nghề cần kỹ năng này">${escape(s)}</button>`).join("")}</div>` : ""}
     ${sections.filter(([, items]) => items.length).map(([title, items]) =>
       `<h3>${title}</h3><ul>${items.map(item => `<li>${escape(item)}</li>`).join("")}</ul>`).join("")}
     ${titles.length || role.experience_note ? `<h3>Chức danh &amp; kinh nghiệm tham khảo</h3>
@@ -363,7 +386,9 @@ function renderDetail() {
 // Trang Workspace và Hồ sơ trải nghiệm (feedback 16–17/11), dựng bởi hub.js.
 const pages = {
   "#/workspace": { key: "workspace", el: "#hub", title: "Workspace", draw: () => renderHub() },
-  "#/ho-so": { key: "profile", el: "#profile", title: "Hồ sơ trải nghiệm", draw: () => renderProfile() }
+  "#/ho-so": { key: "profile", el: "#profile", title: "Hồ sơ trải nghiệm", draw: () => renderProfile() },
+  // Trung tâm thông báo (19/11), vẽ bởi ux.js.
+  "#/thong-bao": { key: null, el: "#notifs", title: "Thông báo", draw: () => window.vv?.renderNotifPage() }
 };
 let lastRoute = null;
 function render() {
@@ -381,6 +406,8 @@ function render() {
   document.querySelectorAll(".home-only").forEach(el => { el.hidden = showMap || !!page; });
   explore.hidden = !showMap;
   for (const p of Object.values(pages)) document.querySelector(p.el).hidden = p !== page;
+  queueMicrotask(() => renderCompareTray());
+
   selected = showMap ? roles.find(role => rolePath(role) === route) ?? null : null;
   renderSiteHeader({ active: showMap ? "explore" : page?.key ?? null, exploreUrl: careerMapPath });
   document.title = page ? `${page.title} · VAOVIEC.` : "VAOVIEC. · Khám phá nghề qua trải nghiệm";
@@ -408,6 +435,7 @@ function render() {
   if (activeTab && tabs.scrollWidth > tabs.clientWidth) tabs.scrollLeft = activeTab.offsetLeft - (tabs.clientWidth - activeTab.offsetWidth) / 2;
   renderTree();
   renderDetail();
+  renderRecentRoles();
 
   if (focusRole && selected) {
     if (innerWidth <= 960) detail.focus();
@@ -431,6 +459,8 @@ tree.addEventListener("click", event => {
   if (!event.target.closest(".reset")) return;
   search.value = "";
   playableOnly = false;
+  savedOnly = false;
+  if (skillInput) skillInput.value = "";
   renderTree();
   search.focus();
 });
@@ -447,8 +477,97 @@ function renderFilter() {
   if (!btn) return;
   btn.setAttribute("aria-pressed", String(playableOnly));
   btn.querySelector("b").textContent = roles.filter(isPlayable).length;
-  tabs.classList.toggle("dimmed", playableOnly);
+  const sb = document.querySelector("#saved-filter");
+  if (sb) { sb.setAttribute("aria-pressed", String(savedOnly)); sb.querySelector("b").textContent = roles.filter(isSaved).length; }
+  tabs.classList.toggle("dimmed", playableOnly || savedOnly || !!normalize(skillInput?.value));
 }
+// Đã xem gần đây + số nghề đã khám phá (lịch sử lưu ở ux.js).
+function renderRecentRoles() {
+  const box = document.querySelector("#map-recent");
+  if (!box || !window.vv) return;
+  const seen = vv.recent.list("role").map(r => ({ r, role: roles.find(x => x.role_slug === r.id) })).filter(x => x.role);
+  box.hidden = !seen.length;
+  if (!seen.length) return;
+  box.innerHTML = `<span class="map-recent-title">Đã xem gần đây</span>
+    <div class="map-recent-list">${seen.slice(0, 6).map(({ role }) => `<a href="${escape(rolePath(role))}" data-role="${escape(role.role_id)}"${role === selected ? ' aria-current="true"' : ""}>${escape(role.role_name)}</a>`).join("")}</div>
+    <span class="map-recent-meta">Đã khám phá <b>${seen.length}</b>/${roles.length} nghề</span>
+    <button type="button" class="text-link map-recent-clear" data-clear-recent-roles>Xoá lịch sử</button>`;
+}
+// So sánh nghề: tối đa 3, khay cố định ở cuối màn hình, mở bảng so sánh trong hộp thoại.
+function renderCompareTray() {
+  const tray = document.querySelector("#compare-tray");
+  if (!tray) return;
+  const list = readCompare().map(slug => roles.find(r => r.role_slug === slug)).filter(Boolean);
+  tray.hidden = !list.length || explore.hidden;
+  if (tray.hidden) return;
+  tray.innerHTML = `<span class="ct-title">So sánh nghề <small>${list.length}/3</small></span>
+    <div class="ct-list">${list.map(r => `<span class="ct-chip">${escape(r.role_name)}<button type="button" data-compare-role="${escape(r.role_slug)}" aria-label="Bỏ ${escape(r.role_name)} khỏi so sánh"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></span>`).join("")}</div>
+    <button type="button" class="text-link" data-compare-clear>Xoá hết</button>
+    <button type="button" class="ct-go" data-compare-open ${list.length < 2 ? "disabled" : ""}>${list.length < 2 ? "Chọn thêm 1 nghề" : "So sánh ngay"}</button>`;
+}
+function openCompare() {
+  const list = readCompare().map(slug => roles.find(r => r.role_slug === slug)).filter(Boolean);
+  if (list.length < 2) return;
+  const cell = items => items.length ? `<ul>${items.map(x => `<li>${escape(x)}</li>`).join("")}</ul>` : '<span class="ct-none">—</span>';
+  const rows = [
+    ["Lĩnh vực", r => escape(industries.get(r.industry_id)) + "<br><small>" + escape(r.function) + "</small>"],
+    ["Mô tả", r => escape(r.role_description)],
+    ["Mô phỏng", r => isPlayable(r) ? `<a class="text-link" href="${escape(workspacePath(missions[r.mission_id], r))}">Có · ${escape(missions[r.mission_id].duration)} →</a>` : '<span class="ct-none">Chưa có</span>'],
+    ["Công việc hằng ngày", r => cell(r.daily_tasks)],
+    ["Kỹ năng cần có", r => r.required_skills.map(s => `<span class="skill-tag static">${escape(s)}</span>`).join(" ")],
+    ["Công cụ thường dùng", r => cell(r.common_tools)],
+    ["Ví dụ đầu ra", r => cell(r.typical_outputs)],
+    ["Chức danh tham khảo", r => (r.reference_titles ?? []).map(escape).join(", ") || '<span class="ct-none">—</span>']
+  ];
+  const sets = list.map(r => new Set(r.required_skills.map(normalize)));
+  const common = list[0].required_skills.filter(s => sets.every(set => set.has(normalize(s))));
+  const dlg = document.createElement("dialog");
+  dlg.className = "vv-dialog vv-compare";
+  dlg.innerHTML = `<div class="vv-dialog-body"><header class="vv-dialog-head"><h2>So sánh ${list.length} nghề</h2><button type="button" class="vv-icon-btn" data-x aria-label="Đóng"><svg class="vv-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></header>
+    <div class="ct-scroll"><table class="ct-table"><thead><tr><th scope="col"><span class="sr-only">Tiêu chí</span></th>${list.map(r => `<th scope="col"><a href="${escape(rolePath(r))}" data-x>${escape(r.role_name)}</a><small>${escape(r.role_name_vi)}</small></th>`).join("")}</tr></thead>
+    <tbody>${rows.map(([label, fn]) => `<tr><th scope="row">${label}</th>${list.map(r => `<td>${fn(r)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>
+    <footer class="vv-dialog-foot"><span class="vv-hint">${common.length ? `Kỹ năng chung: ${common.map(escape).join(", ")}` : "Các nghề này không trùng kỹ năng nào trong dữ liệu."}</span><button type="button" class="vv-btn vv-btn-primary" data-x>Đóng</button></footer></div>`;
+  document.body.append(dlg);
+  const close = () => { dlg.close(); dlg.remove(); };
+  dlg.addEventListener("click", e => { if (e.target.closest("[data-x]")) close(); });
+  dlg.addEventListener("cancel", e => { e.preventDefault(); close(); });
+  dlg.showModal();
+}
+document.querySelector("#saved-filter")?.addEventListener("click", () => { savedOnly = !savedOnly; renderTree(); });
+skillInput?.addEventListener("input", renderTree);
+const skillOptions = document.querySelector("#skill-options");
+if (skillOptions) skillOptions.innerHTML = [...new Set(roles.flatMap(r => r.required_skills))].sort((a, b) => a.localeCompare(b, "vi")).map(s => `<option value="${escape(s)}">`).join("");
+explore.addEventListener("click", event => {
+  const save = event.target.closest("[data-save-role]");
+  if (save && window.vv) {
+    const on = vv.fav("role").toggle(save.dataset.saveRole);
+    window.vvToast?.(on ? "Đã lưu nghề. Xem lại bằng bộ lọc “Đã lưu”." : "Đã bỏ lưu nghề.", "success", 2600);
+    renderTree(); renderDetail();
+    detail.querySelector("[data-save-role]")?.focus();
+    return;
+  }
+  const cmp = event.target.closest("[data-compare-role]");
+  if (cmp) {
+    const slug = cmp.dataset.compareRole, list = readCompare();
+    if (list.includes(slug)) writeCompare(list.filter(x => x !== slug));
+    else if (list.length >= 3) { window.vvToast?.("Chỉ so sánh tối đa 3 nghề. Bỏ bớt một nghề trong khay so sánh.", "info"); return; }
+    else writeCompare([...list, slug]);
+    renderDetail(); renderCompareTray();
+    detail.querySelector("[data-compare-role]")?.focus();
+    return;
+  }
+  const sk = event.target.closest("[data-skill]");
+  if (sk && skillInput) { skillInput.value = sk.dataset.skill; search.value = ""; renderTree(); skillInput.scrollIntoView({ block: "nearest" }); return; }
+  const crumb = event.target.closest("[data-crumb-industry]");
+  if (crumb) industry = crumb.dataset.crumbIndustry;
+  if (event.target.closest("[data-clear-recent-roles]")) { vv.recent.clear("role"); renderRecentRoles(); window.vvToast?.("Đã xoá lịch sử nghề đã xem.", "success", 2200); }
+});
+document.querySelector("#compare-tray")?.addEventListener("click", event => {
+  const cmp = event.target.closest("[data-compare-role]");
+  if (cmp) { writeCompare(readCompare().filter(x => x !== cmp.dataset.compareRole)); renderCompareTray(); if (selected) renderDetail(); return; }
+  if (event.target.closest("[data-compare-clear]")) { writeCompare([]); renderCompareTray(); if (selected) renderDetail(); return; }
+  if (event.target.closest("[data-compare-open]")) openCompare();
+});
 document.querySelector("#playable-filter")?.addEventListener("click", () => {
   playableOnly = !playableOnly;
   renderTree();

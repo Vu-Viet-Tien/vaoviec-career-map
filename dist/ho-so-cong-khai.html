@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8"><script>try{var t=localStorage.getItem("vaoviec-theme");if(t!=="dark"&&t!=="light")t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";document.documentElement.dataset.theme=t}catch(e){document.documentElement.dataset.theme="light"}</script>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Hồ sơ trải nghiệm · VAOVIEC.</title>
+<meta name="description" content="Hồ sơ thực hành nghề nghiệp trên VAOVIEC.: các mô phỏng công việc đã hoàn thành và kết quả đánh giá.">
+<link rel="stylesheet" href="/styles.css">
+<link rel="stylesheet" href="/vaoviec-logo.css">
+<link rel="stylesheet" href="/site-header.css">
+<script src="/ui.js" defer></script><script src="/site-header.js" defer></script><script src="/analytics.js" defer></script><script src="/ux.js" defer></script>
+<link rel="stylesheet" href="/ds.css"><link rel="stylesheet" href="/hub.css"><link rel="stylesheet" href="/ux.css"><link rel="stylesheet" href="/theme-dark.css">
+<style>
+  .pub-page { max-width: 960px; margin: 0 auto; padding: 24px 16px 60px; }
+  .pub-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; margin: 14px 0 0; }
+  .pub-foot { margin-top: 22px; text-align: center; color: var(--vv-muted); font-size: 13.5px; }
+  .pub-foot a { color: var(--vv-blue); font-weight: 700; }
+  .pub-skel { display: grid; gap: 12px; }
+  .pub-skel .vv-skel:first-child { height: 150px; }
+</style>
+</head>
+<body>
+<header class="site-header"></header>
+<main class="pub-page" id="pub">
+  <div class="pub-skel" aria-busy="true" aria-label="Đang tải hồ sơ"><i class="vv-skel"></i><i class="vv-skel"></i><i class="vv-skel"></i></div>
+</main>
+<script>
+  // Hồ sơ công khai: chỉ đọc ảnh chụp hồ sơ mà chủ hồ sơ đã chủ động chia sẻ (không có email, CV).
+  addEventListener("DOMContentLoaded", async () => {
+    renderSiteHeader({ active: null, exploreUrl: "/#/career-map" });
+    const el = document.querySelector("#pub");
+    const id = new URLSearchParams(location.search).get("id") || "";
+    const fail = (title, msg) => { el.innerHTML = `<div class="vv-empty" style="margin-top:40px"><strong>${title}</strong><span>${msg}</span><a class="hub-btn" href="/">Về trang chủ VAOVIEC.</a></div>`; };
+    if (!id) return fail("Thiếu liên kết hồ sơ.", "Hãy mở đúng đường dẫn mà người chia sẻ gửi cho bạn.");
+    try {
+      const res = await fetch("/api/auth?action=public&id=" + encodeURIComponent(id), { cache: "no-store" });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) return fail(res.status === 404 ? "Hồ sơ không tồn tại hoặc đã tắt chia sẻ." : "Không tải được hồ sơ.", data.error || "Thử tải lại trang sau ít phút.");
+      document.title = `${data.name || "Hồ sơ"} · Hồ sơ trải nghiệm VAOVIEC.`;
+      el.innerHTML = vv.publicCard(data, { heading: "h1" }) +
+        `<div class="pub-actions"><button type="button" class="vv-btn vv-btn-ghost" data-vv="copy">${vv.icon(vv.I.link)} Sao chép liên kết</button><button type="button" class="vv-btn vv-btn-ghost" onclick="print()">Xuất PDF</button></div>
+         <p class="pub-foot">Cập nhật ${new Date(data.updatedAt).toLocaleDateString("vi-VN")} · Kết quả do AI của VAOVIEC. đánh giá theo 4 tiêu chí của từng mô phỏng. <a href="/">Thử VAOVIEC. →</a></p>`;
+    } catch { fail("Không kết nối được máy chủ.", "Kiểm tra mạng rồi tải lại trang."); }
+  });
+</script>
+</body>
+</html>
