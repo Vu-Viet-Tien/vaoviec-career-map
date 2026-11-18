@@ -91,3 +91,9 @@ Chứng khoán An Phát (giả lập) theo dõi cổ phiếu GDV (giả lập), 
 | `mission_resubmitted` | Sửa và nộp lại trong cùng lượt chơi (kèm `version`) |
 
 Mỗi sự kiện có `mission_id`, `anon_id` (ngẫu nhiên, lưu ở localStorage — đếm người duy nhất), `session_id` (sessionStorage), `attempt_id` (đổi khi Làm lại từ đầu — đếm lượt chơi), `ts` (ISO), `mode`. Chạy local thì sự kiện chỉ ghi ra console và `sessionStorage["vaoviec-events-debug"]`. Custom events của Vercel cần gói Pro trở lên.
+
+### Trang thống kê riêng (/thong-ke)
+
+Mỗi sự kiện nhiệm vụ còn được gửi về `/api/track` và lưu vào Upstash Redis (`lib/event-store.js`, danh sách `vv:events`, tối đa 100.000 sự kiện). Trang `/thong-ke` (không có link công khai, `noindex`) đọc qua `/api/stats` khi nhập đúng mật khẩu `STATS_PASSWORD`; có lọc theo ngày/nhiệm vụ, phễu, lượt theo ngày và tải CSV.
+
+Cài một lần trên Vercel: Storage → tạo Upstash Redis (Free) → Connect vào project (tự thêm `KV_REST_API_URL`, `KV_REST_API_TOKEN`); Settings → Environment Variables → thêm `STATS_PASSWORD`; deploy lại. Chạy local không có Redis thì dùng bộ nhớ tạm.

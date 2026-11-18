@@ -35,6 +35,11 @@
       ...data
     };
     try { window.va("event", { name, data: event }); } catch { /* Analytics bị chặn: bỏ qua, không ảnh hưởng nhiệm vụ. */ }
+    // Bản sao gửi về kho riêng của nhóm (/api/track → Upstash Redis), xem ở trang /thong-ke.
+    try {
+      const body = JSON.stringify({ name, ...event });
+      if (!navigator.sendBeacon?.("/api/track", body)) fetch("/api/track", { method: "POST", body, keepalive: true }).catch(() => {});
+    } catch { /* bỏ qua */ }
     if (local) {
       console.info("[vvTrack]", name, event);
       try {
