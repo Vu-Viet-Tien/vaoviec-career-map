@@ -73,6 +73,7 @@ const missions = {
       name: "Vũ Thị Thùy Linh, CFA",
       title: "Founder trung tâm đào tạo IDA Coaching Center",
       updated: "11/2026",
+      photo: "/reviewers/vu-thi-thuy-linh.jpg",
       linkedin: "https://www.linkedin.com/in/linh-vu-thi-thuy-219110b0/"
     }
   }
@@ -282,7 +283,7 @@ function missionBlock(mission, role) {
       </div>
       <div class="reviewer-card" id="reviewer-card" hidden>
         <div class="reviewer-who">
-          <span class="reviewer-avatar" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.6"/><path d="M5 19.5c1.2-3.4 4-5 7-5s5.8 1.6 7 5"/></svg></span>
+          <span class="reviewer-avatar" aria-hidden="true">${r.photo ? `<img src="${escape(r.photo)}" alt="" width="44" height="44">` : '<svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.6"/><path d="M5 19.5c1.2-3.4 4-5 7-5s5.8 1.6 7 5"/></svg>'}</span>
           <div><small>Người rà soát</small><strong>${escape(r.name)}</strong><span>${escape(r.title)}</span></div>
         </div>
         <div class="reviewer-meta"><span>Cập nhật: ${escape(r.updated)}</span>${r.linkedin ? `<a href="${escape(r.linkedin)}" target="_blank" rel="noopener noreferrer">Hồ sơ LinkedIn<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M4 8 8.5 3.5M5 3.5h3.5V7"/></svg></a>` : ""}</div>

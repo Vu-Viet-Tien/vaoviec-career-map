@@ -332,3 +332,6 @@ html[data-theme="dark"] .reviewer-who strong { color: #eef3fb; }
 html[data-theme="dark"] .reviewer-who small, html[data-theme="dark"] .reviewer-who span, html[data-theme="dark"] .reviewer-meta { color: #9fb0cb; }
 html[data-theme="dark"] .reviewer-meta { border-color: #24324d; }
 html[data-theme="dark"] .reviewer-meta a { color: #8db6f2; }
+.reviewer-avatar { overflow: hidden; box-shadow: 0 0 0 2px #fff, 0 0 0 3px #b9e2cc; }
+.reviewer-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+html[data-theme="dark"] .reviewer-avatar { box-shadow: 0 0 0 2px #0f1a30, 0 0 0 3px #1f5a43; }
