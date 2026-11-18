@@ -73,7 +73,7 @@ const missions = {
       name: "Vũ Thị Thùy Linh, CFA",
       title: "Founder trung tâm đào tạo IDA Coaching Center",
       updated: "11/2026",
-      photo: "/reviewers/vu-thi-thuy-linh.jpg",
+      photo: "/reviewers/vu-thi-thuy-linh.jpg?v=2",
       linkedin: "https://www.linkedin.com/in/linh-vu-thi-thuy-219110b0/"
     }
   }
