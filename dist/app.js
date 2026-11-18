@@ -67,7 +67,14 @@ const missions = {
     deliverable: "3 luận điểm có số liệu, 1 bản tin cập nhật gửi trưởng phòng duyệt, cơ sở định giá kèm 2 chỉ số theo dõi và khuyến nghị Mua / Nắm giữ / Bán.",
     url: "/workspace/equity-research",
     // Trùng CASE.ui.storageKey trong workspace/equity-research-assets/case.js.
-    storageKey: "vaoviec-workspace-mission-007-v1"
+    storageKey: "vaoviec-workspace-mission-007-v1",
+    // Người rà soát chuyên môn (feedback 19/11). linkedin để trống thì ẩn liên kết.
+    reviewer: {
+      name: "Vũ Thị Thùy Linh, CFA",
+      title: "Founder trung tâm đào tạo IDA Coaching Center",
+      updated: "11/2026",
+      linkedin: "https://www.linkedin.com/in/linh-vu-thi-thuy-219110b0/"
+    }
   }
 };
 
@@ -266,8 +273,20 @@ document.fonts?.ready.then(drawTreeLinks);
 function missionBlock(mission, role) {
   const action = missionActions(mission, role);
   const note = { progress: "Bạn đang làm dở nhiệm vụ này.", submitted: "Bạn đã nộp bài bàn giao." }[action.status];
+  const r = mission.reviewer;
   return `<div class="mission">
       <h3>Nhiệm vụ tại ${escape(mission.company)}</h3>
+      ${r ? `<div class="reviewed">
+        <span class="reviewed-ok"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.2"/><path d="M6.4 10.2l2.4 2.4 4.8-5"/></svg>Đã rà soát chuyên môn</span>
+        <button type="button" class="reviewed-toggle" aria-expanded="false" aria-controls="reviewer-card">Xem chi tiết<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 4.5 6 7.5 9 4.5"/></svg></button>
+      </div>
+      <div class="reviewer-card" id="reviewer-card" hidden>
+        <div class="reviewer-who">
+          <span class="reviewer-avatar" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.6"/><path d="M5 19.5c1.2-3.4 4-5 7-5s5.8 1.6 7 5"/></svg></span>
+          <div><small>Người rà soát</small><strong>${escape(r.name)}</strong><span>${escape(r.title)}</span></div>
+        </div>
+        <div class="reviewer-meta"><span>Cập nhật: ${escape(r.updated)}</span>${r.linkedin ? `<a href="${escape(r.linkedin)}" target="_blank" rel="noopener noreferrer">Hồ sơ LinkedIn<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M4 8 8.5 3.5M5 3.5h3.5V7"/></svg></a>` : ""}</div>
+      </div>` : ""}
       <p>${escape(mission.description)}</p>
       <dl class="mission-facts">
         <dt>Thời lượng</dt><dd>${escape(mission.duration)}</dd>
@@ -464,3 +483,14 @@ render();
     }
   }, { threshold: .35 }).observe(how);
 })();
+
+// Feedback 19/11: "Đã rà soát chuyên môn · Xem chi tiết" mở/thu thẻ người rà soát.
+detail.addEventListener("click", event => {
+  const toggle = event.target.closest(".reviewed-toggle");
+  if (!toggle) return;
+  const card = detail.querySelector("#" + toggle.getAttribute("aria-controls"));
+  const open = toggle.getAttribute("aria-expanded") !== "true";
+  toggle.setAttribute("aria-expanded", open);
+  toggle.firstChild.textContent = open ? "Thu gọn" : "Xem chi tiết";
+  card.hidden = !open;
+});

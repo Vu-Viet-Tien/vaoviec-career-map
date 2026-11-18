@@ -302,3 +302,33 @@ html[data-theme="dark"] .role-sources summary { color: #8db6f2; }
   #tabs::-webkit-scrollbar { display: none; }
   #tabs button { flex: none; white-space: nowrap; }
 }
+
+/* Feedback 19/11: dòng rà soát chuyên môn và thẻ người rà soát trong khối nhiệm vụ. */
+.reviewed { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 10px; margin: 2px 0 9px; font-size: 13px; }
+.reviewed-ok { display: inline-flex; align-items: center; gap: 6px; color: #17634a; font-weight: 700; }
+.reviewed-ok svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.reviewed-toggle { display: inline-flex; align-items: center; gap: 3px; border: 0; border-left: 1px solid #c3d3ec; padding: 0 0 0 10px; background: none; color: #2454be; font-weight: 700; font-size: 13px; cursor: pointer; }
+.reviewed-toggle:hover { text-decoration: underline; }
+.reviewed-toggle svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; transition: transform .18s; }
+.reviewed-toggle[aria-expanded="true"] svg { transform: rotate(180deg); }
+.reviewer-card { background: #fff; border: 1px solid #b9e2cc; border-radius: 12px; padding: 12px; margin: 0 0 10px; box-shadow: 0 4px 14px #1b4fc414; animation: reviewer-in .18s ease-out; }
+.reviewer-who { display: flex; gap: 12px; align-items: center; }
+.reviewer-avatar { flex: none; width: 44px; height: 44px; border-radius: 50%; background: #eef2f8; display: grid; place-items: center; }
+.reviewer-avatar svg { width: 24px; height: 24px; fill: none; stroke: #7a889f; stroke-width: 1.6; stroke-linecap: round; }
+.reviewer-who small { display: block; color: #5b6b85; font-size: 12px; }
+.reviewer-who strong { display: block; color: #16284a; font-size: 14.5px; line-height: 1.3; }
+.reviewer-who span { display: block; color: #4a5d77; font-size: 12.5px; line-height: 1.4; }
+.reviewer-meta { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; margin-top: 10px; padding-top: 9px; border-top: 1px solid #e3eaf5; font-size: 12.5px; color: #5b6b85; }
+.reviewer-meta a { display: inline-flex; align-items: center; gap: 3px; color: #2454be; font-weight: 700; text-decoration: none; }
+.reviewer-meta a:hover { text-decoration: underline; }
+.reviewer-meta a svg { width: 11px; height: 11px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
+@keyframes reviewer-in { from { opacity: 0; transform: translateY(-4px); } }
+@media (prefers-reduced-motion: reduce) { .reviewer-card { animation: none; } .reviewed-toggle svg { transition: none; } }
+html[data-theme="dark"] .reviewed-ok { color: #6ee7a8; }
+html[data-theme="dark"] .reviewed-toggle { color: #8db6f2; border-color: #2a3a5c; }
+html[data-theme="dark"] .reviewer-card { background: #0f1a30; border-color: #1f5a43; box-shadow: none; }
+html[data-theme="dark"] .reviewer-avatar { background: #1f2a40; }
+html[data-theme="dark"] .reviewer-who strong { color: #eef3fb; }
+html[data-theme="dark"] .reviewer-who small, html[data-theme="dark"] .reviewer-who span, html[data-theme="dark"] .reviewer-meta { color: #9fb0cb; }
+html[data-theme="dark"] .reviewer-meta { border-color: #24324d; }
+html[data-theme="dark"] .reviewer-meta a { color: #8db6f2; }
