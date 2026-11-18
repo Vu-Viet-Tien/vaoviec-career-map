@@ -7,6 +7,7 @@ const INDUSTRY_TONES = {
   MKT: { hue: "#d4467e", soft: "#fdeaf2", label: "Marketing" },
   FIN: { hue: "#0f9a6a", soft: "#e2f6ee", label: "Tài chính" },
   OPS: { hue: "#d9821a", soft: "#fdf1e1", label: "Kinh doanh & Vận hành" },
+  SC: { hue: "#7a5bd1", soft: "#efeafc", label: "Chuỗi cung ứng" },
   DATA: { hue: "#0c95ad", soft: "#e0f5f8", label: "Dữ liệu" }
 };
 const INTEREST_LEVELS = ["Rất hứng thú", "Khá hứng thú", "Muốn tìm hiểu thêm", "Chưa phù hợp với mình"];

@@ -278,3 +278,27 @@ button.pf-version[aria-pressed=true] b { background: var(--tone); color: #fff; }
 }
 @media (prefers-reduced-motion: reduce) { .pf-vdetail { animation: none; } }
 html[data-theme="dark"] .restart-link:hover { background: #3b1518; border-color: #7a2b37; color: #fca5a5; }
+
+/* Career Map 19/11: nhãn chờ rà soát, chức danh tham khảo, nguồn. */
+.detail .badges { display: flex; flex-wrap: wrap; gap: 6px; }
+.detail .badge.review { background: #fff4d6; color: #7a5300; }
+.detail .ref-titles { margin: 2px 0 6px; }
+.detail .ref-note { font-size: 12.5px; color: #5b6b85; line-height: 1.55; margin-top: 4px; }
+.role-sources { margin-top: 16px; border-top: 1px solid #e3eaf5; padding-top: 10px; font-size: 13px; }
+.role-sources summary { cursor: pointer; font-weight: 700; color: #2454be; list-style: none; display: flex; align-items: center; gap: 6px; }
+.role-sources summary::-webkit-details-marker { display: none; }
+.role-sources summary::before { content: ""; width: 7px; height: 7px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(-45deg); transition: transform .15s; }
+.role-sources[open] summary::before { transform: rotate(45deg); }
+.role-sources ul { margin-top: 6px; }
+.role-sources li { overflow-wrap: anywhere; }
+.role-sources small { color: #7a889f; }
+html[data-theme="dark"] .detail .badge.review { background: #3a2c0a; color: #f5c95c; }
+html[data-theme="dark"] .detail .ref-note, html[data-theme="dark"] .role-sources small { color: #9fb0cb; }
+html[data-theme="dark"] .role-sources { border-color: #24324d; }
+html[data-theme="dark"] .role-sources summary { color: #8db6f2; }
+/* 6 lĩnh vực trên điện thoại: một hàng cuộn ngang thay vì 4 hàng nút. */
+@media (max-width: 640px) {
+  #tabs { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin-inline: -10px; padding: 2px 10px 6px; scroll-padding-inline: 10px; }
+  #tabs::-webkit-scrollbar { display: none; }
+  #tabs button { flex: none; white-space: nowrap; }
+}

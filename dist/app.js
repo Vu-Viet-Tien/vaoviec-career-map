@@ -128,7 +128,13 @@ function missionActions(mission, role) {
 const { branches, roles } = careerData;
 const industries = new Map(branches.map(branch => [branch.industry_id, branch.industry_group]));
 const rolesById = new Map(roles.map(role => [role.role_id, role]));
-const levels = { intern: "Thực tập", junior: "Đầu sự nghiệp", experienced: "Có kinh nghiệm" };
+// Danh mục 19/11: tên lĩnh vực đầy đủ hiện ở gốc cây; tab dùng nhãn ngắn để 6 lĩnh vực vừa một hàng.
+const industryTabs = { HR: "Nhân sự", MKT: "Marketing", FIN: "Tài chính & Ngân hàng", OPS: "Kinh doanh & Vận hành", SC: "Chuỗi cung ứng", DATA: "Dữ liệu" };
+// Nhãn loại nguồn: JD Việt Nam hay khung nghề (Dev_Guide: khung nghề không phải điều kiện tuyển dụng Việt Nam).
+const basisNote = {
+  professional_framework: "Nội dung tổng hợp từ khung nghề chuyên môn, chưa phải JD doanh nghiệp Việt Nam.",
+  employer_listing: "Nội dung tổng hợp từ danh mục tuyển dụng của doanh nghiệp, chưa phải JD chi tiết."
+};
 
 const home = document.querySelector("#home");
 const explore = document.querySelector("#explore");
@@ -207,7 +213,7 @@ function renderTree() {
     <p class="search-summary" role="status">${normalize(query) ? "Tìm thấy " : ""}${matches.length} ${what} trong ${found.length} lĩnh vực.
       <button class="text-link reset" type="button">${playableOnly ? "Xem tất cả nghề" : "Xóa tìm kiếm"}</button></p>
     <div class="trees">${found.map(id => treeMarkup(id, matches.filter(role => role.industry_id === id))).join("")}</div>` :
-    (playableOnly ? '<p class="vv-empty" role="status"><strong>Không có nghề có thể trải nghiệm nào khớp từ khoá.</strong><span>Bỏ bộ lọc để tìm cả các nghề đang phát triển.</span><button class="text-link reset" type="button">Xem tất cả nghề</button></p>' : '') ||
+    (playableOnly ? '<p class="vv-empty" role="status"><strong>Không có nghề có thể trải nghiệm nào khớp từ khoá.</strong><span>Bỏ bộ lọc để tìm trong toàn bộ ${roles.length} nghề.</span><button class="text-link reset" type="button">Xem tất cả nghề</button></p>' : '') ||
     '<p class="vv-empty" role="status"><strong>Không tìm thấy vị trí phù hợp.</strong><span>Thử từ khoá ngắn hơn, ví dụ "tuyển dụng", "data" hoặc "marketing".</span><button class="text-link reset" type="button">Xóa tìm kiếm</button></p>';
   drawTreeLinks();
 }
@@ -308,16 +314,29 @@ function renderDetail() {
     ["Ví dụ đầu ra", role.typical_outputs]
   ];
 
+  // Danh mục 19/11: không hiện "varies_by_jd"; chức danh và kinh nghiệm tham khảo lấy từ cột riêng.
+  const pending = role.publication_status === "framework_or_listing_review";
+  const titles = (role.reference_titles ?? []).filter(t => t !== role.role_name);
+  const sources = role.sources ?? [];
+  const host = url => { try { return new URL(url).hostname.replace(/^www\./, ""); } catch { return ""; } };
   detail.innerHTML = `
-    <span class="badge${mission ? "" : " off"}">${mission ? "Có thể trải nghiệm" : "Đang phát triển"}</span>
+    <div class="badges"><span class="badge${mission ? "" : " off"}">${mission ? "Có thể trải nghiệm" : "Chưa có mô phỏng"}</span>${pending ? '<span class="badge review">Chờ rà soát chuyên môn</span>' : ""}</div>
     <h2>${escape(role.role_name)}</h2>
-    <p class="role-subtitle">${escape(role.role_name_vi)}${levels[role.experience_level] ? " · " + levels[role.experience_level] : ""}</p>
+    <p class="role-subtitle">${escape(role.role_name_vi)}</p>
     <p>${escape(role.role_description)}</p>
     ${mission ? missionBlock(mission, role) : ""}
     ${sections.filter(([, items]) => items.length).map(([title, items]) =>
       `<h3>${title}</h3><ul>${items.map(item => `<li>${escape(item)}</li>`).join("")}</ul>`).join("")}
+    ${titles.length || role.experience_note ? `<h3>Chức danh &amp; kinh nghiệm tham khảo</h3>
+      ${titles.length ? `<div class="chips ref-titles">${titles.map(t => `<span>${escape(t)}</span>`).join("")}</div>` : ""}
+      ${role.experience_note ? `<p class="ref-note">${escape(role.experience_note)}</p>` : ""}` : ""}
     ${related.length ? `<h3>Vị trí liên quan</h3><div class="related">${related.map(item =>
       `<a class="text-link" href="${escape(rolePath(item))}" data-role="${escape(item.role_id)}">${escape(item.role_name)}</a>`).join("")}</div>` : ""}
+    ${sources.length ? `<details class="role-sources"><summary>Nguồn tham khảo (${sources.length})</summary>
+      ${basisNote[role.content_basis] ? `<p class="ref-note">${basisNote[role.content_basis]}</p>` : ""}
+      <ul>${sources.map(s => `<li><a href="${escape(s.url)}" target="_blank" rel="noopener noreferrer">${escape(s.org || host(s.url))}</a>${s.title ? ` · ${escape(s.title)}` : ""}${s.type ? ` <small>(${escape(s.type)})</small>` : ""}</li>`).join("")}</ul>
+      <p class="ref-note">Mỗi tin tuyển có yêu cầu riêng; nội dung trên là tổng hợp, không phải điều kiện của mọi doanh nghiệp.</p>
+    </details>` : ""}
   `;
 }
 
@@ -363,7 +382,10 @@ function render() {
 
   tabs.innerHTML = [...industries].map(([id, name]) => `
     <button type="button" data-industry="${escape(id)}" aria-pressed="${id === industry}"
-      class="${id === industry ? "active" : ""}">${escape(name)}</button>`).join("");
+      class="${id === industry ? "active" : ""}" title="${escape(name)}">${escape(industryTabs[id] ?? name)}</button>`).join("");
+  // Điện thoại: tab cuộn ngang, giữ tab đang chọn trong tầm nhìn.
+  const activeTab = tabs.querySelector(".active");
+  if (activeTab && tabs.scrollWidth > tabs.clientWidth) tabs.scrollLeft = activeTab.offsetLeft - (tabs.clientWidth - activeTab.offsetWidth) / 2;
   renderTree();
   renderDetail();
 

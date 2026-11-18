@@ -25,7 +25,7 @@ Khóa `GEMINI_API_KEY` đặt trong Vercel → Project → Settings → Environm
 
 ## Cấu trúc
 
-- `dist/index.html`, `dist/home.css`, `dist/styles.css`, `dist/app.js`, `dist/career-data.js` — Trang chủ và Career Map.
+- `dist/index.html`, `dist/home.css`, `dist/styles.css`, `dist/app.js`, `dist/career-data.js` — Trang chủ và Career Map. `career-data.js` dựng từ `01_CAREER_MAP.xlsx` bản 19/11 (82 nghề, 6 lĩnh vực, 39 nhánh; sheet Career_Map, Career_Branches, Sources). Giữ nguyên `role_id` và `role_slug` cũ. Không hiển thị `varies_by_jd`; trang chi tiết hiện chức danh/kinh nghiệm tham khảo và nguồn. Thẻ `framework_or_listing_review` gắn nhãn "Chờ rà soát chuyên môn".
 - `dist/site-header.js`, `dist/site-header.css` — header chung.
 - `dist/workspace/mission-engine.js` + `mission.css` — khung Workspace 6 bước dùng chung cho MISSION_002 (`employer-branding.html`, `employer-branding-assets/case.js`) MISSION_003 (`business-development`), MISSION_004 (`content-marketing`), MISSION_005 (`data-analyst`), MISSION_006 (`fpa-analyst`) và MISSION_007 (`equity-research`); mỗi nhiệm vụ gồm `<tên>.html` và `<tên>-assets/case.js`. Chữ riêng mỗi nghề nằm trong `CASE.ui`. Rubric các nhiệm vụ này ở `lib/review-simple.js`; `api/review.js` chọn bộ chấm theo trường `mission`.
 - `dist/ds.css`, `dist/ui.js` — design system dùng chung; `dist/theme-dark.css` — chế độ tối (nút trên header, lưu `vaoviec-theme`).
