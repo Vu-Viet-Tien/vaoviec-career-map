@@ -58,6 +58,16 @@ const missions = {
     url: "/workspace/fpa-analyst",
     // Trùng CASE.ui.storageKey trong workspace/fpa-analyst-assets/case.js.
     storageKey: "vaoviec-workspace-mission-006-v1"
+  },
+  MISSION_007: {
+    company: "Chứng khoán An Phát",
+    caseName: "Cập nhật KQKD quý 3 cổ phiếu GDV",
+    description: "Cổ phiếu GDV báo lãi quý 3 tăng 87%: đọc báo cáo tài chính và thuyết minh, tách khoản lãi bất thường, so sánh định giá với ngành, viết bản tin cập nhật và đưa ra khuyến nghị có căn cứ.",
+    duration: "15–20 phút",
+    deliverable: "3 luận điểm có số liệu, 1 bản tin cập nhật gửi trưởng phòng duyệt, cơ sở định giá kèm 2 chỉ số theo dõi và khuyến nghị Mua / Nắm giữ / Bán.",
+    url: "/workspace/equity-research",
+    // Trùng CASE.ui.storageKey trong workspace/equity-research-assets/case.js.
+    storageKey: "vaoviec-workspace-mission-007-v1"
   }
 };
 

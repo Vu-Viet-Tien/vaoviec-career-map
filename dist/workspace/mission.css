@@ -217,3 +217,8 @@ dialog::backdrop { background: #0b1d3d73; backdrop-filter: blur(3px); }
 .case-restart:hover { border-color: #d6455d; color: #b3263e; background: #fff5f6; }
 .case-restart:hover svg { transform: rotate(-200deg); }
 html[data-theme="dark"] .case-restart { background: #121b2e; border-color: #33466b; color: #c9d6ea; }
+
+/* Bảng nhiều cột (FP&A, Equity Research…) không được đẩy trang tràn ngang trên điện thoại: cuộn trong khung tài liệu. */
+.eb-main, .eb-sources, .eb-sources > * { min-width: 0; }
+.eb-source-body { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+@media (max-width: 560px) { .eb-table { font-size: 12.5px; } .eb-table th, .eb-table td { padding: 6px 7px; } }

@@ -816,8 +816,8 @@ const careerData = {
       "role_name_vi": "Chuyên viên Phân tích Cổ phiếu",
       "industry_group": "Tài chính",
       "function": "Đầu tư & Thị trường vốn",
-      "simulation_status": "in_development",
-      "mission_id": null,
+      "simulation_status": "available",
+      "mission_id": "MISSION_007",
       "role_description": "Nghiên cứu công ty niêm yết và ngành, xây dựng định giá cổ phiếu và trình bày luận điểm đầu tư.",
       "daily_tasks": [
         "Thu thập thông tin doanh nghiệp và ngành",

@@ -27,7 +27,7 @@ Khóa `GEMINI_API_KEY` đặt trong Vercel → Project → Settings → Environm
 
 - `dist/index.html`, `dist/home.css`, `dist/styles.css`, `dist/app.js`, `dist/career-data.js` — Trang chủ và Career Map.
 - `dist/site-header.js`, `dist/site-header.css` — header chung.
-- `dist/workspace/mission-engine.js` + `mission.css` — khung Workspace 6 bước dùng chung cho MISSION_002 (`employer-branding.html`, `employer-branding-assets/case.js`) MISSION_003 (`business-development`), MISSION_004 (`content-marketing`), MISSION_005 (`data-analyst`) và MISSION_006 (`fpa-analyst`); mỗi nhiệm vụ gồm `<tên>.html` và `<tên>-assets/case.js`. Chữ riêng mỗi nghề nằm trong `CASE.ui`. Rubric các nhiệm vụ này ở `lib/review-simple.js`; `api/review.js` chọn bộ chấm theo trường `mission`.
+- `dist/workspace/mission-engine.js` + `mission.css` — khung Workspace 6 bước dùng chung cho MISSION_002 (`employer-branding.html`, `employer-branding-assets/case.js`) MISSION_003 (`business-development`), MISSION_004 (`content-marketing`), MISSION_005 (`data-analyst`), MISSION_006 (`fpa-analyst`) và MISSION_007 (`equity-research`); mỗi nhiệm vụ gồm `<tên>.html` và `<tên>-assets/case.js`. Chữ riêng mỗi nghề nằm trong `CASE.ui`. Rubric các nhiệm vụ này ở `lib/review-simple.js`; `api/review.js` chọn bộ chấm theo trường `mission`.
 - `dist/ds.css`, `dist/ui.js` — design system dùng chung; `dist/theme-dark.css` — chế độ tối (nút trên header, lưu `vaoviec-theme`).
 - `dist/workspace/talent-acquisition.html` và `dist/workspace/talent-acquisition-assets/` — Workspace VaVi: `case.js` (nội dung case), `app.js` (logic), `style.css`, ảnh văn phòng, PDF JD và PDF.js.
 - `dist/nova/` — trợ lý VaVi ở góc phải dưới mọi trang: `nova-mascot.js` (robot SVG), `nova-animation.js` (trạng thái hoạt ảnh), `nova-speech-bubble.js`, `nova-chat-window.js`, `nova-assistant.js` (gắn tất cả, gọi `/api/assistant`), `nova.css`.
@@ -74,6 +74,10 @@ Doanh thu tuần 45 giảm 18%. Người học đọc doanh thu 4 tuần, theo k
 ## MISSION_006 · FP&A Analyst
 
 Tháng 10 lỗ 20 triệu thay vì lãi 350 triệu. Người học đọc báo cáo chênh lệch, ghi chú các phòng, chi phí vận chuyển theo tháng, kế hoạch quý IV và báo giá mới; chọn 3 khoản chênh lệch, viết bản ghi nhớ, chọn hành động và 2 chỉ số, trả lời chị Vân kèm ước tính tác động. Bẫy: giá vốn "nhờ nhà cung cấp", lạm phát, khoản 5 triệu, coi lương thấp là tiết kiệm, cắt 50% marketing trước 11/11, đính kèm bảng lương. Rubric M06-A (bản nháp).
+
+## MISSION_007 · Equity Research Analyst
+
+Chứng khoán An Phát (giả lập) theo dõi cổ phiếu GDV (giả lập), báo lãi quý 3 tăng 87%. Người học đọc KQKD, thuyết minh, so sánh ngành, ghi chép ban lãnh đạo, bài diễn đàn và quy định phòng Phân tích; chọn 3 luận điểm, viết bản tin cập nhật, chọn cơ sở định giá và 2 chỉ số, khuyến nghị Mua / Nắm giữ / Bán cho chị Thu. Đáp án: 64 tỷ lãi bán đất một lần nên lợi nhuận lõi chỉ +5%, P/E lõi 13,3 lần ngang ngành, tồn kho +35% là rủi ro → Nắm giữ. Bẫy: "P/E 11 lần rẻ", tin sáp nhập, tăng trưởng 87% bền vững, cổ tức chắc chắn, thông tin chưa công bố của Giám đốc tài chính, gửi khách/diễn đàn/báo chí trước khi duyệt, theo dõi giá hằng ngày hoặc độ "hot". Rubric M07-A (bản nháp). Case học nghề, không phải khuyến nghị đầu tư thật.
 
 ## Theo dõi hành vi (Vercel Analytics, 18/11)
 
