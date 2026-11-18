@@ -216,6 +216,9 @@ function renderProfile() {
         <p class="hub-lead">Tổng hợp mọi mô phỏng bạn đã làm: tiến độ, từng phiên bản đã nộp kèm nhận xét, và cảm nhận của bạn về từng nghề.</p>
       </div>
     </div>
+    ${account?.id
+      ? `<p class="pf-sync on"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5.5 14.5h9a3.5 3.5 0 0 0 .4-7A5 5 0 0 0 5.3 8.6a3 3 0 0 0 .2 5.9z"/><path d="m7.6 11 1.7 1.7 3.2-3.4"/></svg><span>Hồ sơ đang lưu vào tài khoản <strong>${escape(account.email)}</strong>, mở lại được trên mọi thiết bị.</span></p>`
+      : `<div class="pf-sync"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5.5 14.5h9a3.5 3.5 0 0 0 .4-7A5 5 0 0 0 5.3 8.6a3 3 0 0 0 .2 5.9z"/><path d="M10 9.2v4M8.2 11l1.8-1.8 1.8 1.8"/></svg><span><strong>Hồ sơ đang chỉ lưu trên trình duyệt này.</strong> Đăng nhập để giữ tiến độ, bài nộp và nhận xét khi đổi máy.</span><button type="button" class="pf-sync-btn" data-account="login">Đăng nhập</button></div>`}
     <ul class="pf-stats" aria-label="Tổng quan hồ sơ">
       <li><b>${everSubmitted.length}<small>/${items.length}</small></b><span>mô phỏng đã nộp</span></li>
       <li><b>${active.length}</b><span>đang làm dở</span></li>
@@ -268,3 +271,6 @@ document.addEventListener("click", event => {
     ask.then(ok => { if (ok) go(); });
   }
 });
+
+// Đăng nhập/đăng xuất/sửa tên: vẽ lại trang Hồ sơ nếu đang mở.
+addEventListener("vaoviec:account", () => { if (location.hash === "#/ho-so") renderProfile(); });

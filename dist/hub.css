@@ -335,3 +335,12 @@ html[data-theme="dark"] .reviewer-meta a { color: #8db6f2; }
 .reviewer-avatar { overflow: hidden; box-shadow: 0 0 0 2px #fff, 0 0 0 3px #b9e2cc; }
 .reviewer-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
 html[data-theme="dark"] .reviewer-avatar { box-shadow: 0 0 0 2px #0f1a30, 0 0 0 3px #1f5a43; }
+/* Hồ sơ: trạng thái lưu tài khoản (19/11). */
+.pf-sync { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 12px; margin: 0 0 18px; padding: 12px 14px; border: 1px solid #f1d58a; border-radius: 14px; background: #fff9e8; color: #5c4a14; font-size: 14px; line-height: 1.5; }
+.pf-sync span { flex: 1 1 260px; }
+.pf-sync svg { flex: none; width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.pf-sync.on { border-color: #b9e2cc; background: #eefaf3; color: #17634a; }
+.pf-sync-btn { padding: 8px 16px; border: 0; border-radius: 999px; background: #1b4fc4; color: #fff; font: inherit; font-weight: 700; cursor: pointer; }
+.pf-sync-btn:hover { background: #163f9f; }
+html[data-theme="dark"] .pf-sync { background: #2a2210; border-color: #5c4a14; color: #f5d98a; }
+html[data-theme="dark"] .pf-sync.on { background: #0f2a20; border-color: #1f5a43; color: #6ee7a8; }

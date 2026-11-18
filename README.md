@@ -97,3 +97,9 @@ Mỗi sự kiện có `mission_id`, `anon_id` (ngẫu nhiên, lưu ở localStor
 Mỗi sự kiện nhiệm vụ còn được gửi về `/api/track` và lưu vào Upstash Redis (`lib/event-store.js`, danh sách `vv:events`, tối đa 100.000 sự kiện). Trang `/thong-ke` (không có link công khai, `noindex`) đọc qua `/api/stats` khi nhập đúng mật khẩu `STATS_PASSWORD`; có lọc theo ngày/nhiệm vụ, phễu, lượt theo ngày và tải CSV.
 
 Cài một lần trên Vercel: Storage → tạo Upstash Redis (Free) → Connect vào project (tự thêm `KV_REST_API_URL`, `KV_REST_API_TOKEN`); Settings → Environment Variables → thêm `STATS_PASSWORD`; deploy lại. Chạy local không có Redis thì dùng bộ nhớ tạm.
+
+### Tài khoản và đồng bộ tiến độ
+
+Đăng nhập bằng Google hoặc email + mật khẩu (`api/auth.js`, `lib/accounts.js`, giao diện trong `dist/site-header.js`). Mật khẩu băm scrypt; phiên đăng nhập là cookie `vv_session` HttpOnly, 30 ngày; giới hạn số lần thử theo IP. Tiến độ (`vaoviec-workspace-*` trong localStorage) tự đồng bộ lên Redis (`vv:data:<id>`) sau mỗi lần lưu; đăng nhập ở máy khác sẽ gộp và tải về. Đăng xuất xoá bài làm khỏi trình duyệt đó (vẫn còn trên tài khoản).
+
+Bật đăng nhập Google: tạo OAuth Client ID (Web) trong Google Cloud Console, thêm Authorized JavaScript origin `https://vaoviec-career-map.vercel.app`, rồi đặt biến `GOOGLE_CLIENT_ID` trong Vercel. Không có biến này thì hộp đăng nhập chỉ hiện email + mật khẩu.

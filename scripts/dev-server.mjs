@@ -11,7 +11,8 @@ const api = {
   '/api/review': (await import('../api/review.js')).default,
   '/api/assistant': (await import('../api/assistant.js')).default,
   '/api/track': (await import('../api/track.js')).default,
-  '/api/stats': (await import('../api/stats.js')).default
+  '/api/stats': (await import('../api/stats.js')).default,
+  '/api/auth': (await import('../api/auth.js')).default
 };
 
 const types = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.png': 'image/png', '.pdf': 'application/pdf', '.svg': 'image/svg+xml', '.json': 'application/json' };
