@@ -81,7 +81,10 @@ function renderHub() {
         ${progressBar(info)}
         ${info.updatedAt ? `<p class="hub-meta">Cập nhật ${ago(info.updatedAt)}</p>` : ""}
       </div>
-      <a class="hub-btn" href="${escape(workspacePath(mission, role))}">Tiếp tục <span aria-hidden="true">→</span></a>
+      <div class="hub-side">
+        <a class="hub-btn" href="${escape(workspacePath(mission, role))}">Tiếp tục <span aria-hidden="true">→</span></a>
+        ${restartButton(mission, role)}
+      </div>
     </article>`;
   const doneCard = ({ id, mission, role, info, tone }) => `
     <article class="hub-card hub-done" style="--tone:${tone.hue};--tone-soft:${tone.soft}">
@@ -90,9 +93,9 @@ function renderHub() {
         <div class="hub-chips">${chip(tone.label, tone)}</div>
         <h3><a href="${escape(workspacePath(mission, role))}#result">${escape(role.role_name)}</a></h3>
         <p class="hub-sub">${escape(mission.caseName)}</p>
-        <p class="hub-meta">${info.versions.length} phiên bản · nộp ${ago(info.versions.at(-1)?.at || info.updatedAt)}</p>
+        <p class="hub-meta">${info.versions.length} phiên bản · nộp lần cuối ${escape(fullDate(info.lastSubmittedAt || info.updatedAt))}</p>
       </div>
-      <div class="hub-actions"><a class="hub-btn" href="${escape(workspacePath(mission, role))}#result">Xem kết quả</a><a class="hub-link" href="${escape(workspacePath(mission, role))}">Sửa & nộp lại</a></div>
+      <div class="hub-actions"><a class="hub-btn" href="${escape(workspacePath(mission, role))}#result">Xem kết quả</a><a class="hub-link" href="${escape(workspacePath(mission, role))}">Sửa & nộp lại</a>${restartButton(mission, role)}</div>
     </article>`;
   const freshCard = ({ id, mission, role, tone }) => `
     <a class="hub-card hub-fresh" href="${escape(workspacePath(mission, role))}" style="--tone:${tone.hue};--tone-soft:${tone.soft}">
@@ -130,91 +133,136 @@ function renderHub() {
 }
 
 // ---------- #/ho-so ----------
+// Feedback 18/11: đếm "đã nộp" theo mọi lượt chơi; bỏ ô tiêu chí Đạt; bấm phiên bản xem được chi tiết;
+// mô phỏng đang làm xếp trên, đã nộp xếp dưới kèm ngày giờ nộp cuối; có Làm lại từ đầu ở mọi thẻ.
+const pickedVersion = {};
+const fullDate = ts => ts ? new Date(ts).toLocaleString("vi-VN", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit", year: "numeric" }) : "";
+const restartButton = (mission, role, cls = "restart-link") => `<button type="button" class="${cls}" data-restart="${escape(workspacePath(mission, role))}" data-name="${escape(role.role_name)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.3-5.6M4 4v4.5h4.5"/></svg>Làm lại từ đầu</button>`;
+
+function versionDetail(v, url) {
+  const s = v.score;
+  const head = `<p class="pf-vhead"><strong>${v.past ? `Lượt trước · ` : ""}Bản ${v.version}</strong><span>Nộp lúc ${escape(fullDate(v.at))}${v.mode ? ` · Chế độ ${escape(MODE_LABELS[v.mode] ?? v.mode)}` : ""}</span></p>`;
+  if (v.pending) return `${head}<p class="hub-meta">AI đang chấm bản này. Mở Workspace để xem khi có kết quả.</p>`;
+  if (!s) return `${head}<p class="hub-meta">Bản này chưa có kết quả AI${v.past ? "." : ". Mở trong Workspace để chấm lại."}</p>${v.past ? "" : `<a class="hub-link" href="${escape(url)}#result=${encodeURIComponent(v.id)}">Mở trong Workspace →</a>`}`;
+  return `${head}
+    <ul class="pf-criteria">${s.criteria.map(c => `<li class="${c.ok ? "ok" : "no"}"><span aria-hidden="true">${c.ok ? "✓" : "!"}</span>${escape(c.title)}<span class="sr-only">: ${c.ok ? "Đạt" : "Cần bổ sung"}</span></li>`).join("")}</ul>
+    ${s.summary ? `<p class="pf-summary">${escape(s.summary)}</p>` : ""}
+    ${s.priority && s.pass < s.total ? `<p class="pf-priority"><strong>Ưu tiên sửa:</strong> ${escape(s.priority)}</p>` : ""}
+    <p class="pf-vfoot">${s.effort ? `<span>Mức độ đầu tư: <strong>${escape(s.effort)}</strong></span>` : ""}${v.past ? "" : `<a class="hub-link" href="${escape(url)}#result=${encodeURIComponent(v.id)}">Mở nhận xét đầy đủ →</a>`}</p>`;
+}
+
 function renderProfile() {
   const page = document.querySelector("#profile");
   const items = playableMissions();
-  const tried = items.filter(x => x.info.status !== "new");
-  const submitted = items.filter(x => x.info.status === "submitted");
+  const tried = items.filter(x => x.info.status !== "new" || x.info.everSubmitted);
+  const everSubmitted = items.filter(x => x.info.everSubmitted);
+  const active = tried.filter(x => x.info.status === "progress").sort((a, b) => b.info.updatedAt - a.info.updatedAt);
+  const done = tried.filter(x => x.info.status !== "progress").sort((a, b) => b.info.lastSubmittedAt - a.info.lastSubmittedAt);
   const versions = items.reduce((n, x) => n + x.info.versions.length + x.info.pastVersions, 0);
-  const scored = submitted.map(x => x.info.latest).filter(Boolean);
-  const pass = scored.reduce((n, s) => n + s.pass, 0), total = scored.reduce((n, s) => n + s.total, 0);
   const fields = new Set(tried.map(x => x.role.industry_id));
   const account = typeof readAccount === "function" ? readAccount() : null;
   const name = account?.name?.trim();
   const initials = name ? name.split(/\s+/).map(w => w[0]).slice(-2).join("").toUpperCase() : "";
-  const order = { submitted: 0, progress: 1, new: 2 };
-  const list = tried.sort((a, b) => order[a.info.status] - order[b.info.status] || b.info.updatedAt - a.info.updatedAt);
 
   const card = ({ id, mission, role, info, tone }) => {
     const url = workspacePath(mission, role);
-    const status = info.status === "submitted"
-      ? `<span class="hub-pill ok">Đã nộp</span>`
-      : `<span class="hub-pill warn">Đang làm</span>`;
-    const latest = info.latest;
+    const all = [...info.past, ...info.versions].sort((a, b) => a.at - b.at);
+    const chosen = all.find(v => v.id === pickedVersion[mission.storageKey]) ?? all.at(-1);
+    const status = info.status === "progress"
+      ? `<span class="hub-pill warn">${info.everSubmitted ? "Đang làm lại" : "Đang làm"}</span>`
+      : `<span class="hub-pill ok">Đã nộp</span>`;
+    const when = info.lastSubmittedAt
+      ? `<p class="pf-when"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Nộp lần cuối ${escape(fullDate(info.lastSubmittedAt))}</p>`
+      : info.updatedAt ? `<p class="pf-when">Cập nhật ${ago(info.updatedAt)}</p>` : "";
     return `<article class="pf-card" style="--tone:${tone.hue};--tone-soft:${tone.soft}">
       <div class="pf-head">
         ${illus(mission, id)}
         <div class="pf-title">
           <div class="hub-chips">${chip(tone.label, tone)}${status}${info.mode ? chip("Chế độ " + MODE_LABELS[info.mode]) : ""}</div>
           <h3>${escape(role.role_name)}</h3>
-          <p class="hub-sub">${escape(mission.company)} · ${escape(mission.caseName)}${info.updatedAt ? ` · cập nhật ${ago(info.updatedAt)}` : ""}</p>
+          <p class="hub-sub">${escape(mission.company)} · ${escape(mission.caseName)}</p>
+          ${when}
         </div>
-        ${info.status === "submitted" ? scoreBadge(latest, "lg") : ""}
+        ${chosen ? scoreBadge(chosen.score, "lg") : ""}
       </div>
-      ${info.status === "submitted" ? `
-        ${latest ? `<ul class="pf-criteria">${latest.criteria.map(c => `<li class="${c.ok ? "ok" : "no"}"><span aria-hidden="true">${c.ok ? "✓" : "!"}</span>${escape(c.title)}<span class="sr-only">: ${c.ok ? "Đạt" : "Cần bổ sung"}</span></li>`).join("")}</ul>
-          ${latest.effort ? `<p class="hub-meta">Mức độ đầu tư lần gần nhất: <strong>${escape(latest.effort)}</strong></p>` : ""}`
-        : `<p class="hub-meta">Bài nộp gần nhất chưa có kết quả AI. Mở kết quả để chấm lại.</p>`}
-        <div class="pf-versions" aria-label="Các phiên bản đã nộp">${info.versions.map(v => `<span class="pf-version">Bản ${v.version}<b>${v.score ? `${v.score.pass}/${v.score.total}` : "–"}</b></span>`).join('<span class="pf-arrow" aria-hidden="true">→</span>')}${info.pastVersions ? `<span class="hub-meta">+ ${info.pastVersions} bản ở lượt chơi trước</span>` : ""}</div>`
-      : progressBar(info)}
+      ${info.status === "progress" ? progressBar(info) : ""}
+      ${all.length ? `<div class="pf-vblock">
+        <p class="pf-vtitle">${info.status === "progress" ? "Các bản đã nộp trước đó" : "Các phiên bản đã nộp"} <span>· bấm để xem</span></p>
+        <div class="pf-versions" role="group" aria-label="Chọn phiên bản để xem">${all.map(v => `<button type="button" class="pf-version${v.past ? " past" : ""}" aria-pressed="${v === chosen}" data-pick-version="${escape(v.id)}" data-key="${escape(mission.storageKey)}">${v.past ? "Lượt trước · " : ""}Bản ${v.version}<b>${v.score ? `${v.score.pass}/${v.score.total}` : v.pending ? "…" : "–"}</b></button>`).join("")}</div>
+        <div class="pf-vdetail" aria-live="polite">${versionDetail(chosen, url)}</div>
+      </div>` : ""}
       <div class="pf-interest">
         <span>Bạn thấy công việc này thế nào?</span>
         <div role="radiogroup" aria-label="Mức độ hứng thú với ${escape(role.role_name)}">${INTEREST_LEVELS.map(level => `<button type="button" role="radio" aria-checked="${info.interest === level}" data-interest="${escape(level)}" data-key="${escape(mission.storageKey)}">${escape(level)}</button>`).join("")}</div>
       </div>
       <div class="pf-actions">
-        ${info.status === "submitted"
-          ? `<a class="hub-btn" href="${escape(url)}#result">Xem nhận xét chi tiết</a><a class="hub-link" href="${escape(url)}">Sửa & nộp lại</a>`
-          : `<a class="hub-btn" href="${escape(url)}">Tiếp tục</a>`}
+        ${info.status === "progress"
+          ? `<a class="hub-btn" href="${escape(url)}">Tiếp tục <span aria-hidden="true">→</span></a>`
+          : `<a class="hub-btn" href="${escape(url)}#result">Xem nhận xét chi tiết</a><a class="hub-link" href="${escape(url)}">Sửa & nộp lại</a>`}
         <a class="hub-link" href="#/roles/${escape(role.role_slug)}">Về nghề này</a>
+        ${restartButton(mission, role)}
       </div>
     </article>`;
   };
-  const untried = items.filter(x => x.info.status === "new");
+  const untried = items.filter(x => !tried.includes(x));
   page.innerHTML = `
     <div class="pf-hero">
       <div class="pf-avatar" aria-hidden="true">${initials ? escape(initials) : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg>`}</div>
       <div>
         <p class="hub-eyebrow">Hồ sơ trải nghiệm</p>
         <h1>${name ? escape(name) : "Hành trình thử nghề của bạn"}</h1>
-        <p class="hub-lead">Tổng hợp mọi mô phỏng bạn đã làm: kết quả theo tiêu chí, các phiên bản đã nộp và cảm nhận của bạn về từng nghề.</p>
+        <p class="hub-lead">Tổng hợp mọi mô phỏng bạn đã làm: tiến độ, từng phiên bản đã nộp kèm nhận xét, và cảm nhận của bạn về từng nghề.</p>
       </div>
     </div>
     <ul class="pf-stats" aria-label="Tổng quan hồ sơ">
-      <li><b>${submitted.length}<small>/${items.length}</small></b><span>mô phỏng đã nộp</span></li>
+      <li><b>${everSubmitted.length}<small>/${items.length}</small></b><span>mô phỏng đã nộp</span></li>
+      <li><b>${active.length}</b><span>đang làm dở</span></li>
       <li><b>${versions}</b><span>phiên bản đã nộp</span></li>
-      <li><b>${total ? `${pass}<small>/${total}</small>` : "–"}</b><span>tiêu chí Đạt (bản mới nhất)</span></li>
       <li><b>${fields.size}<small>/${Object.keys(INDUSTRY_TONES).length}</small></b><span>lĩnh vực đã thử</span></li>
     </ul>
-    ${list.length ? `<section class="hub-section" aria-labelledby="pf-list"><h2 id="pf-list">Mô phỏng đã làm <span class="hub-count">${list.length}</span></h2><div class="pf-list">${list.map(card).join("")}</div></section>`
-      : `<div class="vv-empty hub-empty"><strong>Hồ sơ của bạn đang trống.</strong><span>Hoàn thành một mô phỏng, kết quả và nhận xét sẽ tự xuất hiện ở đây.</span><a class="hub-btn" href="#/workspace">Chọn mô phỏng đầu tiên</a></div>`}
+    ${tried.length ? "" : `<div class="vv-empty hub-empty"><strong>Hồ sơ của bạn đang trống.</strong><span>Hoàn thành một mô phỏng, kết quả và nhận xét sẽ tự xuất hiện ở đây.</span><a class="hub-btn" href="#/workspace">Chọn mô phỏng đầu tiên</a></div>`}
+    ${active.length ? `<section class="hub-section" aria-labelledby="pf-active"><h2 id="pf-active">Đang làm dở <span class="hub-count">${active.length}</span></h2><div class="pf-list">${active.map(card).join("")}</div></section>` : ""}
+    ${done.length ? `<section class="hub-section" aria-labelledby="pf-done"><h2 id="pf-done">Đã nộp <span class="hub-count">${done.length}</span></h2><div class="pf-list">${done.map(card).join("")}</div></section>` : ""}
     ${untried.length ? `<section class="hub-section" aria-labelledby="pf-next"><h2 id="pf-next">Nghề bạn chưa thử</h2>
       <div class="pf-next">${untried.map(({ mission, role, tone }) => `<a href="${escape(workspacePath(mission, role))}" style="--tone:${tone.hue};--tone-soft:${tone.soft}"><i aria-hidden="true"></i><span><strong>${escape(role.role_name)}</strong><small>${escape(tone.label)} · ${escape(mission.duration)}</small></span><span aria-hidden="true">→</span></a>`).join("")}</div></section>` : ""}
     <p class="pf-note">Hồ sơ được lưu trên trình duyệt này. Đổi máy hoặc xoá dữ liệu trình duyệt sẽ làm mất hồ sơ.</p>`;
 }
 
-document.addEventListener("click", event => {
-  const btn = event.target.closest("#profile [data-interest]");
-  if (!btn) return;
-  const key = btn.dataset.key + "-interest";
-  const level = btn.dataset.interest;
-  const current = readJSON(key)?.level;
-  try {
-    if (current === level) localStorage.removeItem(key);
-    else localStorage.setItem(key, JSON.stringify({ level, updatedAt: Date.now() }));
-  } catch { /* Trình duyệt chặn lưu. */ }
+// Vẽ lại hồ sơ mà không nhảy trang, rồi trả focus về đúng nút vừa bấm.
+function rerenderProfile(selector) {
   const y = scrollY;
   renderProfile();
   scrollTo(0, y);
-  document.querySelector(`#profile [data-key="${CSS.escape(btn.dataset.key)}"][data-interest="${CSS.escape(level)}"]`)?.focus();
-  window.vvToast?.(current === level ? "Đã bỏ chọn mức hứng thú." : "Đã ghi nhận cảm nhận của bạn.", "success");
+  document.querySelector(selector)?.focus({ preventScroll: true });
+}
+
+document.addEventListener("click", event => {
+  const pick = event.target.closest("#profile [data-pick-version]");
+  if (pick) {
+    pickedVersion[pick.dataset.key] = pick.dataset.pickVersion;
+    rerenderProfile(`#profile [data-key="${CSS.escape(pick.dataset.key)}"][data-pick-version="${CSS.escape(pick.dataset.pickVersion)}"]`);
+    return;
+  }
+  const btn = event.target.closest("#profile [data-interest]");
+  if (btn) {
+    const key = btn.dataset.key + "-interest";
+    const level = btn.dataset.interest;
+    const current = readJSON(key)?.level;
+    try {
+      if (current === level) localStorage.removeItem(key);
+      else localStorage.setItem(key, JSON.stringify({ level, updatedAt: Date.now() }));
+    } catch { /* Trình duyệt chặn lưu. */ }
+    rerenderProfile(`#profile [data-key="${CSS.escape(btn.dataset.key)}"][data-interest="${CSS.escape(level)}"]`);
+    window.vvToast?.(current === level ? "Đã bỏ chọn mức hứng thú." : "Đã ghi nhận cảm nhận của bạn.", "success");
+    return;
+  }
+  // Làm lại từ đầu (Career Map, trang Workspace, Hồ sơ): xác nhận ở đây, Workspace nhận #restart và bắt đầu lượt mới.
+  const restart = event.target.closest("[data-restart]");
+  if (restart) {
+    const go = () => { location.href = restart.dataset.restart + "#restart"; };
+    const ask = window.vvConfirm
+      ? window.vvConfirm({ title: "Làm lại từ đầu?", message: `Bài đang làm của ${restart.dataset.name} sẽ được xoá để bạn bắt đầu lại từ đầu. Các bản đã nộp vẫn được giữ trong Hồ sơ trải nghiệm.`, confirmLabel: "Làm lại từ đầu", tone: "danger" })
+      : Promise.resolve(confirm("Làm lại từ đầu? Các bản đã nộp vẫn được giữ trong Hồ sơ trải nghiệm."));
+    ask.then(ok => { if (ok) go(); });
+  }
 });

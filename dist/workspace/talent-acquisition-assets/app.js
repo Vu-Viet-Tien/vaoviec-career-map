@@ -103,6 +103,19 @@ const save=()=>{
   }catch{/* Thiếu dữ liệu cũ: bỏ qua tiến độ, vẫn lưu bài. */}
   write(key,s);
 };
+// Theo dõi hành vi (feedback 18/11): attempt_id = một lượt chơi, đổi khi Chơi lại case.
+const track=(name,extra={})=>window.vvTrack?.(name,{mission_id:'MISSION_001',attempt_id:s.attemptId??'',mode:s.mode||'',...extra});
+function startAttempt(){s.attemptId=window.vvNewId?.()??String(Date.now());save();track('mission_started');}
+// Chơi lại: lượt có bài nộp được chuyển sang mục Lượt trước (kèm mọi phiên bản), rồi bắt đầu lượt mới.
+function resetRun(){
+  const versions=allSubmissions();
+  if(versions.length){
+    // Giữ payload: gợi ý CV của lượt cũ cần số hồ sơ đã sàng lọc và số câu đã xác minh.
+    const run={id:versions[0].id,archivedAt:Date.now(),mode:s.mode,versions};
+    write(key+'-portfolio',[run,...pastRuns().filter(r=>r.id!==run.id)]);
+  }
+  write(key+'-before-reset',s);s=initial();
+}
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const btn=(label,action,value='',cls='')=>`<button class="${cls}" data-do="${action}" data-id="${esc(value)}">${label}</button>`;
 const primary=(label,action,value)=>btn(label,action,value,'primary');
@@ -792,6 +805,11 @@ async function requestReview(sub){
   // Bỏ qua kết quả nếu người học đã nộp bản khác trong lúc chờ.
   if(s.submission?.id!==sub.id)return;
   s.submission.ai=result;save();
+  // mission_completed: lần đầu lượt chơi này nhận được kết quả AI.
+  if(result.status==='done'&&s.completedAttempt!==s.attemptId){
+    s.completedAttempt=s.attemptId;save();
+    track('mission_completed',{version:sub.version,passed:result.review.criteria.filter(c=>c.status==='Đạt').length,total:result.review.criteria.length});
+  }
   if(overlay==='feedback')render();
   // NOVA vui mừng khi bài đạt từ 3/4 tiêu chí.
   if(result.status==='done'&&result.review.criteria.filter(c=>c.status==='Đạt').length>=3)dispatchEvent(new CustomEvent('nova:react',{detail:'excited'}));
@@ -1017,7 +1035,7 @@ document.addEventListener('click',async ev=>{
       s.mode=id;save();renderModal();renderCaseMode();
       modal.querySelector(`[data-do="choose-mode"][data-id="${id}"]`)?.focus();
       return;
-    case 'intro-enter':s.introSeen=true;goDesk();overlay=location.hash==='#profile'?'portfolio':location.hash==='#result'&&s.submission?'feedback':'';break;
+    case 'intro-enter':s.introSeen=true;if(!s.attemptId)startAttempt();goDesk();overlay=location.hash==='#profile'?'portfolio':location.hash==='#result'&&s.submission?'feedback':'';break;
     case 'desk': goDesk(); overlay=''; break;
     case 'workspace': desk=false; overlay=''; break;
     case 'tab': nav(id); overlay=''; break;
@@ -1119,14 +1137,7 @@ document.addEventListener('click',async ev=>{
     }
     case 'undo-reset':case 'reset':
       if(action==='reset'){
-        // Lượt đang có bài nộp được chuyển sang mục Lượt trước, kèm mọi phiên bản.
-        const versions=allSubmissions();
-        if(versions.length){
-          // Giữ payload: gợi ý CV của lượt cũ cần số hồ sơ đã sàng lọc và số câu đã xác minh.
-          const run={id:versions[0].id,archivedAt:Date.now(),mode:s.mode,versions};
-          write(key+'-portfolio',[run,...pastRuns().filter(r=>r.id!==run.id)]);
-        }
-        write(key+'-before-reset',s);s=initial();
+        resetRun();
       }else{
         s=restoreChannelTabs(migrate(read(key+'-before-reset',s)));write(key+'-before-reset',null);if(s.tab===jdTab)s.tab='Inbox';
         // Lượt được khôi phục trở lại là lượt hiện tại, không lặp ở mục Lượt trước.
@@ -1203,9 +1214,12 @@ document.addEventListener('submit',ev=>{
     if(!s.recommendation.trim()){recError.hidden=false;ev.target.querySelector('#recommendation').focus();return;}
     if(s.submission?.ai?.status==='pending')return;
     // Nộp lại không ghi đè: bản trước chuyển vào lịch sử để người học đối chiếu.
+    if(!s.attemptId)s.attemptId=window.vvNewId?.()??String(Date.now());
+    const resubmit=allSubmissions().length>0;
     if(s.submission)(s.history??=[]).push(s.submission);
     const version=(s.history?.length??0)+1;
-    s.submission={id:Date.now(),version,submittedAt:Date.now(),ids:proposals(),posts:structuredClone(s.posts),decisions:structuredClone(s.ats),recommendation:s.recommendation,feedback:report(),payload:reviewPayload()};
+    s.submission={id:Date.now(),version,submittedAt:Date.now(),attemptId:s.attemptId,ids:proposals(),posts:structuredClone(s.posts),decisions:structuredClone(s.ats),recommendation:s.recommendation,feedback:report(),payload:reviewPayload()};
+    track(resubmit?'mission_resubmitted':'mission_submitted',{version,attempt_version:version});
     viewVersion=null;
     overlay='feedback';
     requestReview(s.submission);
@@ -1214,6 +1228,22 @@ document.addEventListener('submit',ev=>{
 });
 modal.addEventListener('cancel',event=>{if(overlay.startsWith('intro-')||overlay==='jd-guide'||overlay==='posting-guide')event.preventDefault();});
 modal.addEventListener('close',()=>{if(!modal.open)overlay='';});
+// Nút "Làm lại từ đầu" cạnh "Quay lại Career Map" (feedback 18/11): mở hộp xác nhận Chơi lại case có sẵn.
+{
+  const ret=$('.case-return'),box=document.createElement('div');
+  box.className='case-actions';
+  ret.replaceWith(box);
+  box.innerHTML=`<button type="button" class="case-restart" data-do="replay"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.3-5.6M4 4v4.5h4.5"/></svg>Làm lại từ đầu</button>`;
+  box.append(ret);
+}
+// Đến từ nút Làm lại ở Career Map / trang Workspace / Hồ sơ (đã xác nhận ở trang trước).
+if(location.hash==='#restart'){
+  resetRun();desk=true;overlay='intro-role';
+  history.replaceState(null,'',location.pathname+location.search);
+}else if(location.hash.startsWith('#result=')&&s.introSeen){
+  const id=decodeURIComponent(location.hash.slice(8)),index=allSubmissions().findIndex(x=>String(x.id)===id);
+  if(index>=0){viewVersion=index;overlay='feedback';}
+}
 render();
 setInterval(refreshDeliveryUI,250);
 // Bấm "Hồ sơ thực hành" trong menu tài khoản khi đang ở Workspace: chỉ đổi hash, nên mở Hồ sơ trải nghiệm tại chỗ.

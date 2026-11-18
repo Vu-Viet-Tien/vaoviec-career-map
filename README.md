@@ -74,3 +74,16 @@ Doanh thu tuần 45 giảm 18%. Người học đọc doanh thu 4 tuần, theo k
 ## MISSION_006 · FP&A Analyst
 
 Tháng 10 lỗ 20 triệu thay vì lãi 350 triệu. Người học đọc báo cáo chênh lệch, ghi chú các phòng, chi phí vận chuyển theo tháng, kế hoạch quý IV và báo giá mới; chọn 3 khoản chênh lệch, viết bản ghi nhớ, chọn hành động và 2 chỉ số, trả lời chị Vân kèm ước tính tác động. Bẫy: giá vốn "nhờ nhà cung cấp", lạm phát, khoản 5 triệu, coi lương thấp là tiết kiệm, cắt 50% marketing trước 11/11, đính kèm bảng lương. Rubric M06-A (bản nháp).
+
+## Theo dõi hành vi (Vercel Analytics, 18/11)
+
+`dist/analytics.js` cung cấp `window.vvTrack(name, data)`. Bốn sự kiện nhiệm vụ, bắn từ `workspace/mission-engine.js` (MISSION_002–006) và `workspace/talent-acquisition-assets/app.js` (MISSION_001):
+
+| Sự kiện | Khi nào |
+|---|---|
+| `mission_started` | Bắt đầu một lượt chơi (vào Workspace sau phần giới thiệu, hoặc sau khi bấm Làm lại từ đầu) |
+| `mission_submitted` | Nộp bài lần đầu trong lượt chơi |
+| `mission_completed` | Lượt chơi nhận được kết quả AI lần đầu (kèm `passed`/`total`) |
+| `mission_resubmitted` | Sửa và nộp lại trong cùng lượt chơi (kèm `version`) |
+
+Mỗi sự kiện có `mission_id`, `anon_id` (ngẫu nhiên, lưu ở localStorage — đếm người duy nhất), `session_id` (sessionStorage), `attempt_id` (đổi khi Làm lại từ đầu — đếm lượt chơi), `ts` (ISO), `mode`. Chạy local thì sự kiện chỉ ghi ra console và `sessionStorage["vaoviec-events-debug"]`. Custom events của Vercel cần gói Pro trở lên.

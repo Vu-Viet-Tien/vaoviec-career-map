@@ -235,3 +235,46 @@ html[data-theme="dark"] .home-continue strong { color: #eef3fb; }
 
 /* Chữ chỉ dành cho trình đọc màn hình. */
 .sr-only { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+/* ---------- Feedback 18/11 ---------- */
+/* Nút Làm lại từ đầu: phụ, không tranh chú ý với nút chính; hover chuyển đỏ nhạt để báo hành động xoá bài đang làm. */
+.restart-link { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border: 1px solid var(--vv-line); border-radius: 999px; background: var(--vv-surface); color: var(--vv-muted); font: 600 13px/1.2 var(--vv-font); cursor: pointer; white-space: nowrap; }
+.restart-link svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; transition: transform .35s var(--vv-ease); }
+.restart-link:hover { border-color: #e7a1ae; color: #b3263e; background: #fff5f6; }
+.restart-link:hover svg { transform: rotate(-200deg); }
+.hub-side { display: grid; justify-items: stretch; gap: 8px; }
+.hub-side .restart-link { justify-content: center; }
+.hub-done .hub-actions .restart-link { margin-left: auto; }
+.pf-actions .restart-link { margin-left: auto; }
+
+.pf-when { display: inline-flex; align-items: center; gap: 6px; margin-top: 6px !important; font-size: 13px; font-weight: 600; color: var(--vv-ink) !important; }
+.pf-when svg { width: 15px; height: 15px; fill: none; stroke: var(--tone); stroke-width: 2; stroke-linecap: round; }
+.pf-vblock { margin-top: 18px; padding: 16px; border-radius: var(--vv-r-md); background: color-mix(in srgb, var(--tone) 5%, var(--vv-bg)); border: 1px solid var(--vv-line); }
+.pf-vtitle { margin: 0 0 10px !important; font-size: 13.5px; font-weight: 700; color: var(--vv-ink) !important; }
+.pf-vtitle span { font-weight: 500; color: var(--vv-muted); }
+.pf-versions { margin-top: 0; }
+button.pf-version { cursor: pointer; background: var(--vv-surface); font-family: var(--vv-font); }
+button.pf-version:hover { border-color: var(--tone); color: var(--vv-ink); }
+button.pf-version.past { border-style: dashed; }
+button.pf-version[aria-pressed=true] { border-color: var(--tone); color: var(--vv-ink); box-shadow: 0 0 0 3px color-mix(in srgb, var(--tone) 18%, transparent); }
+button.pf-version[aria-pressed=true] b { background: var(--tone); color: #fff; }
+.pf-version:last-of-type { border-color: var(--vv-line); color: var(--vv-muted); }
+.pf-vdetail { margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--vv-line); animation: pf-in .25s var(--vv-ease); }
+.pf-vdetail .pf-criteria { margin-top: 10px !important; }
+.pf-vhead { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin: 0 !important; }
+.pf-vhead strong { font-size: 15px; color: var(--vv-navy); }
+.pf-vhead span { font-size: 13px; }
+.pf-summary { margin-top: 12px !important; font-size: 14px; line-height: 1.6; color: var(--vv-ink) !important; }
+.pf-priority { margin-top: 8px !important; padding: 10px 12px; border-radius: 10px; background: var(--vv-blue-soft); font-size: 13.5px; line-height: 1.55; color: var(--vv-ink) !important; }
+.pf-vfoot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 14px; margin-top: 10px !important; font-size: 13px; }
+@keyframes pf-in { from { opacity: 0; transform: translateY(-4px); } }
+
+/* Career Map: dòng phụ dưới nút chính của nhiệm vụ. */
+.mission-more { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin-top: 10px; }
+.mission-more .restart-link { margin-left: auto; }
+@media (max-width: 560px) {
+  .pf-actions .restart-link, .hub-done .hub-actions .restart-link { margin-left: 0; }
+  .pf-vblock { padding: 12px; }
+}
+@media (prefers-reduced-motion: reduce) { .pf-vdetail { animation: none; } }
+html[data-theme="dark"] .restart-link:hover { background: #3b1518; border-color: #7a2b37; color: #fca5a5; }

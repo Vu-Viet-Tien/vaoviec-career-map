@@ -26,6 +26,21 @@ const save = () => {
   s.progress = { done: TABS.filter(([id]) => done[id]()).length, total: TABS.length, label: s.submission ? 'Đã gửi đề xuất' : next ? next[1] : `Gửi đề xuất cho ${CASE.managerShort}` };
   write(KEY, s);
 };
+
+// ---------- Theo dõi hành vi (feedback 18/11) ----------
+// attempt_id = một lượt chơi; đổi khi bấm Làm lại từ đầu. Bài nộp mang attempt_id để phân biệt nộp lần đầu và nộp lại.
+const track = (name, extra = {}) => window.vvTrack?.(name, { mission_id: CASE.id, attempt_id: s.attemptId ?? '', mode: s.mode || '', ...extra });
+function startAttempt() {
+  s.attemptId = window.vvNewId?.() ?? String(Date.now());
+  save();
+  track('mission_started');
+}
+// Làm lại từ đầu: các bản đã nộp vẫn giữ trong lịch sử (Hồ sơ trải nghiệm), bài đang làm được xoá.
+function restart() {
+  s = Object.assign(initial(), { introSeen: s.introSeen, mode: s.mode, history: allSubs() });
+  overlay = ''; viewVersion = null; errors = {};
+  if (s.introSeen) startAttempt(); else save();
+}
 const app = $('#app'), modal = $('#dialog');
 
 renderSiteHeader({ active: 'workspace', exploreUrl: `/#/roles/${UI.slug}`, inCase: true });
@@ -232,6 +247,11 @@ async function aiReview(sub) {
   finally { clearTimeout(t); }
   if (s.submission?.id !== sub.id) return;
   s.submission.ai = result; save();
+  // mission_completed: lần đầu lượt chơi này nhận được kết quả AI.
+  if (result.status === 'done' && s.completedAttempt !== s.attemptId) {
+    s.completedAttempt = s.attemptId; save();
+    track('mission_completed', { version: sub.version, passed: result.review.criteria.filter(c => c.status === 'Đạt').length, total: result.review.criteria.length });
+  }
   if (overlay === 'feedback') renderModal();
   render();
   if (result.status === 'done' && result.review.criteria.filter(c => c.status === 'Đạt').length >= 3) dispatchEvent(new CustomEvent('nova:react', { detail: 'excited' }));
@@ -323,7 +343,7 @@ document.addEventListener('click', e => {
     case 'tab': s.tab = id; if (id === 'brief') s.read.brief = true; errors = {}; overlay = ''; renderModal(); save(); render(); scrollTo({ top: 0, behavior: 'smooth' }); return;
     case 'intro-company': case 'intro-mode': open(action); return;
     case 'mode': s.mode = id; save(); renderModal(); stagesBar(); return;
-    case 'intro-enter': s.introSeen = true; s.read.brief = true; save(); overlay = location.hash === '#profile' ? 'portfolio' : ''; renderModal(); render(); return;
+    case 'intro-enter': s.introSeen = true; s.read.brief = true; if (!s.attemptId) startAttempt(); save(); overlay = location.hash === '#profile' ? 'portfolio' : ''; renderModal(); render(); return;
     case 'assistant': (s.assistUses ??= {})[assistKey()] = (s.assistUses[assistKey()] ?? 0) + 1; save(); open('assistant'); return;
     case 'feedback': viewVersion = null; open('feedback'); return;
     case 'portfolio': open('portfolio'); return;
@@ -337,7 +357,7 @@ document.addEventListener('click', e => {
         : Promise.resolve(confirm('Bắt đầu lại nhiệm vụ? Các phiên bản đã nộp vẫn được giữ trong Hồ sơ trải nghiệm.'));
       ask.then(ok => {
         if (!ok) return;
-        s = Object.assign(initial(), { introSeen: true, mode: s.mode, history: allSubs() }); save(); overlay = ''; renderModal(); render();
+        restart(); renderModal(); render();
         window.vvToast?.('Đã bắt đầu lại nhiệm vụ.', 'success');
       });
       return;
@@ -378,9 +398,12 @@ document.addEventListener('submit', e => {
     render();
     return;
   }
+  if (!s.attemptId) s.attemptId = window.vvNewId?.() ?? String(Date.now());
+  const inAttempt = allSubs().filter(x => x.attemptId === s.attemptId).length;
   if (s.submission) (s.history ??= []).push(s.submission);
-  const sub = { id: 'v' + Date.now(), version: (s.history?.length ?? 0) + 1, at: Date.now(), payload: structuredClone(payload()) };
+  const sub = { id: 'v' + Date.now(), version: (s.history?.length ?? 0) + 1, at: Date.now(), attemptId: s.attemptId, payload: structuredClone(payload()) };
   s.submission = sub; save(); render();
+  track(inAttempt ? 'mission_resubmitted' : 'mission_submitted', { version: sub.version, attempt_version: inAttempt + 1 });
   viewVersion = null; open('feedback');
   aiReview(sub);
 });
@@ -394,8 +417,26 @@ window.novaTips = () => {
   return s.mode === 'self' ? { label: `Câu hỏi định hướng · ${tip.title}`, items: tip.self } : { label: `Gợi ý · ${tip.title}`, items: tip.guided, sample: tip.sample };
 };
 
+// Nút "Làm lại từ đầu" cạnh "Quay lại Career Map" (feedback 18/11).
+{
+  const ret = $('.case-return'), box = document.createElement('div');
+  box.className = 'case-actions';
+  ret.replaceWith(box);
+  box.innerHTML = `<button type="button" class="case-restart" data-do="reset"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.3-5.6M4 4v4.5h4.5"/></svg>Làm lại từ đầu</button>`;
+  box.append(ret);
+}
+// Đến từ nút Làm lại ở Career Map / Workspace / Hồ sơ (đã xác nhận ở trang trước).
+if (location.hash === '#restart') {
+  restart();
+  history.replaceState(null, '', location.pathname + location.search);
+  setTimeout(() => window.vvToast?.('Đã bắt đầu lại nhiệm vụ. Các bản đã nộp vẫn ở Hồ sơ trải nghiệm.', 'success'), 300);
+}
 render();
-if (!s.introSeen) open('intro-role');
+if (location.hash.startsWith('#result=') && s.introSeen) {
+  viewVersion = decodeURIComponent(location.hash.slice(8));
+  open('feedback');
+}
+else if (!s.introSeen) open('intro-role');
 else if (!s.mode) open('intro-mode');
 else if (location.hash === '#profile') open('portfolio');
 else if (location.hash === '#result' && s.submission) open('feedback');

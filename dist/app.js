@@ -70,18 +70,26 @@ const scoreOf = sub => {
     pass: r.criteria.filter(c => c.status === "Đạt").length,
     total: r.criteria.length,
     effort: r.effort_level ?? "",
+    summary: r.overall_summary ?? "",
+    priority: r.priority_action ?? "",
     criteria: r.criteria.map(c => ({ ok: c.status === "Đạt", title: r.criteria_titles?.[c.id] ?? c.id }))
   };
 };
+const versionOf = (sub, i, extra = {}) => ({
+  id: String(sub.id ?? i), version: sub.version ?? i + 1, at: sub.at ?? sub.submittedAt ?? 0,
+  score: scoreOf(sub), pending: sub.ai?.status === "pending", failed: sub.ai?.status === "error", ...extra
+});
 function missionInfo(mission) {
   const state = readJSON(mission.storageKey);
   const subs = state ? [...(state.history ?? []), ...(state.submission ? [state.submission] : [])] : [];
   // Talent Acquisition cất các lượt cũ (khi bấm "Chơi lại case") ở khoá -portfolio.
-  const pastRuns = readJSON(mission.storageKey + "-portfolio") ?? [];
-  const pastVersions = pastRuns.reduce((n, run) => n + (run.versions?.length ?? 1), 0);
+  const pastRuns = (readJSON(mission.storageKey + "-portfolio") ?? []).map(run => run.versions ? run : { id: run.id, archivedAt: run.id, versions: [run] });
+  const pastVersions = pastRuns.reduce((n, run) => n + run.versions.length, 0);
+  const past = pastRuns.flatMap((run, r) => run.versions.map((sub, i) => versionOf(sub, i, { past: true, run: pastRuns.length - r, mode: run.mode ?? "" })));
   const started = !!(state && (state.introSeen || state.posts?.length || Object.keys(state.people ?? {}).length));
   const status = !state ? "new" : state.submission ? "submitted" : started ? "progress" : "new";
-  const versions = subs.map((sub, i) => ({ version: sub.version ?? i + 1, at: sub.at ?? sub.submittedAt ?? 0, score: scoreOf(sub), pending: sub.ai?.status === "pending" }));
+  const versions = subs.map((sub, i) => versionOf(sub, i));
+  const lastSubmittedAt = Math.max(0, ...versions.map(v => v.at), ...past.map(v => v.at));
   return {
     status,
     mode: state?.mode ?? "",
@@ -89,6 +97,9 @@ function missionInfo(mission) {
     progress: state?.progress ?? null,
     versions,
     pastVersions,
+    past,
+    everSubmitted: versions.length + pastVersions > 0,
+    lastSubmittedAt,
     latest: scoreOf(state?.submission),
     interest: readJSON(mission.storageKey + "-interest")?.level ?? ""
   };
@@ -248,7 +259,10 @@ function missionBlock(mission, role) {
       </dl>
       ${note ? `<p class="mission-status">${note}</p>` : ""}
       <a class="primary" href="${escape(action.url)}">${action.label}</a>
-      ${action.secondary ? `<a class="text-link mission-secondary" href="${escape(action.secondary.url)}">${action.secondary.label}</a>` : ""}
+      ${action.status !== "new" ? `<div class="mission-more">
+        ${action.secondary ? `<a class="text-link" href="${escape(action.secondary.url)}">${action.secondary.label}</a>` : ""}
+        <button type="button" class="restart-link" data-restart="${escape(workspacePath(mission, role))}" data-name="${escape(role.role_name)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.3-5.6M4 4v4.5h4.5"/></svg>Làm lại từ đầu</button>
+      </div>` : ""}
     </div>`;
 }
 
